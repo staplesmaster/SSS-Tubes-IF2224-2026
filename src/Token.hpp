@@ -1,5 +1,13 @@
 #pragma once
 
+#include <string>
+using namespace std;
+
+struct Token {
+    TokenType type;
+    string value;
+};
+
 enum TokenType{
     INTCON, // int (1, 3, 48)  
     REALCON, // riil (3.14, 26.7)
@@ -64,5 +72,7 @@ enum TokenType{
     FOR, // for 
     TO, // tp 
     DOWNTO, // downto
-    COMMENT // { }
+    COMMENT, // { } atau (*  *)
 };
+
+string typeToString(TokenType type);
