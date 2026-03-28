@@ -1,5 +1,18 @@
 #include "Lexer.hpp"
 
+const unordered_map<string, TokenType> Lexer::keywords = {
+    {"div", IDIV},
+    {"mod", MOD},
+    {"const", CONST},
+    {"type", TYPE},
+    {"var", VAR},
+    {"function", FUNCTION},
+    {"procedure", PROCEDURE},
+    {"array", ARRAY},
+    {"record", RECORD},
+    {"program", PROGRAM}
+};
+
 Lexer::Lexer(const string& input) : line(input), pos(0) {}
 
 char Lexer::peek(int offset){
@@ -173,6 +186,21 @@ Token Lexer::nextToken(){
                     state = State::STRING;
                 } else {
                     return handleSymbol();
+                }
+                break;
+            case State::IDENT:
+                while (isAlphanumeric(peek(0))) {
+                    value += adv();
+                }
+            
+                {
+                    string lower = toLower(value);
+            
+                    if (keywords.count(lower)) {
+                        return {keywords.at(lower), value};
+                    }
+            
+                    return {IDENTIFIER, value};
                 }
                 break;
         } // LANJUT DARI SINI HARUS NYA YANG LAIN 

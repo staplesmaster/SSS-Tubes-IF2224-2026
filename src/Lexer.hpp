@@ -6,6 +6,7 @@
 
 class Lexer {
 private : 
+    static const unordered_map<string, TokenType> keywords;
     enum class State {
         START,
         IDENT,
