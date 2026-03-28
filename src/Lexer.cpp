@@ -175,6 +175,45 @@ Token Lexer::nextToken(){
                     return handleSymbol();
                 }
                 break;
+            case State::INT:
+                if (isDigit(c)) {
+                    value += adv(); 
+                } else if (c == '.') {
+                    value += adv(); 
+                    state = State::REAL; 
+                } else {
+                    return {INTCON, value};  
+                }
+                break;
+
+            case State::REAL:
+                if (isDigit(c)) {
+                    value += adv(); 
+                } else {
+                    if (value.back() == '.') {
+                        throw runtime_error("Invalid real number '" + value + "'");
+                    }
+                    return {REALCON, value};
+                }
+                break;
+
+            case State::STRING:
+                if (isEnd() || c == '\n' || c == '\r') {
+                    throw runtime_error("Missing closing quote (')");
+                } 
+                else if (c == '\'') {
+                    adv(); 
+                    
+                    if (value.length() == 1) {
+                        return {CHARCON, value}; // charcon
+                    } else {
+                        return {STRING, value};  // string
+                    }
+                } 
+                else {
+                    value += adv(); 
+                }
+                break;
         } // LANJUT DARI SINI HARUS NYA YANG LAIN 
     }
 }
