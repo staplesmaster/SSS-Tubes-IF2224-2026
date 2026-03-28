@@ -31,6 +31,8 @@ private :
 
     string toLower(const string& str);
 
+    Token Lexer::handleSymbol();
+    
     Token nextToken();
 
 public: 

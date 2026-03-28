@@ -40,8 +40,7 @@ void Lexer::skip(){
             adv();
             while (!isEnd() && peek(0)!= '}') adv();
             if (isEnd()){
-                cout << "Unclosed comment" << endl;
-                return;
+                throw runtime_error("Unclosed comment");
             }
             adv();
         } else {
@@ -63,7 +62,7 @@ void Lexer::skip(){
 }
 
 string Lexer::toLower(const string& str){
-    string input;
+    string input = str;
     for (int i = 0; i < input.length(); i++){
         if (input[i] >= 'A' && input[i] <= 'Z'){
             input[i] += 32;
@@ -80,4 +79,102 @@ vector<Token> Lexer::tokenize(){
         tokens.push_back(nextToken());
     }
     return tokens;
+}
+
+Token Lexer::handleSymbol(){
+    char c = peek(0);
+    switch(c){
+        case '+':
+            adv();
+            return {PLUS, "+"};
+        case '-':
+            adv();
+            return {MINUS, "-"};
+        case '*':
+            adv();
+            return {TIMES, "*"};
+        case '/':
+            adv();
+            return {RDIV, "/"};
+        case ':':
+            adv();
+            if (peek(0)=='='){
+                adv();
+                return {ASSIGN, ":="};
+            }
+            return {COLON, ":"};
+        case '<':
+            adv();
+            if (peek(0)=='='){
+                adv();
+                return {LEQ, "<="};
+            }
+            if (peek(0)=='>'){
+                adv();
+                return {NEQ, "<>"};
+            }
+            return {LSS, "<"};
+        case '>':
+            adv();
+            if (peek(0)=='='){
+                adv();
+                return {GEQ, ">="};
+            }
+            return {GTR, ">"};
+        case '=':
+            if (peek(1)=='='){
+                adv();
+                adv();
+                return {EQL, "=="};
+            }
+            throw runtime_error("'=' must be followed by another '='");
+        case '(':
+            adv();
+            return {LPARENT, "("};
+        case ')':
+            adv();
+            return {RPARENT, ")"};
+        case '[':
+            adv();
+            return {LBRACK, "["};
+        case ']':
+            adv();
+            return {RBRACK, "]"};
+        case ';':
+            adv();
+            return {SEMICOLON, ";"};
+        case '.':
+            adv();
+            return {PERIOD, "."};
+        case ',':
+            adv();
+            return {COMMA, ","};
+        default : 
+            throw runtime_error("Unknown symbol: " + string(1, c));
+    }   
+}
+
+Token Lexer::nextToken(){
+    State state = State::START;
+    string value = "";
+
+    while (true){
+        char c = peek(0);
+        switch(state){
+            case State::START:
+                if (isAlphabet(c)){
+                    value += adv();
+                    state = State::IDENT;
+                } else if (isDigit(c)){
+                    value += adv();
+                    state = State::INT;
+                } else if (c == '\''){
+                    adv();
+                    state = State::STRING;
+                } else {
+                    return handleSymbol();
+                }
+                break;
+        } // LANJUT DARI SINI HARUS NYA YANG LAIN 
+    }
 }
