@@ -39,7 +39,7 @@ int main() {
     string baseName = (dotIndex != string::npos) ? filename.substr(0, dotIndex) : filename;
     string extension = (dotIndex != string::npos) ? filename.substr(dotIndex) : ".txt";
     
-    string outputFilePath = "test/milestone-1" + baseName + "Lex" + extension;
+    string outputFilePath = "test/milestone-1/" + baseName + "Lex" + extension;
 
     ofstream outputFile(outputFilePath);
     if (!outputFile.is_open()) {
