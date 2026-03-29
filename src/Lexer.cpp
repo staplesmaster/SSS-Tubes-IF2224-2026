@@ -10,8 +10,28 @@ const unordered_map<string, TokenType> Lexer::keywords = {
     {"procedure", PROCEDURE},
     {"array", ARRAY},
     {"record", RECORD},
-    {"program", PROGRAM}
-};
+    {"program", PROGRAM},
+
+    {"begin", BEGIN},
+    {"end", END},
+    {"if", IF},
+    {"then", THEN},
+    {"else", ELSE},
+    {"case", CASE},
+    {"of", OF},
+    {"repeat", REPEAT},
+    {"until", UNTIL},
+    {"while", WHILE},
+    {"do", DO},
+    {"for", FOR},
+    {"to", TO},
+    {"downto", DOWNTO},
+
+    {"div", IDIV},
+    {"mod", MOD},
+    {"and", AND},
+    {"or", OR},
+    {"not", NOT}};
 
 Lexer::Lexer(const string& input) : line(input), pos(0) {}
 
