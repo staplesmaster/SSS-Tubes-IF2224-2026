@@ -202,7 +202,7 @@ Token Lexer::nextToken(){
                     value += adv();
                     state = State::INT;
                 } else if (c == '\''){
-                    adv();
+                    value += adv();
                     state = State::STRING;
                 } else {
                     return handleSymbol();
@@ -250,9 +250,9 @@ Token Lexer::nextToken(){
                     throw runtime_error("Missing closing quote (')");
                 } 
                 else if (c == '\'') {
-                    adv(); 
+                    value += adv(); 
                     
-                    if (value.length() == 1) {
+                    if (value.length() == 3) {
                         return {CHARCON, value}; // charcon
                     } else {
                         return {STRING, value};  // string
