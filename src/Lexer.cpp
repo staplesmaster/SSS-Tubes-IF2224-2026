@@ -65,6 +65,10 @@ bool Lexer::isSpace(char c){
     return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
+bool Lexer::isOperatorChar(char c){
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '=' || c == '<' || c == '>' || c == '!' || c == ':';
+}
+
 void Lexer::skip(){
     while (!isEnd()){
         if (isSpace(peek(0))){
@@ -119,15 +123,27 @@ Token Lexer::handleSymbol(){
     switch(c){
         case '+':
             adv();
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '+'");
+            }
             return {PLUS, "+"};
         case '-':
             adv();
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '-'");
+            }
             return {MINUS, "-"};
         case '*':
             adv();
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '*'");
+            }
             return {TIMES, "*"};
         case '/':
             adv();
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '/'");
+            }
             return {RDIV, "/"};
         case ':':
             adv();
@@ -135,9 +151,12 @@ Token Lexer::handleSymbol(){
                 adv();
                 return {ASSIGN, ":="};
             }
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, ':') + string(1, peek(0)) + "'");
+            }
             return {COLON, ":"};
         case '<':
-            adv();
+            adv();            
             if (peek(0)=='='){
                 adv();
                 return {LEQ, "<="};
@@ -146,12 +165,19 @@ Token Lexer::handleSymbol(){
                 adv();
                 return {NEQ, "<>"};
             }
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '<'");
+            }
             return {LSS, "<"};
+            
         case '>':
             adv();
             if (peek(0)=='='){
                 adv();
                 return {GEQ, ">="};
+            }
+            if (isOperatorChar(peek(0))){
+                throw runtime_error("Invalid operator '" + string(1, peek(0)) + "' after '>'");
             }
             return {GTR, ">"};
         case '=':

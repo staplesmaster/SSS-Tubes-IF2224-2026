@@ -29,6 +29,7 @@ private :
     bool isDigit(char c);
     bool isAlphanumeric(char c);
     bool isSpace(char c);
+    bool isOperatorChar(char c);
 
     string toLower(const string& str);
 
