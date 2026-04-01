@@ -35,11 +35,11 @@ int main() {
         return 1;
     }
 
-    size_t dotIndex = filename.find_last_of('.');
-    string baseName = (dotIndex != string::npos) ? filename.substr(0, dotIndex) : filename;
-    string extension = (dotIndex != string::npos) ? filename.substr(dotIndex) : ".txt";
+    int lastIndex = filename.find_last_of('.');
+    string baseName = (lastIndex != int(string::npos)) ? filename.substr(0, lastIndex) : filename;
+    string extension = (lastIndex != int(string::npos)) ? filename.substr(lastIndex) : ".txt";
     
-    string outputFilePath = "test/milestone-1/" + baseName + "Lex" + extension;
+    string outputFilePath = "test/milestone-1/" + baseName + "-Result" + extension;
 
     ofstream outputFile(outputFilePath);
     if (!outputFile.is_open()) {
@@ -47,17 +47,42 @@ int main() {
         return 1;
     }
 
-    for (const Token& token : tokens) {
+    int previousEnd = 0;
+    bool firstToken = true;
+
+    for (Token& token : tokens) {
+        int newlineCount = 0;
+        for (size_t i = previousEnd; i < token.start && i < sourceCode.size(); ++i) {
+            if (sourceCode[i] == '\n') {
+                ++newlineCount;
+            }
+        }
+
+        int extraBlankLines = 0;
+        if (firstToken) {
+            extraBlankLines = newlineCount;
+        } else if (newlineCount > 0) {
+            extraBlankLines = newlineCount - 1;
+        }
+
+        for (int i = 0; i < extraBlankLines; ++i) {
+            outputFile << endl;
+        }
+
         string typeStr = typeToString(token.type);
+        string lexeme = sourceCode.substr(token.start, token.end - token.start);
         
         if (token.type == TokenType::IDENTIFIER || token.type == TokenType::INTCON || 
             token.type == TokenType::REALCON || token.type == TokenType::STRING || token.type == TokenType::CHARCON) {
             
-            outputFile << typeStr << " (" << token.value << ")" << endl;
+            outputFile << typeStr << " (" << lexeme << ")" << endl;
             
         } else {
             outputFile << typeStr << endl;
         }
+
+        previousEnd = token.end;
+        firstToken = false;
     }
 
     outputFile.close();

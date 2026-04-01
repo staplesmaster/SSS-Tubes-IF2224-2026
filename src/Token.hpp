@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 using namespace std;
 
@@ -73,6 +74,8 @@ enum TokenType{
 struct Token {
     TokenType type;
     string value;
+    size_t start;
+    size_t end;
 };
 
 string typeToString(TokenType type);
