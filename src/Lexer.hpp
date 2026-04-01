@@ -12,6 +12,7 @@ private :
         INT,
         REAL,
         STRING,
+        QUOTE_END,
 
         COLON,
         LT, // smaller

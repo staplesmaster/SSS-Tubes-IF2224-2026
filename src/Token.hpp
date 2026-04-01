@@ -69,6 +69,7 @@ enum TokenType{
     TO, // tp 
     DOWNTO, // downto
     COMMENT, // { } atau (*  *)
+    UNKNOWN
 };
 
 struct Token {

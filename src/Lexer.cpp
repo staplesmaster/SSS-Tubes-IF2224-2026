@@ -285,17 +285,28 @@ Token Lexer::nextToken() {
 
             case State::STRING:
                 if (isEnd() || c == '\n' || c == '\r') {
-                    throw runtime_error("Missing closing quote (')");
+                    return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 if (c == '\'') {
                     adv();
+                    state = State::QUOTE_END;
+                } else {
+                    adv();
+                    ++stringLen;
+                }
+                break;
+            
+            case State::QUOTE_END:
+                if (c == '\'') {
+                    adv();
+                    ++stringLen;
+                    state = State::STRING;
+                } else {
                     if (stringLen == 1) {
                         return makeToken(CHARCON, tokenStart, pos);
                     }
                     return makeToken(STRING, tokenStart, pos);
                 }
-                adv();
-                ++stringLen;
                 break;
 
             case State::COLON:

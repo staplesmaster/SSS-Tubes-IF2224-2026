@@ -106,6 +106,8 @@ string typeToString(TokenType type){
             return "downtosy";
         case COMMENT :
             return "comment";
+        case UNKNOWN :
+            return "unknown";
     }
     return "unknown";
 }
