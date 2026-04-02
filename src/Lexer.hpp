@@ -145,7 +145,7 @@ private :
 
     string line; 
 
-    size_t pos;
+    int pos;
 
     char current();
     char adv ();

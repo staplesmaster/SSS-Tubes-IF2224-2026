@@ -75,8 +75,8 @@ enum TokenType{
 struct Token {
     TokenType type;
     string value;
-    size_t start;
-    size_t end;
+    int start;
+    int end;
 };
 
 string typeToString(TokenType type);

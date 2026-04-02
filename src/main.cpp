@@ -52,7 +52,7 @@ int main() {
 
     for (Token& token : tokens) {
         int newlineCount = 0;
-        for (size_t i = previousEnd; i < token.start && i < sourceCode.size(); ++i) {
+        for (int i = previousEnd; i < token.start && i < (int)sourceCode.size(); ++i) {
             if (sourceCode[i] == '\n') {
                 ++newlineCount;
             }

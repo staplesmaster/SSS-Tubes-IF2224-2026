@@ -19,7 +19,7 @@ char Lexer::adv() {
 }
 
 bool Lexer::isEnd() {
-    return pos >= line.size();
+    return pos >= (int)line.size();
 }
 
 bool Lexer::isAlphabet(char c) {
