@@ -211,7 +211,7 @@ Token Lexer::nextToken() {
                 } else if (c == '-') {
                     tokenStart = pos;
                     adv();
-                    return makeToken(MINUS, tokenStart, pos);
+                    state = State::MINUS;
                 } else if (c == '*') {
                     tokenStart = pos;
                     adv();
@@ -250,6 +250,14 @@ Token Lexer::nextToken() {
                     return makeToken(PERIOD, tokenStart, pos);
                 } else {
                     throw runtime_error("Unknown symbol: " + string(1, c));
+                }
+                break;
+            case State::MINUS:
+                if (isDigit(c)){
+                    state = State::INT;
+                    adv();
+                }else{
+                    return makeToken(MINUS, tokenStart,pos);
                 }
                 break;
 

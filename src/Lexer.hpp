@@ -13,6 +13,7 @@ private :
         REAL,
         STRING,
         QUOTE_END,
+        MINUS,
 
         COLON,
         LT, // smaller
