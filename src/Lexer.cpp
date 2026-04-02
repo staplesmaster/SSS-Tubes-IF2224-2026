@@ -171,7 +171,6 @@ vector<Token> Lexer::tokenize() {
 Token Lexer::nextToken() {
     State state = State::START;
     int tokenStart = pos;
-    bool hasFraction = false;
 
     while (true) {
         char c = current();
@@ -341,14 +340,18 @@ Token Lexer::nextToken() {
                         adv();
                         state = State::REAL;
                     } else {
-                        return makeToken(UNKNOWN, tokenStart, pos);
+                        adv();
+                        state = State::UNKNOWN;
                     }
                     break;
                 case State::REAL:
                     if (isDigit(c)) {
                         adv();
-                    } else {
+                    }else if (isSymbol(c)){
                         return makeToken(REALCON, tokenStart, pos);
+                    } else {
+                        adv();
+                        state = State::UNKNOWN;
                     }
                     break;
             case State::STRING:

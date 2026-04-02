@@ -21,9 +21,7 @@ ident (v3)
 colon
 arraysy
 lbrack
-unknown (1.)
-period
-intcon (3)
+unknown (1..3)
 rbrack
 ofsy
 ident (integer)

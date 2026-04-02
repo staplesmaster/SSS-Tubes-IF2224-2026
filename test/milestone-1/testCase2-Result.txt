@@ -41,9 +41,7 @@ ident (con)
 colon
 ident (real)
 semicolon
-
-
-ident (function)
+functionsy
 ident (sort)
 lparent
 arraysy
@@ -196,8 +194,7 @@ ident (c)
 becomes
 ident (a)
 plus
-unknown (')
-unknown (')
+charcon (' ')
 plus
 ident (b)
 plus

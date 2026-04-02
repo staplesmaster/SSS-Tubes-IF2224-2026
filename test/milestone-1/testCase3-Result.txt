@@ -69,13 +69,11 @@ semicolon
 
 ident (repeatCoy)
 becomes
-unknown (')
-unknown (@')
+charcon ('@')
 semicolon
 ident (repeatCoy)
 becomes
-unknown (')
-unknown (%')
+charcon ('%')
 semicolon
 ident (repeatCoy)
 becomes
@@ -85,8 +83,7 @@ string ('')
 semicolon
 ident (repeatCoy)
 becomes
-unknown (')
-unknown (~~~')
+string ('~~~')
 semicolon
 ident (repeatCoy)
 becomes
