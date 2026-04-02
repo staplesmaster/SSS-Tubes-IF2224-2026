@@ -22,6 +22,29 @@ bool Lexer::isEnd() {
     return pos >= (int)line.size();
 }
 
+bool Lexer::isSymbol(char c) {
+    switch (c) {
+        case '+':
+        case '-':
+        case '*':
+        case '/':
+        case '<':
+        case '>':
+        case ':':
+        case '(':
+        case ')':
+        case '[':
+        case ']':
+        case ';':
+        case ',':
+        case '.':
+        case ' ':
+            return true;
+        default:
+            return false;
+    }
+}
+
 bool Lexer::isAlphabet(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
@@ -200,10 +223,6 @@ Token Lexer::nextToken() {
                     tokenStart = pos;
                     adv();
                     state = State::GT;
-                } else if (c == '=') {
-                    tokenStart = pos;
-                    adv();
-                    state = State::EQ;
                 } else if (c == '+') {
                     tokenStart = pos;
                     adv();
@@ -249,15 +268,17 @@ Token Lexer::nextToken() {
                     adv();
                     return makeToken(PERIOD, tokenStart, pos);
                 } else {
+                    tokenStart = pos;
                     adv();
                     state = State::UNKNOWN;
                 }
                 break;
             
             case State::UNKNOWN:
-                if (isAlphanumeric(c)) {
+                if (isAlphanumeric(c) || !isSymbol(c)) {
                     adv();
-                }else{
+                }
+                else{
                     return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 break;
@@ -284,8 +305,8 @@ Token Lexer::nextToken() {
                     state = State::REAL;
                     hasFraction = false;
                 }else if(isAlphabet(c)){
-                    state = State::UNKNOWN;
                     adv();
+                    state = State::UNKNOWN;
                 }
                 else {
                     return makeToken(INTCON, tokenStart, pos);
@@ -359,9 +380,11 @@ Token Lexer::nextToken() {
                 if (c == '=') {
                     adv();
                     return makeToken(EQL, tokenStart, pos);
+                }else{
+                    adv();
+                    state = State::UNKNOWN;
                 }
-                throw runtime_error("'=' must be followed by another '='");
-
+                break;
             case State::A:
                 if (isAlphanumeric(c)) {
                     if (lower == 'n') {

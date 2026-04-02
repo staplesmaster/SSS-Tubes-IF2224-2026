@@ -14,6 +14,7 @@ private :
         STRING,
         QUOTE_END,
         MINUS,
+        UNKNOWN,
 
         COLON,
         LT, // smaller
@@ -143,6 +144,7 @@ private :
         COMMENT_BODY,
         COMMENT_STAR
     };
+    
 
     string line; 
 
@@ -158,6 +160,7 @@ private :
     bool isDigit(char c);
     bool isAlphanumeric(char c);
     bool isSpace(char c);
+    bool isSymbol(char c);
 
     char toLowerChar(char c);
     Token makeToken(TokenType type, int start, int end);
