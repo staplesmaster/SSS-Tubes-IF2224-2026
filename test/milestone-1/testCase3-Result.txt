@@ -1,0 +1,126 @@
+programsy
+ident (Test3)
+semicolon
+
+varsy
+colon
+unknown (4cho)
+comma
+ident (cho)
+comma
+ident (ending)
+colon
+ident (string)
+ident (abcdaco)
+comma
+ident (i)
+colon
+ident (integer)
+ident (repeatCoy)
+colon
+ident (string)
+semicolon
+
+proceduresy
+ident (printString)
+lparent
+ident (string)
+unknown (4cho)
+rparent
+colon
+ident (print)
+lparent
+unknown (4cho)
+rparent
+semicolon
+
+beginsy
+ident (abcdaco)
+becomes
+intcon (10)
+semicolon
+ident (i)
+becomes
+intcon (0)
+semicolon
+ident (cho)
+becomes
+string ('Pria_Sawit@PriaSolo.co.id')
+semicolon
+semicolon
+whilesy
+lparent
+ident (i)
+leq
+ident (abcdaco)
+rparent
+dosy
+ident (printString)
+lparent
+ident (cho)
+rparent
+semicolon
+ident (i)
+becomes
+ident (i)
+plus
+intcon (1)
+semicolon
+
+ident (repeatCoy)
+becomes
+unknown (')
+unknown (@')
+semicolon
+ident (repeatCoy)
+becomes
+unknown (')
+unknown (%')
+semicolon
+ident (repeatCoy)
+becomes
+string ('SAYA MEMBACA ')
+string ('KBBI')
+string ('')
+semicolon
+ident (repeatCoy)
+becomes
+unknown (')
+unknown (~~~')
+semicolon
+ident (repeatCoy)
+becomes
+string ('')
+unknown (')
+semicolon
+ident (repeatCoy)
+becomes
+string ('')
+ident (a)
+string ('')
+semicolon
+
+repeatsy
+lparent
+ident (i)
+geq
+ident (abcdaco)
+rparent
+untilsy
+ident (print)
+lparent
+ident (repeatCoy)
+rparent
+semicolon
+ident (i)
+becomes
+ident (i)
+rdiv
+intcon (2)
+semicolon
+
+ident (ending)
+becomes
+string ('11')
+endsy
+period

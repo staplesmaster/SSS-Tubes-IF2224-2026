@@ -1,0 +1,79 @@
+{ state skip: brace comment }
+(* 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+NikO TITIT
+*)
+
+program p5;
+const c1 := 123;
+type t1 = record end;
+var v1, v2, v3: array[1..3] of integer;
+
+function f1(a1: integer): integer;
+begin
+    if a1 >= 10 then
+        a1 := a1 - 1
+    else
+        a1 := a1 + 2;
+    f1 := a1 div 2 mod 3;
+end;
+
+procedure p1;
+begin
+    repeat
+        while v1 < v2 do
+            v1 := v1 + 1;
+        for v3 := 10 downto 1 do
+            v2 := v2 * 2 / 4;
+    until v1 = v2;
+end;
+
+begin
+    v1 := -42;
+    v2 := 3.1415;
+    v3 := 9abc;
+
+    p1;
+    p1();
+    p1[1], p1[2];
+
+    and andx
+    array arrayx
+    begin beginx
+    case casex
+    const constx
+    do dox
+    downto downtox
+    else elsex
+    end endx
+    for forx
+    function functionx
+    if ifx
+    mod modx
+    not notx
+    of ofx
+    or orx
+    procedure procedurex
+    program programx
+    record recordx
+    repeat repeatx
+    then thenx
+    to tox
+    type typex
+    until untilx
+    var varx
+    while whilex
+
+    'a';
+    'ab';
+    ''; 
+    ''';
+
+    : := < <= <> > >= + - * / ( ) [ ] , ; .
+    @ @@
+end.

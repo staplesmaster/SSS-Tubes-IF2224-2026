@@ -1,0 +1,195 @@
+programsy
+ident (Test4)
+semicolon
+
+typesy
+ident (Point)
+lparent
+ident (x)
+comma
+ident (y)
+colon
+ident (integer)
+semicolon
+rparent
+
+recordsy
+lparent
+ident (employee)
+comma
+lparent
+ident (id)
+comma
+ident (name)
+rparent
+semicolon
+rparent
+
+varsy
+colon
+ident (now)
+comma
+ident (ends)
+colon
+ident (Point)
+semicolon
+ident (i)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (now)
+becomes
+ident (Point)
+lparent
+intcon (0)
+comma
+intcon (0)
+rparent
+semicolon
+ident (ends)
+becomes
+ident (Point)
+lparent
+intcon (10)
+comma
+intcon (10)
+rparent
+semicolon
+forsy
+ident (i)
+becomes
+intcon (10)
+downtosy
+intcon (0)
+dosy
+casesy
+ident (i)
+imod
+intcon (2)
+unknown (==)
+intcon (0)
+colon
+ident (now)
+period
+ident (x)
+becomes
+ident (now)
+period
+ident (x)
+plus
+intcon (1)
+semicolon
+ident (now)
+period
+ident (y)
+becomes
+ident (now)
+period
+ident (y)
+plus
+intcon (1)
+semicolon
+casesy
+ident (i)
+imod
+intcon (2)
+neq
+intcon (1)
+colon
+ident (ends)
+period
+ident (x)
+becomes
+endsy
+period
+ident (x)
+minus
+intcon (1)
+semicolon
+ident (ends)
+period
+ident (y)
+becomes
+endsy
+period
+ident (y)
+minus
+intcon (1)
+semicolon
+
+forsy
+ident (i)
+becomes
+intcon (0)
+tosy
+intcon (10)
+dosy
+casesy
+ident (i)
+imod
+intcon (2)
+neq
+intcon (0)
+colon
+ident (now)
+period
+ident (x)
+becomes
+ident (now)
+period
+ident (x)
+plus
+intcon (1)
+semicolon
+ident (now)
+period
+ident (y)
+becomes
+ident (now)
+period
+ident (y)
+plus
+intcon (1)
+semicolon
+casesy
+ident (i)
+imod
+intcon (2)
+unknown (==)
+intcon (1)
+colon
+ident (ends)
+period
+ident (x)
+becomes
+endsy
+period
+ident (x)
+minus
+intcon (1)
+semicolon
+ident (ends)
+period
+ident (y)
+becomes
+endsy
+period
+ident (y)
+minus
+intcon (1)
+semicolon
+ident (print)
+lparent
+string ('Point = ')
+comma
+ident (x)
+comma
+string ('And')
+comma
+ident (y)
+rparent
+semicolon
+endsy
+period

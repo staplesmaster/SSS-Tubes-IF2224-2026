@@ -1,0 +1,53 @@
+intcon done
+realcon done
+charcon done
+string done
+notsy done
+plus done
+minus done
+times done
+idiv done
+rdiv done
+imod done
+andsy done
+orsy done
+eql done
+neq done
+gtr
+geq
+lss
+leq
+lparent 
+rparent 
+lbrack done
+rbrack done
+comma done
+semicolon done
+period done
+colon done
+becomes done
+constsy done
+typesy
+varsy done
+functionsy done
+proceduresy
+arraysy done
+recordsy
+programsy done
+ident done
+begins done
+ifsy done
+casesy
+repeatsy
+whilesy
+forsy done
+endsy done
+elsesy done
+untilsy
+ofsy
+dosy
+tosy
+downtosy
+thensy done
+comment done
+

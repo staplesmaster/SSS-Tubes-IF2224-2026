@@ -1,0 +1,45 @@
+program Test2;
+
+var
+   a, b, c: string;
+   c: real;
+   d: char;
+   e, f, i, j: integer;
+   arr: array of integer;
+
+const 
+   con: real;
+
+{ Fungsi untuk sorting array }
+function sort(array a, int n):
+   for(i := 0; i < n; i := i + 1):
+	idx := -1;
+	max := arr[i];
+
+      for(j := ; j < n; j := j + 1):
+         if (arr[j] > max) then
+            max := arr[j];
+            idx := j;
+
+	if(idx <> -1) then
+		arr[j] := arr[idx];
+		arr[i] := max;
+		
+begin
+   con := 10.02;
+   a := 'Geraldo';
+   b := 'Lapar';
+   d := 'L';
+   arr[0] := 1.0;
+   arr[1] := 2.0;
+   arr[3] := 1.2;
+
+   sort(arr, 3);
+
+   c := a + ' ' + b + c + 'Banget';
+   if (not(con) AND arr[0] + 1.0 == 2.0) then:
+	c := 'terhebat';
+
+   else if (a == 'Geraldo' OR arr[1] > con) then:
+	   arr[1] := arr[1] * 5.0;
+ end.

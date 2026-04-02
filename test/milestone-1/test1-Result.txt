@@ -1,0 +1,102 @@
+programsy
+ident (Test1)
+semicolon
+
+varsy
+ident (a)
+comma
+ident (b)
+colon
+ident (string)
+semicolon
+ident (c)
+colon
+ident (real)
+semicolon
+ident (d)
+colon
+ident (char)
+semicolon
+ident (e)
+comma
+ident (f)
+comma
+ident (i)
+colon
+ident (integer)
+semicolon
+
+constsy
+ident (con)
+colon
+ident (integer)
+semicolon
+
+beginsy
+ident (e)
+becomes
+intcon (100)
+semicolon
+ident (f)
+becomes
+ident (e)
+minus
+intcon (70)
+semicolon
+forsy
+lparent
+ident (i)
+becomes
+intcon (0)
+semicolon
+ident (i)
+lss
+ident (e)
+semicolon
+ident (i)
+becomes
+ident (i)
+plus
+intcon (1)
+rparent
+ident (e)
+becomes
+ident (e)
+idiv
+ident (f)
+semicolon
+ident (e)
+becomes
+ident (e)
+plus
+intcon (50)
+semicolon
+ifsy
+lparent
+ident (e)
+eql
+ident (f)
+rparent
+ident (e)
+becomes
+ident (e)
+plus
+intcon (20)
+semicolon
+
+whilesy
+lparent
+ident (e)
+neq
+intcon (0)
+rparent
+ident (e)
+minus
+minus
+semicolon
+ident (e)
+minus
+minus
+semicolon
+endsy
+period

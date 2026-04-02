@@ -324,8 +324,7 @@ Token Lexer::nextToken() {
                     adv();
                 }else if (c == '.') {
                     adv();
-                    state = State::REAL;
-                    hasFraction = false;
+                    state = State::ON_FRACTION;
                 }else if(isAlphabet(c)){
                     adv();
                     state = State::UNKNOWN;
@@ -335,18 +334,21 @@ Token Lexer::nextToken() {
                 }
                 break;
 
-            case State::REAL:
-                if (isDigit(c)) {
-                    adv();
-                    hasFraction = true;
-                } else {
-                    if (!hasFraction) {
-                        throw runtime_error("Invalid real number '" + line.substr(tokenStart, pos - tokenStart) + "'");
+                case State::ON_FRACTION:
+                    if (isDigit(c)) {
+                        adv();
+                        state = State::REAL;
+                    } else {
+                        return makeToken(UNKNOWN, tokenStart, pos);
                     }
-                    return makeToken(REALCON, tokenStart, pos);
-                }
-                break;
-
+                    break;
+                case State::REAL:
+                    if (isDigit(c)) {
+                        adv();
+                    } else {
+                        return makeToken(REALCON, tokenStart, pos);
+                    }
+                    break;
             case State::STRING:
                 if (isEnd() || c == '\n' || c == '\r' || c == ';') {
                     return makeToken(UNKNOWN, tokenStart, pos);
@@ -883,7 +885,7 @@ Token Lexer::nextToken() {
 
             case State::FUN:
                 if (isAlphanumeric(c)) {
-                    if (lower == 'c') {
+                    if (lower == 'n') {
                         adv();
                         state = State::FUNC;
                     } else {
@@ -897,7 +899,7 @@ Token Lexer::nextToken() {
 
             case State::FUNC:
                 if (isAlphanumeric(c)) {
-                    if (lower == 't') {
+                    if (lower == 'c') {
                         adv();
                         state = State::FUNCT;
                     } else {
@@ -911,7 +913,7 @@ Token Lexer::nextToken() {
 
             case State::FUNCT:
                 if (isAlphanumeric(c)) {
-                    if (lower == 'i') {
+                    if (lower == 't') {
                         adv();
                         state = State::FUNCTI;
                     } else {
@@ -925,7 +927,7 @@ Token Lexer::nextToken() {
 
             case State::FUNCTI:
                 if (isAlphanumeric(c)) {
-                    if (lower == 'o') {
+                    if (lower == 'i') {
                         adv();
                         state = State::FUNCTIO;
                     } else {
@@ -939,7 +941,7 @@ Token Lexer::nextToken() {
 
             case State::FUNCTIO:
                 if (isAlphanumeric(c)) {
-                    if (lower == 'n') {
+                    if (lower == 'o') {
                         adv();
                         state = State::FUNCTION;
                     } else {
@@ -953,10 +955,19 @@ Token Lexer::nextToken() {
 
             case State::FUNCTION:
                 if (isAlphanumeric(c)) {
-                    adv();
-                    state = State::IDENT;
+                    if (lower == 'n') {
+                        adv();
+                        if (isAlphanumeric(current())) {
+                            state = State::IDENT;
+                        } else {
+                            return makeToken(FUNCTION, tokenStart, pos);
+                        }
+                    } else {
+                        adv();
+                        state = State::IDENT;
+                    }
                 } else {
-                    return makeToken(FUNCTION, tokenStart, pos);
+                    return makeToken(IDENTIFIER, tokenStart, pos);
                 }
                 break;
 

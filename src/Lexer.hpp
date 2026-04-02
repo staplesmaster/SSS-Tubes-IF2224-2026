@@ -10,6 +10,7 @@ private :
         START,
         IDENT,
         INT,
+        ON_FRACTION,
         REAL,
         STRING,
         QUOTE_END,

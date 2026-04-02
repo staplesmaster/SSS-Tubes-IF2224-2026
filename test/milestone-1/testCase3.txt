@@ -1,0 +1,31 @@
+program Test3;
+
+var:
+    4cho, cho, ending: string
+    abcdaco, i: integer
+    repeatCoy: string;
+
+procedure printString(string 4cho):
+    print(4cho);
+
+begin
+    abcdaco := 10;
+    i := 0;
+    cho := 'Pria_Sawit@PriaSolo.co.id';;
+    while (i <= abcdaco) do
+        printString(cho);
+        i := i + 1;
+
+    repeatCoy := '@';
+    repeatCoy := '%';
+    repeatCoy := 'SAYA MEMBACA ''KBBI''';
+    repeatCoy := '~~~';
+    repeatCoy := ''';
+    repeatCoy := ''a'';
+
+    repeat (i >= abcdaco) until
+        print(repeatCoy);
+        i := i / 2;
+    
+    ending := '11'
+end.

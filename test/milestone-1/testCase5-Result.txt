@@ -1,0 +1,225 @@
+programsy
+ident (p5)
+semicolon
+constsy
+ident (c1)
+becomes
+intcon (123)
+semicolon
+typesy
+ident (t1)
+unknown (=)
+recordsy
+endsy
+semicolon
+varsy
+ident (v1)
+comma
+ident (v2)
+comma
+ident (v3)
+colon
+arraysy
+lbrack
+unknown (1.)
+period
+intcon (3)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+functionsy
+ident (f1)
+lparent
+ident (a1)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+beginsy
+ifsy
+ident (a1)
+geq
+intcon (10)
+thensy
+ident (a1)
+becomes
+ident (a1)
+minus
+intcon (1)
+elsesy
+ident (a1)
+becomes
+ident (a1)
+plus
+intcon (2)
+semicolon
+ident (f1)
+becomes
+ident (a1)
+idiv
+intcon (2)
+imod
+intcon (3)
+semicolon
+endsy
+semicolon
+
+proceduresy
+ident (p1)
+semicolon
+beginsy
+repeatsy
+whilesy
+ident (v1)
+lss
+ident (v2)
+dosy
+ident (v1)
+becomes
+ident (v1)
+plus
+intcon (1)
+semicolon
+forsy
+ident (v3)
+becomes
+intcon (10)
+downtosy
+intcon (1)
+dosy
+ident (v2)
+becomes
+ident (v2)
+times
+intcon (2)
+rdiv
+intcon (4)
+semicolon
+untilsy
+ident (v1)
+unknown (=)
+ident (v2)
+semicolon
+endsy
+semicolon
+
+beginsy
+ident (v1)
+becomes
+intcon (-42)
+semicolon
+ident (v2)
+becomes
+realcon (3.1415)
+semicolon
+ident (v3)
+becomes
+unknown (9abc)
+semicolon
+
+ident (p1)
+semicolon
+ident (p1)
+lparent
+rparent
+semicolon
+ident (p1)
+lbrack
+intcon (1)
+rbrack
+comma
+ident (p1)
+lbrack
+intcon (2)
+rbrack
+semicolon
+
+andsy
+ident (andx)
+arraysy
+ident (arrayx)
+beginsy
+ident (beginx)
+casesy
+ident (casex)
+constsy
+ident (constx)
+dosy
+ident (dox)
+downtosy
+ident (downtox)
+elsesy
+ident (elsex)
+endsy
+ident (endx)
+forsy
+ident (forx)
+functionsy
+ident (functionx)
+ifsy
+ident (ifx)
+imod
+ident (modx)
+notsy
+ident (notx)
+ofsy
+ident (ofx)
+orsy
+ident (orx)
+proceduresy
+ident (procedurex)
+programsy
+ident (programx)
+recordsy
+ident (recordx)
+repeatsy
+ident (repeatx)
+thensy
+ident (thenx)
+tosy
+ident (tox)
+typesy
+ident (typex)
+untilsy
+ident (untilx)
+varsy
+ident (varx)
+whilesy
+ident (whilex)
+
+charcon ('a')
+semicolon
+string ('ab')
+semicolon
+string ('')
+semicolon
+string ('')
+unknown (')
+semicolon
+
+colon
+becomes
+lss
+leq
+neq
+gtr
+geq
+plus
+minus
+times
+rdiv
+lparent
+rparent
+lbrack
+rbrack
+comma
+semicolon
+period
+unknown (@)
+unknown (@@
+end)
+period

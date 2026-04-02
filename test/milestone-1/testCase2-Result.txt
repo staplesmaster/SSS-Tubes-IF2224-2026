@@ -1,0 +1,260 @@
+programsy
+ident (Test2)
+semicolon
+
+varsy
+ident (a)
+comma
+ident (b)
+comma
+ident (c)
+colon
+ident (string)
+semicolon
+ident (c)
+colon
+ident (real)
+semicolon
+ident (d)
+colon
+ident (char)
+semicolon
+ident (e)
+comma
+ident (f)
+comma
+ident (i)
+comma
+ident (j)
+colon
+ident (integer)
+semicolon
+ident (arr)
+colon
+arraysy
+ofsy
+ident (integer)
+semicolon
+
+constsy
+ident (con)
+colon
+ident (real)
+semicolon
+
+
+ident (function)
+ident (sort)
+lparent
+arraysy
+ident (a)
+comma
+ident (int)
+ident (n)
+rparent
+colon
+forsy
+lparent
+ident (i)
+becomes
+intcon (0)
+semicolon
+ident (i)
+lss
+ident (n)
+semicolon
+ident (i)
+becomes
+ident (i)
+plus
+intcon (1)
+rparent
+colon
+ident (idx)
+becomes
+intcon (-1)
+semicolon
+ident (max)
+becomes
+ident (arr)
+lbrack
+ident (i)
+rbrack
+semicolon
+
+forsy
+lparent
+ident (j)
+becomes
+semicolon
+ident (j)
+lss
+ident (n)
+semicolon
+ident (j)
+becomes
+ident (j)
+plus
+intcon (1)
+rparent
+colon
+ifsy
+lparent
+ident (arr)
+lbrack
+ident (j)
+rbrack
+gtr
+ident (max)
+rparent
+thensy
+ident (max)
+becomes
+ident (arr)
+lbrack
+ident (j)
+rbrack
+semicolon
+ident (idx)
+becomes
+ident (j)
+semicolon
+
+ifsy
+lparent
+ident (idx)
+neq
+intcon (-1)
+rparent
+thensy
+ident (arr)
+lbrack
+ident (j)
+rbrack
+becomes
+ident (arr)
+lbrack
+ident (idx)
+rbrack
+semicolon
+ident (arr)
+lbrack
+ident (i)
+rbrack
+becomes
+ident (max)
+semicolon
+
+beginsy
+ident (con)
+becomes
+realcon (10.02)
+semicolon
+ident (a)
+becomes
+string ('Geraldo')
+semicolon
+ident (b)
+becomes
+string ('Lapar')
+semicolon
+ident (d)
+becomes
+charcon ('L')
+semicolon
+ident (arr)
+lbrack
+intcon (0)
+rbrack
+becomes
+realcon (1.0)
+semicolon
+ident (arr)
+lbrack
+intcon (1)
+rbrack
+becomes
+realcon (2.0)
+semicolon
+ident (arr)
+lbrack
+intcon (3)
+rbrack
+becomes
+realcon (1.2)
+semicolon
+
+ident (sort)
+lparent
+ident (arr)
+comma
+intcon (3)
+rparent
+semicolon
+
+ident (c)
+becomes
+ident (a)
+plus
+unknown (')
+unknown (')
+plus
+ident (b)
+plus
+ident (c)
+plus
+string ('Banget')
+semicolon
+ifsy
+lparent
+notsy
+lparent
+ident (con)
+rparent
+andsy
+ident (arr)
+lbrack
+intcon (0)
+rbrack
+plus
+realcon (1.0)
+unknown (==)
+realcon (2.0)
+rparent
+thensy
+colon
+ident (c)
+becomes
+string ('terhebat')
+semicolon
+
+elsesy
+ifsy
+lparent
+ident (a)
+unknown (==)
+string ('Geraldo')
+orsy
+ident (arr)
+lbrack
+intcon (1)
+rbrack
+gtr
+ident (con)
+rparent
+thensy
+colon
+ident (arr)
+lbrack
+intcon (1)
+rbrack
+becomes
+ident (arr)
+lbrack
+intcon (1)
+rbrack
+times
+realcon (5.0)
+semicolon
+endsy
+period
