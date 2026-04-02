@@ -290,27 +290,29 @@ Token Lexer::nextToken() {
                 break;
 
             case State::CHAR:
-                if (isAlphanumeric(c)){
-                    adv();
-                    state = State::NEXT_CHAR;
-                }else if (c == '\''){
+               if (c == '\''){
                     adv();
                     return makeToken(STRING, tokenStart, pos);
                 }
-                else{
+                else if (isEnd() || c == '\n' || c == '\r' || c == ';') {
                     return makeToken(UNKNOWN, tokenStart, pos);
+                }else{
+                    adv();
+                    state = State::NEXT_CHAR;
                 }
                 break;
             case State::NEXT_CHAR:
-                if(isAlphanumeric(c)){
+                if (c == '\''){
+                    adv();
+                    return makeToken(CHARCON, tokenStart, pos);
+                }
+                else if (isEnd() || c == '\n' || c == '\r' || c == ';') {
+                    return makeToken(UNKNOWN, tokenStart, pos);
+                }else{
                     adv();
                     state = State::STRING;
-                }else if (c == '\''){
-                    adv();
-                    return makeToken(CHARCON,tokenStart,pos);
-                }else{
-                    return makeToken(STRING, tokenStart,pos);
                 }
+               
                 break;
 
             case State::IDENT:
