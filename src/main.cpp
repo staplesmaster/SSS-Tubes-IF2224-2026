@@ -73,7 +73,7 @@ int main() {
         string lexeme = sourceCode.substr(token.start, token.end - token.start);
         
         if (token.type == TokenType::IDENTIFIER || token.type == TokenType::INTCON || 
-            token.type == TokenType::REALCON || token.type == TokenType::STRING || token.type == TokenType::CHARCON) {
+            token.type == TokenType::REALCON || token.type == TokenType::STRING || token.type == TokenType::CHARCON || token.type == TokenType::UNKNOWN) {
             
             outputFile << typeStr << " (" << lexeme << ")" << endl;
             

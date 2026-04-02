@@ -249,7 +249,16 @@ Token Lexer::nextToken() {
                     adv();
                     return makeToken(PERIOD, tokenStart, pos);
                 } else {
-                    throw runtime_error("Unknown symbol: " + string(1, c));
+                    adv();
+                    state = State::UNKNOWN;
+                }
+                break;
+            
+            case State::UNKNOWN:
+                if (isAlphanumeric(c)) {
+                    adv();
+                }else{
+                    return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 break;
             case State::MINUS:
@@ -270,11 +279,15 @@ Token Lexer::nextToken() {
             case State::INT:
                 if (isDigit(c)) {
                     adv();
-                } else if (c == '.') {
+                }else if (c == '.') {
                     adv();
                     state = State::REAL;
                     hasFraction = false;
-                } else {
+                }else if(isAlphabet(c)){
+                    state = State::UNKNOWN;
+                    adv();
+                }
+                else {
                     return makeToken(INTCON, tokenStart, pos);
                 }
                 break;
@@ -1606,7 +1619,6 @@ Token Lexer::nextToken() {
                     return makeToken(WHILE, tokenStart, pos);
                 }
                 break;
-
             default:
                 throw runtime_error("Internal lexer state error");
         }
