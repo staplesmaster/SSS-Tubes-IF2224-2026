@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
 TARGET = lexer
 
-SRCS = src/main.cpp src/Lexer.cpp src/Token.cpp
+SRCS = src/main.cpp src/Reader.cpp src/Writer.cpp src/Lexer.cpp src/Token.cpp
 
 all: $(TARGET)
 
