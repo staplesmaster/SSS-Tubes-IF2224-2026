@@ -115,6 +115,7 @@ private :
         THE,
         THEN,
         TO,
+        TY,
         TYP,
         TYPE,
 

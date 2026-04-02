@@ -1397,7 +1397,7 @@ Token Lexer::nextToken() {
                         state = State::TO;
                     } else if (lower == 'y') {
                         adv();
-                        state = State::TYP;
+                        state = State::TY;
                     } else {
                         adv();
                         state = State::IDENT;
@@ -1453,6 +1453,20 @@ Token Lexer::nextToken() {
                 }
                 break;
 
+            case State::TY:
+                if (isAlphanumeric(c)) {
+                    if (lower == 'p') {
+                        adv();
+                        state = State::TYP;
+                    } else {
+                        adv();
+                        state = State::IDENT;
+                    }
+                } else {
+                    return makeToken(IDENTIFIER, tokenStart, pos);
+                }
+                break;
+            
             case State::TYP:
                 if (isAlphanumeric(c)) {
                     if (lower == 'e') {
