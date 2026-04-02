@@ -20,6 +20,8 @@ private :
         LT, // smaller
         GT, // greater
         EQ, // equal
+        CHAR,
+        NEXT_CHAR,
 
         A,
         AN,

@@ -171,7 +171,6 @@ vector<Token> Lexer::tokenize() {
 Token Lexer::nextToken() {
     State state = State::START;
     int tokenStart = pos;
-    int stringLen = 0;
     bool hasFraction = false;
 
     while (true) {
@@ -209,8 +208,7 @@ Token Lexer::nextToken() {
                 } else if (c == '\'') {
                     tokenStart = pos;
                     adv();
-                    stringLen = 0;
-                    state = State::STRING;
+                    state = State::CHAR;
                 } else if (c == ':') {
                     tokenStart = pos;
                     adv();
@@ -291,6 +289,30 @@ Token Lexer::nextToken() {
                 }
                 break;
 
+            case State::CHAR:
+                if (isAlphanumeric(c)){
+                    adv();
+                    state = State::NEXT_CHAR;
+                }else if (c == '\''){
+                    adv();
+                    return makeToken(STRING, tokenStart, pos);
+                }
+                else{
+                    return makeToken(UNKNOWN, tokenStart, pos);
+                }
+                break;
+            case State::NEXT_CHAR:
+                if(isAlphanumeric(c)){
+                    adv();
+                    state = State::STRING;
+                }else if (c == '\''){
+                    adv();
+                    return makeToken(CHARCON,tokenStart,pos);
+                }else{
+                    return makeToken(STRING, tokenStart,pos);
+                }
+                break;
+
             case State::IDENT:
                 while (!isEnd() && isAlphanumeric(current())) {
                     adv();
@@ -326,7 +348,7 @@ Token Lexer::nextToken() {
                 break;
 
             case State::STRING:
-                if (isEnd() || c == '\n' || c == '\r') {
+                if (isEnd() || c == '\n' || c == '\r' || c == ';') {
                     return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 if (c == '\'') {
@@ -334,22 +356,13 @@ Token Lexer::nextToken() {
                     state = State::QUOTE_END;
                 } else {
                     adv();
-                    ++stringLen;
                 }
                 break;
             
             case State::QUOTE_END:
-                if (c == '\'') {
-                    adv();
-                    ++stringLen;
-                    state = State::STRING;
-                } else {
-                    if (stringLen == 1) {
-                        return makeToken(CHARCON, tokenStart, pos);
-                    }
-                    return makeToken(STRING, tokenStart, pos);
-                }
+                return makeToken(STRING, tokenStart, pos);
                 break;
+        
 
             case State::COLON:
                 if (c == '=') {
