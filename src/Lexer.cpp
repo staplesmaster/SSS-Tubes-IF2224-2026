@@ -220,6 +220,10 @@ Token Lexer::nextToken() {
                     tokenStart = pos;
                     adv();
                     state = State::GT;
+                } else if (c == '=') {
+                    tokenStart = pos;
+                    adv();
+                    state = State::EQ;
                 } else if (c == '+') {
                     tokenStart = pos;
                     adv();
@@ -227,7 +231,7 @@ Token Lexer::nextToken() {
                 } else if (c == '-') {
                     tokenStart = pos;
                     adv();
-                    state = State::MINUS;
+                    return makeToken(MINUS, tokenStart, pos);
                 } else if (c == '*') {
                     tokenStart = pos;
                     adv();
@@ -263,7 +267,11 @@ Token Lexer::nextToken() {
                 } else if (c == '.') {
                     tokenStart = pos;
                     adv();
-                    return makeToken(PERIOD, tokenStart, pos);
+                    if (isDigit(current())) {
+                        state = State::UNKNOWN;
+                    } else {
+                        return makeToken(PERIOD, tokenStart, pos);
+                    }
                 } else {
                     tokenStart = pos;
                     adv();
@@ -272,19 +280,10 @@ Token Lexer::nextToken() {
                 break;
             
             case State::UNKNOWN:
-                if (isAlphanumeric(c) || !isSymbol(c)) {
-                    adv();
-                }
-                else{
+                if (isSpace(c) || c == ';' || isEnd()) {
                     return makeToken(UNKNOWN, tokenStart, pos);
-                }
-                break;
-            case State::MINUS:
-                if (isDigit(c)){
-                    state = State::INT;
+                } else {
                     adv();
-                }else{
-                    return makeToken(MINUS, tokenStart,pos);
                 }
                 break;
 
@@ -340,18 +339,17 @@ Token Lexer::nextToken() {
                         adv();
                         state = State::REAL;
                     } else {
-                        adv();
-                        state = State::UNKNOWN;
+                        state = State::UNKNOWN; 
                     }
                     break;
                 case State::REAL:
                     if (isDigit(c)) {
                         adv();
-                    }else if (isSymbol(c)){
-                        return makeToken(REALCON, tokenStart, pos);
-                    } else {
+                    } else if (isAlphabet(c)) {
                         adv();
                         state = State::UNKNOWN;
+                    } else {
+                        return makeToken(REALCON, tokenStart, pos);
                     }
                     break;
             case State::STRING:
@@ -400,9 +398,8 @@ Token Lexer::nextToken() {
                 if (c == '=') {
                     adv();
                     return makeToken(EQL, tokenStart, pos);
-                }else{
-                    adv();
-                    state = State::UNKNOWN;
+                } else {
+                    return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 break;
             case State::A:

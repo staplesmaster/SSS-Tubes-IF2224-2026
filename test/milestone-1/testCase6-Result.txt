@@ -1,0 +1,23 @@
+programsy
+ident (Test6)
+semicolon
+
+intcon (56)
+
+ident (A)
+minus
+intcon (1)
+
+ident (A)
+minus
+intcon (1)
+
+realcon (1.23)
+
+unknown (1.2a)
+
+ident (ident)
+becomes
+intcon (1)
+
+unknown (.23.e-+/1,e-+/1)
