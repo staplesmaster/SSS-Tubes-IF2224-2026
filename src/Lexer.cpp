@@ -30,6 +30,7 @@ bool Lexer::isSymbol(char c) {
         case '/':
         case '<':
         case '>':
+        case '=':
         case ':':
         case '(':
         case ')':
@@ -267,11 +268,7 @@ Token Lexer::nextToken() {
                 } else if (c == '.') {
                     tokenStart = pos;
                     adv();
-                    if (isDigit(current())) {
-                        state = State::UNKNOWN;
-                    } else {
-                        return makeToken(PERIOD, tokenStart, pos);
-                    }
+                    return makeToken(PERIOD, tokenStart, pos); 
                 } else {
                     tokenStart = pos;
                     adv();
@@ -280,9 +277,10 @@ Token Lexer::nextToken() {
                 break;
             
             case State::UNKNOWN:
-                if (isSpace(c) || c == ';' || isEnd()) {
+                if (isSpace(c) || isSymbol(c) || isEnd()) {
                     return makeToken(UNKNOWN, tokenStart, pos);
-                } else {
+                }
+                else{
                     adv();
                 }
                 break;
@@ -339,15 +337,12 @@ Token Lexer::nextToken() {
                         adv();
                         state = State::REAL;
                     } else {
-                        state = State::UNKNOWN; 
+                        return makeToken(UNKNOWN, tokenStart, pos);
                     }
                     break;
                 case State::REAL:
                     if (isDigit(c)) {
                         adv();
-                    } else if (isAlphabet(c)) {
-                        adv();
-                        state = State::UNKNOWN;
                     } else {
                         return makeToken(REALCON, tokenStart, pos);
                     }
@@ -398,7 +393,7 @@ Token Lexer::nextToken() {
                 if (c == '=') {
                     adv();
                     return makeToken(EQL, tokenStart, pos);
-                } else {
+                }else{
                     return makeToken(UNKNOWN, tokenStart, pos);
                 }
                 break;
