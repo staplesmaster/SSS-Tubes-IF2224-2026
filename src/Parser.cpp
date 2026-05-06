@@ -3,6 +3,43 @@
 
 using namespace std;
 
+Parser::Parser(const vector<Token>& tokens): tokens(tokens), pos(0){}
+
+Token Parser::currentToken() const {
+    if (isAtEnd()) return tokens.back();
+    return tokens[pos];
+}
+
+Token Parser::peek(int offset) const{
+    if (pos + offset >= int(tokens.size())) return tokens.back(); 
+    return tokens[pos + offset];
+}
+
+bool Parser::isAtEnd() const {
+    return pos >= int(tokens.size());
+}
+
+void Parser::advance(){
+    if(!isAtEnd()) pos++;
+}
+
+Token Parser::match(TokenType expected){
+    if (!isAtEnd() && currentToken().type == expected){
+        Token t = currentToken();
+        advance();
+        return t; 
+    }
+    // Masuk Panic Mode
+    string errLex = isAtEnd()? "EOF" : currentToken().value; 
+    cout << "[SYNTAX ERROR] Mengharapkan '" << typeToString(expected) 
+         << "' tetapi menemukan '" << errLex << "' pada posisi " << pos << "!\n";
+
+    Token errorToken; 
+    errorToken.type = UNKNOWN;
+    errorToken.value = "MISSING_" + typeToString(expected);
+    return errorToken;
+}
+
 // declaration-part -> (const)* + (type)* + (var)* + (subprogram)*
 ParseNode* Parser::parseDeclarationPart() {
     ParseNode* node = new ParseNode( "<declaration-part>" );
