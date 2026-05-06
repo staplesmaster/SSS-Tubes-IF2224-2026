@@ -543,3 +543,232 @@ ParseNode* Parser::parseCaseBlock() {
     
     return node;
 }
+
+ParseNode* Parser::parseWhileStatement() {
+    ParseNode* node = new ParseNode("<while-statement>");
+    
+    node->addChild(new ParseNode(match(TokenType::WHILE)));
+    node->addChild(parseExpression());
+    node->addChild(new ParseNode(match(TokenType::DO)));
+    node->addChild(parseStatement());
+    
+    return node;
+}
+
+// repeat-statement -> repeatsy + statement-list + untilsy + expression
+ParseNode* Parser::parseRepeatStatement() {
+    ParseNode* node = new ParseNode("<repeat-statement>");
+    
+    node->addChild(new ParseNode(match(TokenType::REPEAT)));
+    node->addChild(parseStatementList());
+    node->addChild(new ParseNode(match(TokenType::UNTIL)));
+    node->addChild(parseExpression());
+    
+    return node;
+}
+
+// for-statement -> forsy + ident + becomes + expression + (tosy | downtosy) + expression + dosy + statement
+ParseNode* Parser::parseForStatement() {
+    ParseNode* node = new ParseNode("<for-statement>");
+    
+    node->addChild(new ParseNode(match(TokenType::FOR)));
+    node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    node->addChild(new ParseNode(match(TokenType::ASSIGN))); // becomes (:=)
+    node->addChild(parseExpression());
+    
+    // Percabangan tosy ATAU downtosy
+    if (currentToken().type == TokenType::TO || currentToken().type == TokenType::DOWNTO) {
+        node->addChild(new ParseNode(match(currentToken().type)));
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); // Menembak error jika tidak ada to/downto
+    }
+    
+    node->addChild(parseExpression());
+    node->addChild(new ParseNode(match(TokenType::DO)));
+    node->addChild(parseStatement());
+    
+    return node;
+}
+
+// procedure/function-call -> ident + (lparent + parameter-list? + rparent)?
+ParseNode* Parser::parseProcedureFunctionCall() {
+    ParseNode* node = new ParseNode("<procedure/function-call>");
+    
+    node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    
+    // Tanda '?': Pemanggilan parameter opsional
+    if (currentToken().type == TokenType::LPARENT) {
+        node->addChild(new ParseNode(match(TokenType::LPARENT)));
+        
+        // Cek jika tidak langsung diakhiri kurung tutup, maka parsing parameter list
+        if (currentToken().type != TokenType::RPARENT) {
+            node->addChild(parseParameterList());
+        }
+        
+        node->addChild(new ParseNode(match(TokenType::RPARENT)));
+    }
+    
+    return node;
+}
+
+// parameter-list -> expression + (comma + expression)*
+ParseNode* Parser::parseParameterList() {
+    ParseNode* node = new ParseNode("<parameter-list>");
+    
+    node->addChild(parseExpression());
+    
+    while (!isAtEnd() && currentToken().type == TokenType::COMMA) {
+        node->addChild(new ParseNode(match(TokenType::COMMA)));
+        node->addChild(parseExpression());
+    }
+    
+    return node;
+}
+
+// expression -> simple-expression + (relational-operator + simple-expression)?
+ParseNode* Parser::parseExpression() {
+    ParseNode* node = new ParseNode("<expression>");
+    
+    // Semua ekspresi pasti diawali dengan simple-expression
+    node->addChild(parseSimpleExpression());
+    
+    // Tanda '?': Cek apakah ada operator perbandingan (==, !=, >, >=, <, <=)
+    TokenType t = currentToken().type;
+    if (t == TokenType::EQL || t == TokenType::NEQ || t == TokenType::GTR || 
+        t == TokenType::GEQ || t == TokenType::LSS || t == TokenType::LEQ) {
+        
+        node->addChild(parseRelationalOperator());
+        node->addChild(parseSimpleExpression());
+    }
+    
+    return node;
+}
+
+// simple-expression -> (plus | minus)? + term + (additive-operator + term)*
+ParseNode* Parser::parseSimpleExpression() {
+    ParseNode* node = new ParseNode("<simple-expression>");
+    TokenType t = currentToken().type;
+    
+    // Tanda '?': Prefix unary opsional (misal: -5 atau +10)
+    if (t == TokenType::PLUS || t == TokenType::MINUS) {
+        node->addChild(new ParseNode(match(t)));
+    }
+    
+    // Masuk ke level prioritas berikutnya (term)
+    node->addChild(parseTerm());
+    
+    // Looping '*': Penjumlahan atau pengurangan berantai (misal: a + b - c)
+    t = currentToken().type;
+    while (!isAtEnd() && (t == TokenType::PLUS || t == TokenType::MINUS || t == TokenType::OR)) {
+        node->addChild(parseAdditiveOperator());
+        node->addChild(parseTerm());
+        t = currentToken().type; // Update intipan
+    }
+    
+    return node;
+}
+
+// term -> factor + (multiplicative-operator + factor)*
+ParseNode* Parser::parseTerm() {
+    ParseNode* node = new ParseNode("<term>");
+    
+    // Masuk ke level prioritas tertinggi (factor)
+    node->addChild(parseFactor());
+    
+    // Looping '*': Perkalian atau pembagian berantai (misal: x * y / z)
+    TokenType t = currentToken().type;
+    while (!isAtEnd() && (t == TokenType::TIMES || t == TokenType::RDIV || 
+                          t == TokenType::IDIV || t == TokenType::MOD || t == TokenType::AND)) {
+        node->addChild(parseMultiplicativeOperator());
+        node->addChild(parseFactor());
+        t = currentToken().type; // Update intipan
+    }
+    
+    return node;
+}
+
+// factor -> ident | intcon | realcon | charcon | string | (lparent + expression + rparent) | (notsy + factor) | procedure/function-call | variable
+ParseNode* Parser::parseFactor() {
+    ParseNode* node = new ParseNode("<factor>");
+    TokenType t = currentToken().type;
+    
+    // Rute 1: Tipe data konstan
+    if (t == TokenType::INTCON || t == TokenType::REALCON || 
+        t == TokenType::CHARCON || t == TokenType::STRING) {
+        node->addChild(new ParseNode(match(t)));
+    } 
+    // Rute 2: Ekspresi di dalam kurung (misal: (a + b) )
+    else if (t == TokenType::LPARENT) {
+        node->addChild(new ParseNode(match(TokenType::LPARENT)));
+        node->addChild(parseExpression());
+        node->addChild(new ParseNode(match(TokenType::RPARENT)));
+    } 
+    // Rute 3: Unary NOT (misal: not a)
+    else if (t == TokenType::NOT) {
+        node->addChild(new ParseNode(match(TokenType::NOT)));
+        node->addChild(parseFactor());
+    } 
+    // Rute 4: PENYELESAIAN AMBIGUITAS (ident vs func-call vs variable)
+    else if (t == TokenType::IDENTIFIER) {
+        // Jika identifier langsung diikuti kurung buka, PASTI pemanggilan fungsi
+        if (peek(1).type == TokenType::LPARENT) {
+            node->addChild(parseProcedureFunctionCall());
+        } else {
+            // Jika tidak, kita anggap sebagai variabel (baik itu skalar 'a', array 'a[1]', atau field 'a.x').
+            // Catatan: Jika ini hanya identifier polos (skalar), fungsi parseVariable() 
+            // akan memakannya dengan sempurna tanpa memanggil parseComponentVariable().
+            node->addChild(parseVariable());
+        }
+    } 
+    // Fallback: Syntax Error di tengah ekspresi
+    else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); 
+    }
+    
+    return node;
+}
+
+// relational-operator -> eql | neq | gtr | geq | lss | leq
+ParseNode* Parser::parseRelationalOperator() {
+    ParseNode* node = new ParseNode("<relational-operator>");
+    TokenType t = currentToken().type;
+    
+    // Cek dengan pasti agar aman
+    if (t == TokenType::EQL || t == TokenType::NEQ || t == TokenType::GTR || 
+        t == TokenType::GEQ || t == TokenType::LSS || t == TokenType::LEQ) {
+        node->addChild(new ParseNode(match(t)));
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+    }
+    
+    return node;
+}
+
+// additive-operator -> plus | minus | orsy
+ParseNode* Parser::parseAdditiveOperator() {
+    ParseNode* node = new ParseNode("<additive-operator>");
+    TokenType t = currentToken().type;
+    
+    if (t == TokenType::PLUS || t == TokenType::MINUS || t == TokenType::OR) {
+        node->addChild(new ParseNode(match(t)));
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+    }
+    
+    return node;
+}
+
+// multiplicative-operator -> times | rdiv | idiv | imod | andsy
+ParseNode* Parser::parseMultiplicativeOperator() {
+    ParseNode* node = new ParseNode("<multiplicative-operator>");
+    TokenType t = currentToken().type;
+    
+    if (t == TokenType::TIMES || t == TokenType::RDIV || t == TokenType::IDIV || 
+        t == TokenType::MOD || t == TokenType::AND) {
+        node->addChild(new ParseNode(match(t)));
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+    }
+    
+    return node;
+}
