@@ -40,6 +40,43 @@ Token Parser::match(TokenType expected){
     return errorToken;
 }
 
+// STRUKTUR PROGRAM UTAMA
+// program -> program-eader + declaration-part + compound-statement + period
+ParseNode* Parser::parseProgram(){
+    ParseNode* node = new ParseNode("<program>");
+
+    node->addChild(parseProgramHeader());
+    node->addChild(parseDeclarationPart());
+    node->addChild(parseCompoundStatement());
+    node->addChild(new ParseNode(match(TokenType::PERIOD)));
+
+    return node;
+}
+
+// program-header -> programsy + ident + semicolon
+ParseNode* Parser::parseProgramHeader(){
+    ParseNode* node = new ParseNode("<program-header>");
+
+    node->addChild(new ParseNode(match(TokenType::PROGRAM)));
+    node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
+
+    return node; 
+
+}
+
+// block -> declaration-part + compound-statement
+ParseNode* Parser::parseBlock(){
+    ParseNode* node = new ParseNode("<block>");
+
+    node->addChild(parseDeclarationPart());
+    node->addChild(parseCompoundStatement());
+
+    return node;
+}
+
+
+// DEKLARASI
 // declaration-part -> (const)* + (type)* + (var)* + (subprogram)*
 ParseNode* Parser::parseDeclarationPart() {
     ParseNode* node = new ParseNode( "<declaration-part>" );
