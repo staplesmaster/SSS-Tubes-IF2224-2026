@@ -426,3 +426,120 @@ ParseNode* Parser::parseStatement(){
     } 
     return node; 
 }
+
+// variable -> ident + (component-variable)*
+ParseNode* Parser::parseVariable() {
+    ParseNode* node = new ParseNode("<variable>");
+    
+    node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    
+    // Looping selama awalan variabel ('[' atau '.')
+    while (!isAtEnd() && (currentToken().type == TokenType::LBRACK || currentToken().type == TokenType::PERIOD)) {
+        node->addChild(parseComponentVariable());
+    }
+    
+    return node;
+}
+
+// component-variable -> (lbrack + index-list + rbrack) | (period + ident)
+ParseNode* Parser::parseComponentVariable() {
+    ParseNode* node = new ParseNode("<component-variable>");
+    
+    if (currentToken().type == TokenType::LBRACK) {
+        node->addChild(new ParseNode(match(TokenType::LBRACK)));
+        node->addChild(parseIndexList());
+        node->addChild(new ParseNode(match(TokenType::RBRACK)));
+    } else if (currentToken().type == TokenType::PERIOD) {
+        node->addChild(new ParseNode(match(TokenType::PERIOD)));
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    }
+    
+    return node;
+}
+
+// index-list -> (intcon | charcon | ident) + (comma + index-list)*
+ParseNode* Parser::parseIndexList() {
+    ParseNode* node = new ParseNode("<index-list>");
+    TokenType t = currentToken().type;
+    
+    if (t == TokenType::INTCON || t == TokenType::CHARCON || t == TokenType::IDENTIFIER) {
+        node->addChild(new ParseNode(match(t)));
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+    }
+    
+    if (currentToken().type == TokenType::COMMA) {
+        node->addChild(new ParseNode(match(TokenType::COMMA)));
+        node->addChild(parseIndexList()); // Rekursif (comma + index-list)*
+    }
+    
+    return node;
+}
+
+// assignment-statement -> variable + becomes + expression
+ParseNode* Parser::parseAssignmentStatement() {
+    ParseNode* node = new ParseNode("<assignment-statement>");
+    
+    node->addChild(parseVariable());
+    node->addChild(new ParseNode(match(TokenType::ASSIGN))); 
+    node->addChild(parseExpression());
+    
+    return node;
+}
+
+// if-statement -> ifsy + expression + thensy + statement + (elsy + statement)?
+ParseNode* Parser::parseIfStatement() {
+    ParseNode* node = new ParseNode("<if-statement>");
+    
+    node->addChild(new ParseNode(match(TokenType::IF)));
+    node->addChild(parseExpression());
+    node->addChild(new ParseNode(match(TokenType::THEN)));
+    node->addChild(parseStatement());
+    
+    if (currentToken().type == TokenType::ELSE) {
+        node->addChild(new ParseNode(match(TokenType::ELSE)));
+        node->addChild(parseStatement());
+    }
+    
+    return node;
+}
+
+// case-statement -> casesy + expression + ofsy + case-block + endsy
+ParseNode* Parser::parseCaseStatement() {
+    ParseNode* node = new ParseNode("<case-statement>");
+    
+    node->addChild(new ParseNode(match(TokenType::CASE)));
+    node->addChild(parseExpression());
+    node->addChild(new ParseNode(match(TokenType::OF)));
+    node->addChild(parseCaseBlock());
+    node->addChild(new ParseNode(match(TokenType::END)));
+    
+    return node;
+}
+
+// case-block -> constant + (comma + constant)* + colon + statement + (semicolon + case-block?)*
+ParseNode* Parser::parseCaseBlock() {
+    ParseNode* node = new ParseNode("<case-block>");
+    
+    node->addChild(parseConstant());
+    
+    while (!isAtEnd() && currentToken().type == TokenType::COMMA) {
+        node->addChild(new ParseNode(match(TokenType::COMMA)));
+        node->addChild(parseConstant());
+    }
+    
+    node->addChild(new ParseNode(match(TokenType::COLON)));
+    node->addChild(parseStatement());
+    
+    // Looping case-block lanjutan yang dipisahkan semicolon
+    while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON) {
+        node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
+        
+        // Kalau token selanjutnya 'end', jangan panggil caseBlock 
+        if (currentToken().type != TokenType::END) {
+            node->addChild(parseCaseBlock()); 
+        }
+    }
+    
+    return node;
+}
