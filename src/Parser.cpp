@@ -266,3 +266,163 @@ ParseNode* Parser::parseParameterGroup() {
 
     return node;
 }
+
+// TIPE DATA
+// type -> ident | array-type | range | enumerated | record-type
+ParseNode* Parser::parseType(){
+    ParseNode* node = new ParseNode("<type>");
+    
+    if (currentToken().type == TokenType::ARRAY){
+        node->addChild(parseArrayType());
+    } else if (currentToken().type == TokenType::LPARENT){
+        node->addChild(parseEnumerated());
+    } else if (currentToken().type == TokenType::RECORD){
+        node->addChild(parseRecordType());
+    } else if (currentToken().type == TokenType::IDENTIFIER){
+        if (peek(1).type == TokenType::PERIOD){ // Kalau token selanjutnya . berarti masuk ke range
+            node->addChild(parseRange());
+        } else {
+            node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+        }
+    } else if (currentToken().type == TokenType::INTCON || currentToken().type == TokenType::REALCON || currentToken().type == TokenType::CHARCON ||
+                currentToken().type == TokenType::STRING || currentToken().type == TokenType::PLUS || currentToken().type == TokenType::MINUS){
+            node->addChild(parseRange()); // ini untuk string harus cek lagi sih
+    } else {
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+    }
+    return node;
+}
+
+// array-type -> arraysy + lbrack + (range | ident) + rbrack + ofsy + type
+ParseNode* Parser::parseArrayType(){
+    ParseNode* node = new ParseNode("<array-type>");
+
+    node->addChild(new ParseNode(match(TokenType::ARRAY)));
+    node->addChild(new ParseNode(match(TokenType::LBRACK)));
+    
+    if (currentToken().type == TokenType::IDENTIFIER && peek(1).type != TokenType::PERIOD){
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    } else {
+        node->addChild(parseRange()); 
+    }
+
+    node->addChild(new ParseNode(match(TokenType::RBRACK)));
+    node->addChild(new ParseNode(match(TokenType::OF)));
+    node->addChild(parseType());
+
+    return node;
+}
+
+// range -> constant + period + period + constant
+ParseNode* Parser::parseRange(){
+    ParseNode* node = new ParseNode("<range>");
+
+    node->addChild(parseConstant()); // batas bawah
+    node->addChild(new ParseNode(match(TokenType::PERIOD)));
+    node->addChild(new ParseNode(match(TokenType::PERIOD)));
+    node->addChild(parseConstant()); // batas atas
+    
+    return node;
+}
+
+// enumerated -> lparent + ident + (comma + ident)* + rparent
+ParseNode* Parser::parseEnumerated(){
+    ParseNode* node = new ParseNode("<enumerated>");
+
+    node->addChild(new ParseNode(match(TokenType::LPARENT)));
+    node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    
+    while (!isAtEnd() && currentToken().type == TokenType::COMMA){
+        node->addChild(new ParseNode(match(TokenType::COMMA)));
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
+    }
+    node->addChild(new ParseNode(match(TokenType::RPARENT)));
+    return node;
+}
+
+// record-type -> recordsy + field-list + endsy
+ParseNode* Parser::parseRecordType(){
+    ParseNode* node = new ParseNode("<record-type>");
+
+    node->addChild(new ParseNode(match(TokenType::RECORD)));
+    node->addChild(parseFieldList());
+    node->addChild(new ParseNode(match(TokenType::END)));
+
+    return node;
+}
+
+// field-list -> field-part + (semicolon + field-part)*
+ParseNode* Parser::parseFieldList(){
+    ParseNode* node = new ParseNode("<field-list>");
+
+    node->addChild(parseFieldPart());
+    while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON && peek(1).type == TokenType::IDENTIFIER){
+        node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
+        node->addChild(parseFieldPart());
+    }
+    return node;
+}
+
+// field-part -> identifier-lsit + colon + type
+ParseNode* Parser::parseFieldPart(){
+    ParseNode* node = new ParseNode("<field-part>");
+
+    node->addChild(parseIdentifierList());
+    node->addChild(new ParseNode(match(TokenType::COLON)));
+    node->addChild(parseType());
+    return node;
+}
+
+// STATEMENT 
+// compound-statement -> beginsy + statement-list + endsy
+ParseNode* Parser::parseCompoundStatement(){
+    ParseNode* node = new ParseNode("<compound-statement>");
+
+    node->addChild(new ParseNode(match(TokenType::BEGIN)));
+    node->addChild(parseStatementList());
+    node->addChild(new ParseNode(match(TokenType::END)));
+
+    return node;
+}
+
+// statement-list -> statement + (semicolon + statement)*
+ParseNode* Parser::parseStatementList(){
+    ParseNode* node = new ParseNode("<statement-list>");
+    node->addChild(parseStatement());
+    while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON){
+        node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
+        node->addChild(parseStatement());
+    }
+    return node;
+}
+
+// statement -> (assignment-state | if-statement | case-statement | while-statement | repeat-statement | for-statement | procedure/function-call)?
+ParseNode* Parser::parseStatement(){
+    ParseNode* node = new ParseNode("<statement>");
+    TokenType t = currentToken().type;
+
+    if (t == TokenType::IF){
+        node->addChild(parseIfStatement());
+    } else if (t == TokenType::CASE){
+        node->addChild(parseCaseStatement());
+    } else if (t == TokenType::WHILE){
+        node->addChild(parseWhileStatement());
+    } else if (t == TokenType::REPEAT){
+        node->addChild(parseRepeatStatement());
+    } else if (t == TokenType::FOR){
+        node->addChild(parseForStatement());
+    } else if(t == TokenType::IDENTIFIER){
+        TokenType nextT = peek(1).type;
+
+        // buat nanganin a := .., a[1] := .., a.field := ..
+        if (nextT == TokenType::ASSIGN || nextT ==TokenType::LBRACK || nextT == TokenType::PERIOD){
+            node->addChild(parseAssignmentStatement());
+        } else if(nextT == TokenType::LPARENT ||nextT == TokenType::SEMICOLON || nextT == TokenType::END
+                 || nextT == TokenType::ELSE || nextT == TokenType::UNTIL){
+                    node->addChild(parseProcedureFunctionCall());
+            } else { 
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        }
+    } 
+    return node; 
+}
