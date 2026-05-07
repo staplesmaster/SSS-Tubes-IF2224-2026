@@ -116,10 +116,15 @@ void writeTreeRecursive(ofstream& out, ParseNode* node, const string& prefix = "
     if (!node->getIsTerminal()) {
         out << node->getName() << "\n";
     } else {
-        string typeStr = typeToString(node->getToken().type); // Pastikan typeToString bisa diakses dari sini
-        if (node->getToken().type == TokenType::IDENTIFIER || node->getToken().type == TokenType::INTCON || 
-            node->getToken().type == TokenType::REALCON || node->getToken().type == TokenType::STRING || 
-            node->getToken().type == TokenType::CHARCON || node->getToken().type == TokenType::UNKNOWN) {
+        string typeStr = typeToString(node->getToken().type); 
+        
+        if (node->getToken().type == TokenType::UNKNOWN) {
+            out << node->getToken().value << "\n"; 
+        } 
+        // -------------------------------------------------------------
+        else if (node->getToken().type == TokenType::IDENTIFIER || node->getToken().type == TokenType::INTCON || 
+                 node->getToken().type == TokenType::REALCON || node->getToken().type == TokenType::STRING || 
+                 node->getToken().type == TokenType::CHARCON) {
             out << typeStr << "(" << node->getToken().value << ")\n";
         } else {
             out << typeStr << "\n";

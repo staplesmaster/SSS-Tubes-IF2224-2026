@@ -34,7 +34,7 @@ int main() {
     }
 
     // Syntax analysis
-    Parser parser(tokens);
+    Parser parser(tokens, sourceCode);
     ParseNode* parseTreeRoot = parser.parse(); 
     vector<string> syntaxErrors = parser.getErrors();
 

@@ -3,7 +3,8 @@
 
 using namespace std;
 
-Parser::Parser(const vector<Token>& tokens): tokens(tokens), pos(0){}
+Parser::Parser(const vector<Token>& tokens, const string& sourceCode) 
+    : tokens(tokens), sourceCode(sourceCode), pos(0), hasError(false) {}
 
 Token Parser::currentToken() const {
     if (isAtEnd()) return tokens.back();
@@ -23,37 +24,54 @@ void Parser::advance(){
     if(!isAtEnd()) pos++;
 }
 
-Token Parser::match(TokenType expected){
-    if (!isAtEnd() && currentToken().type == expected){
+Token Parser::match(TokenType expected) {
+    if (hasError) {
+        Token dummy;
+        dummy.type = TokenType::UNKNOWN;
+        dummy.value = "SKIPPED";
+        return dummy;
+    }
+
+    if (!isAtEnd() && currentToken().type == expected) {
         Token t = currentToken();
         advance();
-        panicMode = false;
         return t; 
     }
-
-    if (!panicMode) {
-        string errLex = isAtEnd() ? "EOF" : currentToken().value; 
-        string errMsg = "[SYNTAX ERROR] Mengharapkan '" + typeToString(expected) + 
-                        "' tetapi menemukan '" + errLex + "' pada posisi " + to_string(pos) + "!";
-        
-        errors.push_back(errMsg);
-
-        panicMode = true;
+    
+    hasError = true;
+    
+    int errorPos = isAtEnd() ? sourceCode.length() : currentToken().start;
+    int lineNum = 1;
+    for (int i = 0; i < errorPos; i++) {
+        if (sourceCode[i] == '\n') {
+            lineNum++;
+        }
     }
+
+    string errLex = isAtEnd() ? "EOF" : currentToken().value; 
+    string errMsg = "[SYNTAX ERROR] Mengharapkan '" + typeToString(expected) + 
+                    "' tetapi menemukan '" + errLex + "' pada baris " + to_string(lineNum) + "!";
+    
+    errors.push_back(errMsg);
+    pos = tokens.size(); 
 
     Token errorToken; 
     errorToken.type = TokenType::UNKNOWN;
-    errorToken.value = "MISSING_" + typeToString(expected);
+    errorToken.value = "ERROR_STOP";
     return errorToken;
 }
 
 ParseNode* Parser::parse() {
     ParseNode* root = parseProgram();
-    
-    if (!isAtEnd()) {
-        cout << "[WARNING] Parsing selesai, tetapi terdapat token ekstra (" 
-             << currentToken().value << ") di luar struktur program.\n";
+
+    if (!isAtEnd() && !hasError) {
+        string errMsg = "[SYNTAX ERROR] Parsing selesai, tetapi terdapat token ekstra '" 
+                        + currentToken().value + "' di luar struktur program!";
+        
+        errors.push_back(errMsg);
+        hasError = true;
     }
+    
     return root;
 }
 
@@ -65,6 +83,7 @@ const vector<string>& Parser::getErrors() const {
 // program -> program-eader + declaration-part + compound-statement + period
 ParseNode* Parser::parseProgram(){
     ParseNode* node = new ParseNode("<program>");
+    if (hasError) return node;
 
     node->addChild(parseProgramHeader());
     node->addChild(parseDeclarationPart());
@@ -77,6 +96,7 @@ ParseNode* Parser::parseProgram(){
 // program-header -> programsy + ident + semicolon
 ParseNode* Parser::parseProgramHeader(){
     ParseNode* node = new ParseNode("<program-header>");
+    if (hasError) return node;
 
     node->addChild(new ParseNode(match(TokenType::PROGRAM)));
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
@@ -89,6 +109,7 @@ ParseNode* Parser::parseProgramHeader(){
 // block -> declaration-part + compound-statement
 ParseNode* Parser::parseBlock(){
     ParseNode* node = new ParseNode("<block>");
+    if (hasError) return node;
 
     node->addChild(parseDeclarationPart());
     node->addChild(parseCompoundStatement());
@@ -101,6 +122,7 @@ ParseNode* Parser::parseBlock(){
 // declaration-part -> (const)* + (type)* + (var)* + (subprogram)*
 ParseNode* Parser::parseDeclarationPart() {
     ParseNode* node = new ParseNode( "<declaration-part>" );
+    if (hasError) return node;
 
     while (!isAtEnd() && currentToken().type == TokenType::CONST) {
         node->addChild( parseConstDeclaration() );
@@ -122,6 +144,7 @@ ParseNode* Parser::parseDeclarationPart() {
 // const-declaration -> constsy + (ident + eql + constant + semicolon)+
 ParseNode* Parser::parseConstDeclaration() {
     ParseNode* node = new ParseNode( "<const-declaration>" );
+    if (hasError) return node;
     node->addChild( new ParseNode( match( TokenType::CONST ) ) );
 
     do {
@@ -137,6 +160,7 @@ ParseNode* Parser::parseConstDeclaration() {
 // constant -> charcon | string | [(plus | minus)? + (ident | intcon | realcon)]
 ParseNode* Parser::parseConstant() {
     ParseNode* node = new ParseNode( "<constant>" );
+    if (hasError) return node;
     TokenType t = currentToken().type;
 
     if (t == TokenType::CHARCON || t == TokenType::STRING) {
@@ -153,7 +177,7 @@ ParseNode* Parser::parseConstant() {
             node->addChild( new ParseNode( match( t ) ) );
         }
         else {
-            node->addChild( new ParseNode( match( TokenType::UNKNOWN ) ) );
+            node->addChild( new ParseNode( match( TokenType::INTCON ) ) );
         }
     }
     return node;
@@ -162,6 +186,7 @@ ParseNode* Parser::parseConstant() {
 // type-declaration -> typesy + (ident + eql + type + semicolon)+
 ParseNode* Parser::parseTypeDeclaration() {
     ParseNode* node = new ParseNode( "<type-declaration>" );
+    if (hasError) return node;
     node->addChild( new ParseNode( match( TokenType::TYPE ) ) );
 
     do {
@@ -177,6 +202,7 @@ ParseNode* Parser::parseTypeDeclaration() {
 // var-declaration -> varsy + (identifier-list + colon + type + semicolon)+
 ParseNode* Parser::parseVarDeclaration() {
     ParseNode* node = new ParseNode( "<var-declaration>" );
+    if (hasError) return node;
     node->addChild( new ParseNode( match( TokenType::VAR ) ) );
 
     do {
@@ -192,6 +218,7 @@ ParseNode* Parser::parseVarDeclaration() {
 // identifier-list -> ident + (comma + ident)*
 ParseNode* Parser::parseIdentifierList() {
     ParseNode* node = new ParseNode( "<identifier-list>" );
+    if (hasError) return node;
     node->addChild( new ParseNode( match( TokenType::IDENTIFIER ) ) );
 
     while (!isAtEnd() && currentToken().type == TokenType::COMMA) {
@@ -204,6 +231,7 @@ ParseNode* Parser::parseIdentifierList() {
 // subprogram-declaration -> procedure-declaration | function-declaration
 ParseNode* Parser::parseSubprogramDeclaration() {
     ParseNode* node = new ParseNode( "<subprogram-declaration>" );
+    if (hasError) return node;
 
     if (currentToken().type == TokenType::PROCEDURE) {
         node->addChild( parseProcedureDeclaration() );
@@ -212,7 +240,7 @@ ParseNode* Parser::parseSubprogramDeclaration() {
         node->addChild( parseFunctionDeclaration() );
     }
     else {
-        node->addChild( new ParseNode( match( TokenType::UNKNOWN ) ) );
+        node->addChild( new ParseNode( match( TokenType::PROCEDURE ) ) );
     }
     return node;
 }
@@ -220,6 +248,7 @@ ParseNode* Parser::parseSubprogramDeclaration() {
 // procedure-declaration -> proceduresy + ident + (formal-parameter-list)? + semicolon + block + semicolon
 ParseNode* Parser::parseProcedureDeclaration() {
     ParseNode* node = new ParseNode( "<procedure-declaration>" );
+    if (hasError) return node;
 
     node->addChild( new ParseNode( match( TokenType::PROCEDURE ) ) );
     node->addChild( new ParseNode( match( TokenType::IDENTIFIER ) ) );
@@ -238,6 +267,7 @@ ParseNode* Parser::parseProcedureDeclaration() {
 // function-declaration -> functionsy + ident + (formal-parameter-list)? + colon + ident + semicolon + block + semicolon
 ParseNode* Parser::parseFunctionDeclaration() {
     ParseNode* node = new ParseNode( "<function-declaration>" );
+    if (hasError) return node;
 
     node->addChild( new ParseNode( match( TokenType::FUNCTION ) ) );
     node->addChild( new ParseNode( match( TokenType::IDENTIFIER ) ) );
@@ -258,6 +288,7 @@ ParseNode* Parser::parseFunctionDeclaration() {
 // formal-parameter-list -> lparent + parameter-group + (semicolon + parameter-group)* + rparent
 ParseNode* Parser::parseFormalParameterList() {
     ParseNode* node = new ParseNode( "<formal-parameter-list>" );
+    if (hasError) return node;
 
     node->addChild( new ParseNode( match( TokenType::LPARENT ) ) );
     node->addChild( parseParameterGroup() );
@@ -274,6 +305,7 @@ ParseNode* Parser::parseFormalParameterList() {
 // parameter-group -> identifier-list + colon + (ident | array-type)
 ParseNode* Parser::parseParameterGroup() {
     ParseNode* node = new ParseNode( "<parameter-group>" );
+    if (hasError) return node;
 
     node->addChild( parseIdentifierList() );
     node->addChild( new ParseNode( match( TokenType::COLON ) ) );
@@ -292,6 +324,7 @@ ParseNode* Parser::parseParameterGroup() {
 // type -> ident | array-type | range | enumerated | record-type
 ParseNode* Parser::parseType(){
     ParseNode* node = new ParseNode("<type>");
+    if (hasError) return node;
     
     if (currentToken().type == TokenType::ARRAY){
         node->addChild(parseArrayType());
@@ -309,7 +342,7 @@ ParseNode* Parser::parseType(){
                 currentToken().type == TokenType::STRING || currentToken().type == TokenType::PLUS || currentToken().type == TokenType::MINUS){
             node->addChild(parseRange()); // ini untuk string harus cek lagi sih
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
     }
     return node;
 }
@@ -317,6 +350,7 @@ ParseNode* Parser::parseType(){
 // array-type -> arraysy + lbrack + (range | ident) + rbrack + ofsy + type
 ParseNode* Parser::parseArrayType(){
     ParseNode* node = new ParseNode("<array-type>");
+    if (hasError) return node;
 
     node->addChild(new ParseNode(match(TokenType::ARRAY)));
     node->addChild(new ParseNode(match(TokenType::LBRACK)));
@@ -337,6 +371,7 @@ ParseNode* Parser::parseArrayType(){
 // range -> constant + period + period + constant
 ParseNode* Parser::parseRange(){
     ParseNode* node = new ParseNode("<range>");
+    if (hasError) return node;
 
     node->addChild(parseConstant()); // batas bawah
     node->addChild(new ParseNode(match(TokenType::PERIOD)));
@@ -349,6 +384,7 @@ ParseNode* Parser::parseRange(){
 // enumerated -> lparent + ident + (comma + ident)* + rparent
 ParseNode* Parser::parseEnumerated(){
     ParseNode* node = new ParseNode("<enumerated>");
+    if (hasError) return node;
 
     node->addChild(new ParseNode(match(TokenType::LPARENT)));
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
@@ -364,6 +400,7 @@ ParseNode* Parser::parseEnumerated(){
 // record-type -> recordsy + field-list + endsy
 ParseNode* Parser::parseRecordType(){
     ParseNode* node = new ParseNode("<record-type>");
+    if (hasError) return node;
 
     node->addChild(new ParseNode(match(TokenType::RECORD)));
     node->addChild(parseFieldList());
@@ -375,6 +412,7 @@ ParseNode* Parser::parseRecordType(){
 // field-list -> field-part + (semicolon + field-part)*
 ParseNode* Parser::parseFieldList(){
     ParseNode* node = new ParseNode("<field-list>");
+    if (hasError) return node;
 
     node->addChild(parseFieldPart());
     while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON && peek(1).type == TokenType::IDENTIFIER){
@@ -387,6 +425,7 @@ ParseNode* Parser::parseFieldList(){
 // field-part -> identifier-lsit + colon + type
 ParseNode* Parser::parseFieldPart(){
     ParseNode* node = new ParseNode("<field-part>");
+    if (hasError) return node;
 
     node->addChild(parseIdentifierList());
     node->addChild(new ParseNode(match(TokenType::COLON)));
@@ -398,6 +437,7 @@ ParseNode* Parser::parseFieldPart(){
 // compound-statement -> beginsy + statement-list + endsy
 ParseNode* Parser::parseCompoundStatement(){
     ParseNode* node = new ParseNode("<compound-statement>");
+    if (hasError) return node;
 
     node->addChild(new ParseNode(match(TokenType::BEGIN)));
     node->addChild(parseStatementList());
@@ -409,6 +449,7 @@ ParseNode* Parser::parseCompoundStatement(){
 // statement-list -> statement + (semicolon + statement)*
 ParseNode* Parser::parseStatementList(){
     ParseNode* node = new ParseNode("<statement-list>");
+    if (hasError) return node;
     node->addChild(parseStatement());
     while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON){
         node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
@@ -420,6 +461,7 @@ ParseNode* Parser::parseStatementList(){
 // statement -> (assignment-state | if-statement | case-statement | while-statement | repeat-statement | for-statement | procedure/function-call)?
 ParseNode* Parser::parseStatement(){
     ParseNode* node = new ParseNode("<statement>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
 
     if (t == TokenType::IF){
@@ -442,8 +484,12 @@ ParseNode* Parser::parseStatement(){
                  || nextT == TokenType::ELSE || nextT == TokenType::UNTIL){
                     node->addChild(parseProcedureFunctionCall());
             } else { 
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(parseAssignmentStatement());
         }
+    }
+    else if (t == TokenType::END || t == TokenType::UNTIL || t == TokenType::ELSE || t == TokenType::SEMICOLON) {
+    } else {
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
     } 
     return node; 
 }
@@ -451,6 +497,7 @@ ParseNode* Parser::parseStatement(){
 // variable -> ident + (component-variable)*
 ParseNode* Parser::parseVariable() {
     ParseNode* node = new ParseNode("<variable>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
     
@@ -465,6 +512,7 @@ ParseNode* Parser::parseVariable() {
 // component-variable -> (lbrack + index-list + rbrack) | (period + ident)
 ParseNode* Parser::parseComponentVariable() {
     ParseNode* node = new ParseNode("<component-variable>");
+    if (hasError) return node;
     
     if (currentToken().type == TokenType::LBRACK) {
         node->addChild(new ParseNode(match(TokenType::LBRACK)));
@@ -481,12 +529,13 @@ ParseNode* Parser::parseComponentVariable() {
 // index-list -> (intcon | charcon | ident) + (comma + index-list)*
 ParseNode* Parser::parseIndexList() {
     ParseNode* node = new ParseNode("<index-list>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::INTCON || t == TokenType::CHARCON || t == TokenType::IDENTIFIER) {
         node->addChild(new ParseNode(match(t)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(new ParseNode(match(TokenType::INTCON)));
     }
     
     if (currentToken().type == TokenType::COMMA) {
@@ -500,6 +549,7 @@ ParseNode* Parser::parseIndexList() {
 // assignment-statement -> variable + becomes + expression
 ParseNode* Parser::parseAssignmentStatement() {
     ParseNode* node = new ParseNode("<assignment-statement>");
+    if (hasError) return node;
     
     node->addChild(parseVariable());
     node->addChild(new ParseNode(match(TokenType::ASSIGN))); 
@@ -511,6 +561,7 @@ ParseNode* Parser::parseAssignmentStatement() {
 // if-statement -> ifsy + expression + thensy + statement + (elsy + statement)?
 ParseNode* Parser::parseIfStatement() {
     ParseNode* node = new ParseNode("<if-statement>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::IF)));
     node->addChild(parseExpression());
@@ -528,6 +579,7 @@ ParseNode* Parser::parseIfStatement() {
 // case-statement -> casesy + expression + ofsy + case-block + endsy
 ParseNode* Parser::parseCaseStatement() {
     ParseNode* node = new ParseNode("<case-statement>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::CASE)));
     node->addChild(parseExpression());
@@ -541,6 +593,7 @@ ParseNode* Parser::parseCaseStatement() {
 // case-block -> constant + (comma + constant)* + colon + statement + (semicolon + case-block?)*
 ParseNode* Parser::parseCaseBlock() {
     ParseNode* node = new ParseNode("<case-block>");
+    if (hasError) return node;
     
     node->addChild(parseConstant());
     
@@ -565,6 +618,7 @@ ParseNode* Parser::parseCaseBlock() {
 
 ParseNode* Parser::parseWhileStatement() {
     ParseNode* node = new ParseNode("<while-statement>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::WHILE)));
     node->addChild(parseExpression());
@@ -577,6 +631,7 @@ ParseNode* Parser::parseWhileStatement() {
 // repeat-statement -> repeatsy + statement-list + untilsy + expression
 ParseNode* Parser::parseRepeatStatement() {
     ParseNode* node = new ParseNode("<repeat-statement>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::REPEAT)));
     node->addChild(parseStatementList());
@@ -589,6 +644,7 @@ ParseNode* Parser::parseRepeatStatement() {
 // for-statement -> forsy + ident + becomes + expression + (tosy | downtosy) + expression + dosy + statement
 ParseNode* Parser::parseForStatement() {
     ParseNode* node = new ParseNode("<for-statement>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::FOR)));
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
@@ -598,7 +654,7 @@ ParseNode* Parser::parseForStatement() {
     if (currentToken().type == TokenType::TO || currentToken().type == TokenType::DOWNTO) {
         node->addChild(new ParseNode(match(currentToken().type)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); 
+        node->addChild(new ParseNode(match(TokenType::TO))); 
     }
     
     node->addChild(parseExpression());
@@ -611,6 +667,7 @@ ParseNode* Parser::parseForStatement() {
 // procedure/function-call -> ident + (lparent + parameter-list? + rparent)?
 ParseNode* Parser::parseProcedureFunctionCall() {
     ParseNode* node = new ParseNode("<procedure/function-call>");
+    if (hasError) return node;
     
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
     
@@ -630,6 +687,7 @@ ParseNode* Parser::parseProcedureFunctionCall() {
 // parameter-list -> expression + (comma + expression)*
 ParseNode* Parser::parseParameterList() {
     ParseNode* node = new ParseNode("<parameter-list>");
+    if (hasError) return node;
     
     node->addChild(parseExpression());
     
@@ -644,6 +702,7 @@ ParseNode* Parser::parseParameterList() {
 // expression -> simple-expression + (relational-operator + simple-expression)?
 ParseNode* Parser::parseExpression() {
     ParseNode* node = new ParseNode("<expression>");
+    if (hasError) return node;
     
     node->addChild(parseSimpleExpression());
     
@@ -661,6 +720,7 @@ ParseNode* Parser::parseExpression() {
 // simple-expression -> (plus | minus)? + term + (additive-operator + term)*
 ParseNode* Parser::parseSimpleExpression() {
     ParseNode* node = new ParseNode("<simple-expression>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::PLUS || t == TokenType::MINUS) {
@@ -682,6 +742,7 @@ ParseNode* Parser::parseSimpleExpression() {
 // term -> factor + (multiplicative-operator + factor)*
 ParseNode* Parser::parseTerm() {
     ParseNode* node = new ParseNode("<term>");
+    if (hasError) return node;
     
     node->addChild(parseFactor());
     
@@ -699,6 +760,7 @@ ParseNode* Parser::parseTerm() {
 // factor -> ident | intcon | realcon | charcon | string | (lparent + expression + rparent) | (notsy + factor) | procedure/function-call | variable
 ParseNode* Parser::parseFactor() {
     ParseNode* node = new ParseNode("<factor>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::INTCON || t == TokenType::REALCON || 
@@ -722,7 +784,7 @@ ParseNode* Parser::parseFactor() {
         }
     } 
     else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); 
+        node->addChild(new ParseNode(match(TokenType::IDENTIFIER))); 
     }
     
     return node;
@@ -731,13 +793,14 @@ ParseNode* Parser::parseFactor() {
 // relational-operator -> eql | neq | gtr | geq | lss | leq
 ParseNode* Parser::parseRelationalOperator() {
     ParseNode* node = new ParseNode("<relational-operator>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::EQL || t == TokenType::NEQ || t == TokenType::GTR || 
         t == TokenType::GEQ || t == TokenType::LSS || t == TokenType::LEQ) {
         node->addChild(new ParseNode(match(t)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(new ParseNode(match(TokenType::EQL)));
     }
     
     return node;
@@ -746,12 +809,13 @@ ParseNode* Parser::parseRelationalOperator() {
 // additive-operator -> plus | minus | orsy
 ParseNode* Parser::parseAdditiveOperator() {
     ParseNode* node = new ParseNode("<additive-operator>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::PLUS || t == TokenType::MINUS || t == TokenType::OR) {
         node->addChild(new ParseNode(match(t)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(new ParseNode(match(TokenType::PLUS)));
     }
     
     return node;
@@ -760,13 +824,14 @@ ParseNode* Parser::parseAdditiveOperator() {
 // multiplicative-operator -> times | rdiv | idiv | imod | andsy
 ParseNode* Parser::parseMultiplicativeOperator() {
     ParseNode* node = new ParseNode("<multiplicative-operator>");
+    if (hasError) return node;
     TokenType t = currentToken().type;
     
     if (t == TokenType::TIMES || t == TokenType::RDIV || t == TokenType::IDIV || 
         t == TokenType::MOD || t == TokenType::AND) {
         node->addChild(new ParseNode(match(t)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN)));
+        node->addChild(new ParseNode(match(TokenType::TIMES)));
     }
     
     return node;

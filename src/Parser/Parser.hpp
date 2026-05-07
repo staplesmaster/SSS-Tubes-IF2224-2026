@@ -11,8 +11,9 @@ using namespace std;
 class Parser {
 private:
     vector<Token> tokens;
+    string sourceCode;
     int pos;
-    bool panicMode = false;
+    bool hasError = false;
     vector<string> errors;
 
     Token currentToken() const;
@@ -72,7 +73,7 @@ private:
     ParseNode* parseMultiplicativeOperator();
 
 public:
-    Parser(const vector<Token>& tokens);
+    Parser(const vector<Token>& tokens, const string& sourceCode);
 
     ParseNode* parse();
     
