@@ -531,11 +531,9 @@ ParseNode* Parser::parseCaseBlock() {
     node->addChild(new ParseNode(match(TokenType::COLON)));
     node->addChild(parseStatement());
     
-    // Looping case-block lanjutan yang dipisahkan semicolon
     while (!isAtEnd() && currentToken().type == TokenType::SEMICOLON) {
         node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
         
-        // Kalau token selanjutnya 'end', jangan panggil caseBlock 
         if (currentToken().type != TokenType::END) {
             node->addChild(parseCaseBlock()); 
         }
@@ -576,11 +574,10 @@ ParseNode* Parser::parseForStatement() {
     node->addChild(new ParseNode(match(TokenType::ASSIGN))); // becomes (:=)
     node->addChild(parseExpression());
     
-    // Percabangan tosy ATAU downtosy
     if (currentToken().type == TokenType::TO || currentToken().type == TokenType::DOWNTO) {
         node->addChild(new ParseNode(match(currentToken().type)));
     } else {
-        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); // Menembak error jika tidak ada to/downto
+        node->addChild(new ParseNode(match(TokenType::UNKNOWN))); 
     }
     
     node->addChild(parseExpression());
@@ -596,11 +593,9 @@ ParseNode* Parser::parseProcedureFunctionCall() {
     
     node->addChild(new ParseNode(match(TokenType::IDENTIFIER)));
     
-    // Tanda '?': Pemanggilan parameter opsional
     if (currentToken().type == TokenType::LPARENT) {
         node->addChild(new ParseNode(match(TokenType::LPARENT)));
         
-        // Cek jika tidak langsung diakhiri kurung tutup, maka parsing parameter list
         if (currentToken().type != TokenType::RPARENT) {
             node->addChild(parseParameterList());
         }
@@ -629,10 +624,8 @@ ParseNode* Parser::parseParameterList() {
 ParseNode* Parser::parseExpression() {
     ParseNode* node = new ParseNode("<expression>");
     
-    // Semua ekspresi pasti diawali dengan simple-expression
     node->addChild(parseSimpleExpression());
     
-    // Tanda '?': Cek apakah ada operator perbandingan (==, !=, >, >=, <, <=)
     TokenType t = currentToken().type;
     if (t == TokenType::EQL || t == TokenType::NEQ || t == TokenType::GTR || 
         t == TokenType::GEQ || t == TokenType::LSS || t == TokenType::LEQ) {
@@ -649,20 +642,17 @@ ParseNode* Parser::parseSimpleExpression() {
     ParseNode* node = new ParseNode("<simple-expression>");
     TokenType t = currentToken().type;
     
-    // Tanda '?': Prefix unary opsional (misal: -5 atau +10)
     if (t == TokenType::PLUS || t == TokenType::MINUS) {
         node->addChild(new ParseNode(match(t)));
     }
     
-    // Masuk ke level prioritas berikutnya (term)
     node->addChild(parseTerm());
     
-    // Looping '*': Penjumlahan atau pengurangan berantai (misal: a + b - c)
     t = currentToken().type;
     while (!isAtEnd() && (t == TokenType::PLUS || t == TokenType::MINUS || t == TokenType::OR)) {
         node->addChild(parseAdditiveOperator());
         node->addChild(parseTerm());
-        t = currentToken().type; // Update intipan
+        t = currentToken().type; 
     }
     
     return node;
@@ -672,16 +662,14 @@ ParseNode* Parser::parseSimpleExpression() {
 ParseNode* Parser::parseTerm() {
     ParseNode* node = new ParseNode("<term>");
     
-    // Masuk ke level prioritas tertinggi (factor)
     node->addChild(parseFactor());
     
-    // Looping '*': Perkalian atau pembagian berantai (misal: x * y / z)
     TokenType t = currentToken().type;
     while (!isAtEnd() && (t == TokenType::TIMES || t == TokenType::RDIV || 
                           t == TokenType::IDIV || t == TokenType::MOD || t == TokenType::AND)) {
         node->addChild(parseMultiplicativeOperator());
         node->addChild(parseFactor());
-        t = currentToken().type; // Update intipan
+        t = currentToken().type; 
     }
     
     return node;
@@ -697,30 +685,22 @@ ParseNode* Parser::parseFactor() {
         t == TokenType::CHARCON || t == TokenType::STRING) {
         node->addChild(new ParseNode(match(t)));
     } 
-    // Rute 2: Ekspresi di dalam kurung (misal: (a + b) )
     else if (t == TokenType::LPARENT) {
         node->addChild(new ParseNode(match(TokenType::LPARENT)));
         node->addChild(parseExpression());
         node->addChild(new ParseNode(match(TokenType::RPARENT)));
     } 
-    // Rute 3: Unary NOT (misal: not a)
     else if (t == TokenType::NOT) {
         node->addChild(new ParseNode(match(TokenType::NOT)));
         node->addChild(parseFactor());
     } 
-    // Rute 4: PENYELESAIAN AMBIGUITAS (ident vs func-call vs variable)
     else if (t == TokenType::IDENTIFIER) {
-        // Jika identifier langsung diikuti kurung buka, PASTI pemanggilan fungsi
         if (peek(1).type == TokenType::LPARENT) {
             node->addChild(parseProcedureFunctionCall());
         } else {
-            // Jika tidak, kita anggap sebagai variabel (baik itu skalar 'a', array 'a[1]', atau field 'a.x').
-            // Catatan: Jika ini hanya identifier polos (skalar), fungsi parseVariable() 
-            // akan memakannya dengan sempurna tanpa memanggil parseComponentVariable().
             node->addChild(parseVariable());
         }
     } 
-    // Fallback: Syntax Error di tengah ekspresi
     else {
         node->addChild(new ParseNode(match(TokenType::UNKNOWN))); 
     }
@@ -733,7 +713,6 @@ ParseNode* Parser::parseRelationalOperator() {
     ParseNode* node = new ParseNode("<relational-operator>");
     TokenType t = currentToken().type;
     
-    // Cek dengan pasti agar aman
     if (t == TokenType::EQL || t == TokenType::NEQ || t == TokenType::GTR || 
         t == TokenType::GEQ || t == TokenType::LSS || t == TokenType::LEQ) {
         node->addChild(new ParseNode(match(t)));
