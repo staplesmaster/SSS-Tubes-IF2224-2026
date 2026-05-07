@@ -1,0 +1,12 @@
+program testCase4;
+
+var
+    i, total : integer;
+
+begin
+    total := 0;
+    
+    { ERROR: Lupa menuliskan 'to' di antara angka 1 dan 10 }
+    for i := 1 10 do
+        total := total + i;
+end.

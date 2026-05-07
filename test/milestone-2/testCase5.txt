@@ -1,0 +1,9 @@
+program testCase5;
+
+var
+    hasil : integer;
+
+begin
+    { ERROR: Ada dua operator bersebelahan (+ dan *) }
+    hasil := 10 + * 5; 
+end.

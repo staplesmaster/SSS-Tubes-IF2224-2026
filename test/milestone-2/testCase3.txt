@@ -1,0 +1,8 @@
+program testCase3;
+
+var
+    angka : := ; { ERROR: Seharusnya menuliskan tipe data seperti 'integer' }
+
+begin
+    angka := 10;
+end.
