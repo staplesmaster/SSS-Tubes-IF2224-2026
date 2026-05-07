@@ -104,3 +104,59 @@ void writeTokens(const string& filepath, const vector<Token>& tokens, const stri
 
     outputFile.close();
 }
+
+void writeTreeRecursive(ofstream& out, ParseNode* node, const string& prefix = "", bool isLast = true, bool isRoot = true) {
+    if (node == nullptr) return;
+
+    if (!isRoot) {
+        out << prefix;
+        out << (isLast ? "└── " : "├── "); 
+    }
+
+    if (!node->getIsTerminal()) {
+        out << node->getName() << "\n";
+    } else {
+        string typeStr = typeToString(node->getToken().type); // Pastikan typeToString bisa diakses dari sini
+        if (node->getToken().type == TokenType::IDENTIFIER || node->getToken().type == TokenType::INTCON || 
+            node->getToken().type == TokenType::REALCON || node->getToken().type == TokenType::STRING || 
+            node->getToken().type == TokenType::CHARCON || node->getToken().type == TokenType::UNKNOWN) {
+            out << typeStr << "(" << node->getToken().value << ")\n";
+        } else {
+            out << typeStr << "\n";
+        }
+    }
+
+    for (size_t i = 0; i < node->getChildren().size(); ++i) {
+        string newPrefix = prefix;
+        if (!isRoot) {
+            newPrefix += (isLast ? "    " : "│   "); 
+        }
+        
+        bool childIsLast = (i == node->getChildren().size() - 1);
+        writeTreeRecursive(out, node->getChildren()[i], newPrefix, childIsLast, false);
+    }
+}
+
+void writeParseResult(const string& filepath, ParseNode* root, const vector<string>& errors) {
+    ofstream outFile(filepath);
+    if (!outFile.is_open()) {
+        throw runtime_error("Gagal membuka file untuk menulis Parse Tree: " + filepath);
+    }
+
+    if (!errors.empty()) {
+        outFile << "=== DAFTAR SYNTAX ERROR ===\n";
+        for (const string& err : errors) {
+            outFile << err << "\n";
+        }
+        outFile << "\n";
+    } else {
+        outFile << "=== TIDAK ADA SYNTAX ERROR (PROGRAM VALID) ===\n\n";
+    }
+
+    outFile << "=== HASIL PARSE TREE ===\n";
+    if (root != nullptr) {
+        writeTreeRecursive(outFile, root);
+    }
+
+    outFile.close();
+}

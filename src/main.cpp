@@ -4,6 +4,7 @@
 #include "Token.hpp"
 #include "Reader.hpp"
 #include "Writer.hpp"
+#include "Parser.hpp"
 
 using namespace std;
 
@@ -13,7 +14,7 @@ int main() {
     cin >> filename;
 
     // Input file
-    string inputFilePath = "test/milestone-1/" + filename;
+    string inputFilePath = "test/milestone-2/" + filename;
     string sourceCode;
     try {
         sourceCode = readFile(inputFilePath);
@@ -32,19 +33,30 @@ int main() {
         return 1;
     }
 
+    // Syntax analysis
+    Parser parser(tokens);
+    ParseNode* parseTreeRoot = parser.parse(); 
+    vector<string> syntaxErrors = parser.getErrors();
+
     // Write output file
     int lastIndex = filename.find_last_of('.');
     string baseName = (lastIndex != int(string::npos)) ? filename.substr(0, lastIndex) : filename;
     string extension = (lastIndex != int(string::npos)) ? filename.substr(lastIndex) : ".txt";
-    string outputFilePath = "test/milestone-1/" + baseName + "-Result" + extension;
+    string tokenOutputPath = "test/milestone-2/" + baseName + "-Result-Token" + extension;
+    string parseOutputPath = "test/milestone-2/" + baseName + "-Result-Parse" + extension;
 
     try {
-        writeTokens(outputFilePath, tokens, sourceCode);
-        cout << "\nBerhasil! Daftar token telah disimpan dalam " << outputFilePath << endl;
+        writeTokens(tokenOutputPath, tokens, sourceCode);
+        writeParseResult(parseOutputPath, parseTreeRoot, syntaxErrors);
+        cout << "\nBerhasil! Daftar token telah disimpan dalam"<< endl;
+        cout << "File Token: " << tokenOutputPath << "\n";
+        cout << "File Parse: " << parseOutputPath << "\n";
     } catch (const exception& e) {
         cerr << e.what() << endl;
         return 1;
     }
+
+    delete parseTreeRoot;
 
     return 0;
 }

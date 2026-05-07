@@ -27,17 +27,38 @@ Token Parser::match(TokenType expected){
     if (!isAtEnd() && currentToken().type == expected){
         Token t = currentToken();
         advance();
+        panicMode = false;
         return t; 
     }
-    // Masuk Panic Mode
-    string errLex = isAtEnd()? "EOF" : currentToken().value; 
-    cout << "[SYNTAX ERROR] Mengharapkan '" << typeToString(expected) 
-         << "' tetapi menemukan '" << errLex << "' pada posisi " << pos << "!\n";
+
+    if (!panicMode) {
+        string errLex = isAtEnd() ? "EOF" : currentToken().value; 
+        string errMsg = "[SYNTAX ERROR] Mengharapkan '" + typeToString(expected) + 
+                        "' tetapi menemukan '" + errLex + "' pada posisi " + to_string(pos) + "!";
+        
+        errors.push_back(errMsg);
+
+        panicMode = true;
+    }
 
     Token errorToken; 
-    errorToken.type = UNKNOWN;
+    errorToken.type = TokenType::UNKNOWN;
     errorToken.value = "MISSING_" + typeToString(expected);
     return errorToken;
+}
+
+ParseNode* Parser::parse() {
+    ParseNode* root = parseProgram();
+    
+    if (!isAtEnd()) {
+        cout << "[WARNING] Parsing selesai, tetapi terdapat token ekstra (" 
+             << currentToken().value << ") di luar struktur program.\n";
+    }
+    return root;
+}
+
+const vector<string>& Parser::getErrors() const {
+    return errors;
 }
 
 // STRUKTUR PROGRAM UTAMA

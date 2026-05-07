@@ -28,6 +28,4 @@ public:
     Token getToken() const;
     bool getIsTerminal() const;
     const vector<ParseNode*>& getChildren() const;
-
-    void printTree(const string& prefix = "", bool isLast = true, bool isRoot = true) const;
 };

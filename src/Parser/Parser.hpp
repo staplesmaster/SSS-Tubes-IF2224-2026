@@ -12,6 +12,8 @@ class Parser {
 private:
     vector<Token> tokens;
     int pos;
+    bool panicMode = false;
+    vector<string> errors;
 
     Token currentToken() const;
     Token peek(int offset) const; 
@@ -72,5 +74,7 @@ private:
 public:
     Parser(const vector<Token>& tokens);
 
-    ParseNode* parse(); 
+    ParseNode* parse();
+    
+    const vector<string>& getErrors() const;
 };

@@ -1,9 +1,9 @@
 CXX = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
-INCLUDES = -Isrc -Isrc/FileProc -Isrc/Lexer -Isrc/Parser
-TARGET = lexer
+SRCS = $(wildcard src/*.cpp src/*/*.cpp)
+INCLUDES = $(addprefix -I, $(sort $(dir $(SRCS))))
 
-SRCS = src/main.cpp src/FileProc/Reader.cpp src/FileProc/Writer.cpp src/Lexer/Lexer.cpp src/Lexer/Token.cpp src/Parser/ParseNode.cpp src/Parser/Parser.cpp
+TARGET = parser
 
 all: $(TARGET)
 
