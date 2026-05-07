@@ -11,9 +11,7 @@ var
 begin
     counter := start;
     while counter > 0 do
-    begin
-        counter := counter - 1;
-    end;
+    counter := counter - 1;
 end;
 
 function CekValid(a, b : integer; limit : real) : boolean;

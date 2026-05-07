@@ -320,10 +320,14 @@ Token Lexer::nextToken() {
             case State::INT:
                 if (isDigit(c)) {
                     adv();
-                }else if (c == '.') {
-                    adv();
-                    state = State::ON_FRACTION;
-                }else if(isAlphabet(c)){
+                } else if (c == '.') {
+                    if (!isEnd() && pos + 1 < (int)line.size() && isDigit(line[pos + 1])) {
+                        adv();
+                        state = State::ON_FRACTION;
+                    } else {
+                        return makeToken(INTCON, tokenStart, pos);
+                    }
+                } else if (isAlphabet(c)) {
                     adv();
                     state = State::UNKNOWN;
                 }

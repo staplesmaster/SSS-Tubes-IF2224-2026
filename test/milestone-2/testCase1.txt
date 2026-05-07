@@ -12,7 +12,7 @@ type
     Siswa == record
         umur : integer;
         nilai : real;
-        lulus : boolean;
+        lulus : boolean
     end;
     DataSiswa == array [1..100] of Siswa;
     Matriks == array [1..10] of array [1..10] of integer;
@@ -36,10 +36,7 @@ begin
 
     case i of
         1, 2, 3 : k := 10;
-        4 : begin
-                k := 20;
-                j := 30;
-            end;
+        4 : k := 20;
         5 : k := 0
     end;
 
