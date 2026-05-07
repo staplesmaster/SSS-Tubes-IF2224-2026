@@ -8,7 +8,6 @@
 | Nicholas Luis Chandra | 13524105 |
 
 ## Deskripsi Program
-## Deskripsi Program
 Program ini adalah program compiler Lexical Analyzer dan Syntax Analyzer/Parser yang dibangun menggunakan bahasa C++. Program akan membaca *source code* dari file input, melakukan proses leksikal untuk menghasilkan susunan token, lalu melakukan *parsing* untuk menyusun *Parse Tree* serta mendeteksi *syntax error* sesuai aturan tata bahasa yang ditentukan.
 
 Alur program secara umum:
