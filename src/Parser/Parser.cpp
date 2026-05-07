@@ -105,7 +105,7 @@ ParseNode* Parser::parseConstDeclaration() {
 
     do {
         node->addChild( new ParseNode( match( TokenType::IDENTIFIER ) ) );
-        node->addChild( new ParseNode( match( TokenType::EQL ) ) ); // Sesuai contoh grammar "INT==100"
+        node->addChild( new ParseNode( match( TokenType::EQL ) ) );
         node->addChild( parseConstant() );
         node->addChild( new ParseNode( match( TokenType::SEMICOLON ) ) );
     } while (!isAtEnd() && currentToken().type == TokenType::IDENTIFIER);
@@ -146,7 +146,7 @@ ParseNode* Parser::parseTypeDeclaration() {
     do {
         node->addChild( new ParseNode( match( TokenType::IDENTIFIER ) ) );
         node->addChild( new ParseNode( match( TokenType::EQL ) ) );
-        node->addChild( parseType() ); // Akan diimplementasi di Bagian 4
+        node->addChild( parseType() );
         node->addChild( new ParseNode( match( TokenType::SEMICOLON ) ) );
     } while (!isAtEnd() && currentToken().type == TokenType::IDENTIFIER);
 
