@@ -680,7 +680,6 @@ ParseNode* Parser::parseFactor() {
     ParseNode* node = new ParseNode("<factor>");
     TokenType t = currentToken().type;
     
-    // Rute 1: Tipe data konstan
     if (t == TokenType::INTCON || t == TokenType::REALCON || 
         t == TokenType::CHARCON || t == TokenType::STRING) {
         node->addChild(new ParseNode(match(t)));
