@@ -41,8 +41,10 @@ begin
     end;
 
     for i := 1 to MAX do
+    begin
         if i == 50 then
             kelas[i].lulus := true
         else
             kelas[i].lulus := false;
+    end;
 end.

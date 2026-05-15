@@ -616,6 +616,7 @@ ParseNode* Parser::parseCaseBlock() {
     return node;
 }
 
+// while-statement -> whilesy + expression + dosy + compound-statement + semicolon
 ParseNode* Parser::parseWhileStatement() {
     ParseNode* node = new ParseNode("<while-statement>");
     if (hasError) return node;
@@ -623,7 +624,8 @@ ParseNode* Parser::parseWhileStatement() {
     node->addChild(new ParseNode(match(TokenType::WHILE)));
     node->addChild(parseExpression());
     node->addChild(new ParseNode(match(TokenType::DO)));
-    node->addChild(parseStatement());
+    node->addChild(parseCompoundStatement());
+    node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
     
     return node;
 }
@@ -641,7 +643,7 @@ ParseNode* Parser::parseRepeatStatement() {
     return node;
 }
 
-// for-statement -> forsy + ident + becomes + expression + (tosy | downtosy) + expression + dosy + statement
+// for-statement -> forsy + ident + becomes + expression + (tosy | downtosy) + expression + dosy + compound-statement + semicolon
 ParseNode* Parser::parseForStatement() {
     ParseNode* node = new ParseNode("<for-statement>");
     if (hasError) return node;
@@ -659,7 +661,8 @@ ParseNode* Parser::parseForStatement() {
     
     node->addChild(parseExpression());
     node->addChild(new ParseNode(match(TokenType::DO)));
-    node->addChild(parseStatement());
+    node->addChild(parseCompoundStatement());
+    node->addChild(new ParseNode(match(TokenType::SEMICOLON)));
     
     return node;
 }
