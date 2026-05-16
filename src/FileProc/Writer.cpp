@@ -209,7 +209,7 @@ string astToString(ASTNode* node) {
     return "ComplexExpression";
 }
 
-// Helper: Cetak struktur vertikal untuk Blok, Statement, dan Deklarasi
+// Helper mencetak struktur vertikal untuk Blok, Statement, dan Deklarasi
 void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", bool isLast = true, bool isRoot = true) {
     if (node == nullptr) return;
 
@@ -220,11 +220,11 @@ void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", 
 
     string newPrefix = prefix + (isRoot ? "" : (isLast ? "    " : "│   "));
 
-    // --- PROGRAM & COMPOUND ---
+    // STRUKTUR PROGRAM
     if (auto* progNode = dynamic_cast<ProgramNode*>(node)) {
         out << "ProgramNode(name: '" << progNode->getProgramName() << "')\n";
         
-        // Cabang Declarations
+        // Cabang Deklarasi
         if (!progNode->declarations.empty()) {
             out << newPrefix << "├── Declarations\n";
             string declPrefix = newPrefix + "│   ";
@@ -237,7 +237,15 @@ void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", 
         // Cabang Block
         out << newPrefix << "└── Block\n";
         string blockPrefix = newPrefix + "    ";
-        writeASTRecursive(out, progNode->mainBlock, blockPrefix, true, false);
+        if (auto* mainCompound = dynamic_cast<CompoundNode*>(progNode->mainBlock)) {
+            for (size_t i = 0; i < mainCompound->statements.size(); ++i) {
+                bool childLast = (i == mainCompound->statements.size() - 1);
+                writeASTRecursive(out, mainCompound->statements[i], blockPrefix, childLast, false);
+            }
+        } 
+        else {
+            writeASTRecursive(out, progNode->mainBlock, blockPrefix, true, false);
+        }
     }
     else if (auto* compNode = dynamic_cast<CompoundNode*>(node)) {
         out << "CompoundStatement\n";
@@ -247,7 +255,7 @@ void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", 
         }
     }
 
-    // --- DECLARATIONS ---
+    // DEKLARASI
     else if (auto* varDecl = dynamic_cast<VarDeclNode*>(node)) {
         for (size_t i = 0; i < varDecl->getVarNames().size(); ++i) {
             out << "VarDecl(name: '" << varDecl->getVarNames()[i] << "', type: " << astToString(varDecl->getTypeDef()) << ")";
@@ -272,7 +280,7 @@ void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", 
         }
     }
 
-    // --- STATEMENTS ---
+    // STATEMENT
     else if (auto* assignNode = dynamic_cast<AssignNode*>(node)) {
         out << "Assign(target: " << astToString(assignNode->target) 
             << ", value: " << astToString(assignNode->value) << ")\n";
@@ -311,7 +319,6 @@ void writeASTRecursive(ofstream& out, ASTNode* node, const string& prefix = "", 
         writeASTRecursive(out, forNode->loopBlock, newPrefix + "    ", true, false);
     }
     
-    // Fallback jika node tidak dikenali secara spesifik untuk layout vertikal
     else {
         out << "ASTNode(" << astToString(node) << ")\n";
     }

@@ -267,13 +267,6 @@ vector<ASTNode*> ASTConverter::convertFormalParameterList(ParseNode* node) {
 ASTNode* ASTConverter::convertType(ParseNode* node) {
     ParseNode* actualType = node->getChildren()[0];
     string typeName = actualType->getName();
-
-    // Jika bukan non-terminal, maka ident biasa
-    if (typeName != "<array-type>" && typeName != "<range>" && 
-        typeName != "<enumerated>" && typeName != "<record-type>") {
-        return new NamedTypeNode(typeName); // Contoh: "integer", "real", "boolean"
-    } 
-    
     if (typeName == "<array-type>") {
         return convertArrayType(actualType);
     } 
@@ -399,28 +392,22 @@ ASTNode* ASTConverter::convertConstant(ParseNode* node) {
     string valStr = sign + valNode->getToken().value; // Gabungkan, misal "-" dan "5" menjadi "-5"
     if (valStr.empty()) return nullptr;
  
-    // Deduksi tipenya berdasarkan karakter string-nya:
-    
-    // Karakter (contoh: 'A')
-    if (valStr.length() >= 2 && valStr.front() == '\'' && valStr.back() == '\'') {
+    TokenType tType = valNode->getToken().type; // Ambil tipenya dari Lexer
+
+    if (tType == TokenType::CHARCON) {
         return new CharNode(valStr);
-    }
-    // String (contoh: "Hello")
-    else if (valStr.length() >= 2 && valStr.front() == '"' && valStr.back() == '"') {
+    } 
+    else if (tType == TokenType::STRING) {
         return new StringNode(valStr);
-    }
-    // Real / Float (mengandung titik)
-    else if (valStr.find('.') != string::npos) {
+    } 
+    else if (tType == TokenType::REALCON) {
         return new NumberNode(valStr, true); // true = isReal
+    } 
+    else if (tType == TokenType::INTCON) {
+        return new NumberNode(valStr, false); // false = isInteger
     }
-    // Identifier / Variabel / Konstanta lain (diawali huruf)
-    else if (isalpha(valStr[0])) {
-        return new VarNode(valStr); 
-    }
-    // Integer
-    else {
-        return new NumberNode(valStr, false); // isReal = false
-    }
+    // Fallback untuk Identifier murni
+    return new VarNode(valStr);
 }
 
 
@@ -820,19 +807,19 @@ ASTNode* ASTConverter::convertFactor(ParseNode* node) {
         return new UnaryOpNode("not", convertFactor(node->getChildren()[1]));
     }
     
-    // Jika berupa Literal/Konstanta (intcon, realcon, charcon, string)
-    if (valStr.length() >= 2 && valStr.front() == '\'' && valStr.back() == '\'') {
+    TokenType tType = child->getToken().type;
+    if (tType == TokenType::CHARCON) {
         return new CharNode(valStr);
     } 
-    else if (valStr.length() >= 2 && valStr.front() == '"' && valStr.back() == '"') {
+    else if (tType == TokenType::STRING) {
         return new StringNode(valStr);
     } 
-    else if (valStr.find('.') != string::npos && isdigit(valStr[0])) {
+    else if (tType == TokenType::REALCON) {
         return new NumberNode(valStr, true); // true = isReal
     } 
-    else if (isdigit(valStr[0])) {
+    else if (tType == TokenType::INTCON) {
         return new NumberNode(valStr, false); // false = isInteger
     }
-    
+
     return new VarNode(valStr);
 }
