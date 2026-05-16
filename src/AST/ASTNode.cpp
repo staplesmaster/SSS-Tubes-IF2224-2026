@@ -6,6 +6,10 @@ ProgramNode::ProgramNode(string name, vector<ASTNode*> decls, ASTNode* block)
     : programName(name), declarations(decls), mainBlock(block) {}
 void ProgramNode::accept(ASTVisitor* visitor) { visitor->visitProgramNode(this); }
 
+string ProgramNode::getProgramName() {
+    return programName;
+}
+
 CompoundNode::CompoundNode(vector<ASTNode*> stmts) : statements(stmts) {}
 void CompoundNode::accept(ASTVisitor* visitor) { visitor->visitCompoundNode(this); }
 
@@ -13,11 +17,32 @@ void CompoundNode::accept(ASTVisitor* visitor) { visitor->visitCompoundNode(this
 ConstDeclNode::ConstDeclNode(string name, ASTNode* val) : constName(name), value(val) {}
 void ConstDeclNode::accept(ASTVisitor* visitor) { visitor->visitConstDeclNode(this); }
 
+string ConstDeclNode::getConstName() {
+    return constName;
+}
+
+ASTNode* ConstDeclNode::getValue() {
+    return value;
+}
+
+
 TypeDeclNode::TypeDeclNode(string name, ASTNode* def) : typeName(name), typeDef(def) {}
 void TypeDeclNode::accept(ASTVisitor* visitor) { visitor->visitTypeDeclNode(this); }
 
+string TypeDeclNode::getTypeName() {
+    return typeName;
+}
+
 VarDeclNode::VarDeclNode(vector<string> names, ASTNode* def) : varNames(names), typeDef(def) {}
 void VarDeclNode::accept(ASTVisitor* visitor) { visitor->visitVarDeclNode(this); }
+
+vector<string> VarDeclNode::getVarNames() {
+    return varNames;
+}
+
+ASTNode* VarDeclNode::getTypeDef() {
+    return typeDef;
+}
 
 ParamNode::ParamNode(vector<string> names, ASTNode* def, bool isVar)
     : paramNames(names), typeDef(def), isVarParam(isVar) {}
@@ -28,6 +53,14 @@ SubprogramDeclNode::SubprogramDeclNode(bool isFunc, string name, vector<ASTNode*
     : isFunction(isFunc), subprogramName(name), parameters(params), 
       returnType(retType), declarations(decls), body(bodyBlock) {}
 void SubprogramDeclNode::accept(ASTVisitor* visitor) { visitor->visitSubprogramDeclNode(this); }
+
+string SubprogramDeclNode::getSubprogramName() {
+    return subprogramName;
+}
+
+ASTNode* SubprogramDeclNode::getBody() {
+    return body;
+}
 
 // DEFINISI TIPE
 NamedTypeNode::NamedTypeNode(string name) : typeName(name) {}
@@ -77,6 +110,10 @@ ProcCallNode::ProcCallNode(string name, vector<ASTNode*> args)
     : procName(name), arguments(args) {}
 void ProcCallNode::accept(ASTVisitor* visitor) { visitor->visitProcCallNode(this); }
 
+vector<ASTNode*> ProcCallNode::getArguments() {
+    return arguments;
+}
+
 // COMPONENT VARIABLE
 VarNode::VarNode(string n) : name(n) {}
 void VarNode::accept(ASTVisitor* visitor) { visitor->visitVarNode(this); }
@@ -85,9 +122,17 @@ ArrayAccessNode::ArrayAccessNode(ASTNode* arrVar, vector<ASTNode*> idxs)
     : arrayVar(arrVar), indices(idxs) {}
 void ArrayAccessNode::accept(ASTVisitor* visitor) { visitor->visitArrayAccessNode(this); }
 
+ASTNode* ArrayAccessNode::getArrayVar() {
+    return arrayVar;
+}
+
 RecordAccessNode::RecordAccessNode(ASTNode* recVar, string fName)
     : recordVar(recVar), fieldName(fName) {}
 void RecordAccessNode::accept(ASTVisitor* visitor) { visitor->visitRecordAccessNode(this); }
+
+ASTNode* RecordAccessNode::getRecordVar() {
+    return recordVar;
+}
 
 // EXPRESSION & FACTOR
 BinOpNode::BinOpNode(string oper, ASTNode* l, ASTNode* r) : op(oper), left(l), right(r) {}

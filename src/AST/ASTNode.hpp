@@ -32,6 +32,7 @@ public:
     ASTNode* mainBlock;            
 
     ProgramNode(string name, vector<ASTNode*> decls, ASTNode* block);
+    string getProgramName();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -50,6 +51,8 @@ public:
     ASTNode* value;
 
     ConstDeclNode(string name, ASTNode* val);
+    string getConstName();
+    ASTNode* getValue();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -59,6 +62,7 @@ public:
     ASTNode* typeDef;
 
     TypeDeclNode(string name, ASTNode* def);
+    string getTypeName();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -68,6 +72,8 @@ public:
     ASTNode* typeDef;
 
     VarDeclNode(vector<string> names, ASTNode* def);
+    vector<string> getVarNames();
+    ASTNode* getTypeDef();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -92,6 +98,8 @@ public:
 
     SubprogramDeclNode(bool isFunc, string name, vector<ASTNode*> params, 
                        ASTNode* retType, vector<ASTNode*> decls, ASTNode* bodyBlock);
+    string getSubprogramName();
+    ASTNode* getBody();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -212,6 +220,7 @@ public:
     vector<ASTNode*> arguments;
 
     ProcCallNode(string name, vector<ASTNode*> args);
+    vector<ASTNode*> getArguments();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -230,6 +239,7 @@ public:
     vector<ASTNode*> indices;
 
     ArrayAccessNode(ASTNode* arrVar, vector<ASTNode*> idxs);
+    ASTNode* getArrayVar();
     void accept(ASTVisitor* visitor) override;
 };
 
@@ -239,6 +249,7 @@ public:
     string fieldName;
 
     RecordAccessNode(ASTNode* recVar, string fName);
+    ASTNode* getRecordVar();
     void accept(ASTVisitor* visitor) override;
 };
 
