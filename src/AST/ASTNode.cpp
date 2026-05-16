@@ -6,7 +6,7 @@ ProgramNode::ProgramNode(string name, vector<ASTNode*> decls, ASTNode* block)
     : programName(name), declarations(decls), mainBlock(block) {}
 void ProgramNode::accept(ASTVisitor* visitor) { visitor->visitProgramNode(this); }
 
-string ProgramNode::getProgramName() {
+const string& ProgramNode::getProgramName() {
     return programName;
 }
 

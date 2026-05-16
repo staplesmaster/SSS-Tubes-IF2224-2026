@@ -32,7 +32,7 @@ public:
     ASTNode* mainBlock;            
 
     ProgramNode(string name, vector<ASTNode*> decls, ASTNode* block);
-    string getProgramName();
+    const string& getProgramName();
     void accept(ASTVisitor* visitor) override;
 };
 
