@@ -25,7 +25,7 @@ ASTNode* ASTConverter::convertProgram(ParseNode* node) {
     
     // <program-header> -> programsy + ident + semicolon
     // header.children[1] adalah ident (nama program)
-    string progName = header->getChildren()[1]->getName(); 
+    string progName = header->getChildren()[1]->getToken().value; 
 
     vector<ASTNode*> declarations = convertDeclarationPart(node->getChildren()[1]);
     ASTNode* mainBlock = convertCompoundStatement(node->getChildren()[2]);
@@ -78,7 +78,7 @@ vector<ASTNode*> ASTConverter::convertStatementList(ParseNode* node) {
 vector<ASTNode*> ASTConverter::convertDeclarationPart(ParseNode* node) {
     vector<ASTNode*> allDecls;
     
-    // Deklarasi bervariasi dan dinasmi (*)
+    // Deklarasi bervariasi dan dinamis (*)
     for (ParseNode* child : node->getChildren()) {
         string childName = child->getName();
         
@@ -111,7 +111,8 @@ vector<ASTNode*> ASTConverter::convertConstDeclaration(ParseNode* node) {
     // Berulang tiap 4 token: [1]=ident, [2]=eql, [3]=constant, [4]=semicolon
     
     for (size_t i = 1; i < node->getChildren().size(); i += 4) {
-        string name = node->getChildren()[i]->getName();
+        if (i + 2 >= node->getChildren().size()) break;
+        string name = node->getChildren()[i]->getToken().value;
         ASTNode* constVal = convertConstant(node->getChildren()[i+2]);
         
         result.push_back(new ConstDeclNode(name, constVal));
@@ -129,7 +130,8 @@ vector<ASTNode*> ASTConverter::convertTypeDeclaration(ParseNode* node) {
     // Berulang tiap 4 token: [1]=ident, [2]=eql, [3]=type, [4]=semicolon
     
     for (size_t i = 1; i < node->getChildren().size(); i += 4) {
-        string name = node->getChildren()[i]->getName();
+        if (i + 2 >= node->getChildren().size()) break;
+        string name = node->getChildren()[i]->getToken().value;
         ASTNode* typeDef = convertType(node->getChildren()[i+2]);
         
         result.push_back(new TypeDeclNode(name, typeDef));
@@ -147,6 +149,7 @@ vector<ASTNode*> ASTConverter::convertVarDeclaration(ParseNode* node) {
     // Berulang tiap 4 token: [1]=identifier-list, [2]=colon, [3]=type, [4]=semicolon
     
     for (size_t i = 1; i < node->getChildren().size(); i += 4) {
+        if (i + 2 >= node->getChildren().size()) break;
         vector<string> names = convertIdentifierList(node->getChildren()[i]);
         ASTNode* typeDef = convertType(node->getChildren()[i+2]);
         
@@ -163,7 +166,7 @@ vector<string> ASTConverter::convertIdentifierList(ParseNode* node) {
     vector<string> names;
     // [0]=ident, (Berulang tiap 2 token: [1]=comma, [2]=ident)
     for (size_t i = 0; i < node->getChildren().size(); i += 2) {
-        names.push_back(node->getChildren()[i]->getName());
+        names.push_back(node->getChildren()[i]->getToken().value);
     }
     return names;
 }
@@ -181,32 +184,40 @@ ASTNode* ASTConverter::convertSubprogramDeclaration(ParseNode* node) {
     
     // children[0] = proceduresy/functionsy
     // children[1] = ident (nama subprogram)
-    string subName = actualDecl->getChildren()[1]->getName();
+    string subName = actualDecl->getChildren()[1]->getToken().value;
     
     vector<ASTNode*> params;
     size_t idx = 2;
     
-    if (actualDecl->getChildren()[idx]->getName() == "<formal-parameter-list>") {
+    if (idx < actualDecl->getChildren().size() && actualDecl->getChildren()[idx]->getName() == "<formal-parameter-list>") {
         params = convertFormalParameterList(actualDecl->getChildren()[idx]);
         idx++;
     }
     
     ASTNode* retType = nullptr;
-    if (isFunc) {
-        idx++; // abaikan colon (:)
-        // actualDecl.children[idx] adalah ident (tipe kembalian fungsi)
-        retType = new NamedTypeNode(actualDecl->getChildren()[idx]->getName());
-        idx++;
+    if (isFunc && idx < actualDecl->getChildren().size()) {
+        idx++; // abaikan colon
+        if (idx < actualDecl->getChildren().size()) {
+            retType = new NamedTypeNode(actualDecl->getChildren()[idx]->getToken().value);
+            idx++;
+        }
     }
     
     idx++; // abaikan semicolon (;) pertama
-    
-    // actualDecl.children[idx] adalah <block>
-    ParseNode* blockNode = actualDecl->getChildren()[idx];
-    
-    // Ekstrak dari <block> -> <declaration-part> + <compound-statement>
-    vector<ASTNode*> localDecls = convertDeclarationPart(blockNode->getChildren()[0]);
-    ASTNode* bodyBlock = convertCompoundStatement(blockNode->getChildren()[1]);
+
+    vector<ASTNode*> localDecls;
+    ASTNode* bodyBlock = nullptr;
+
+    if (idx < actualDecl->getChildren().size()) {
+        // actualDecl.children[idx] adalah <block>
+        ParseNode* blockNode = actualDecl->getChildren()[idx];
+        
+        // Ekstrak dari <block> -> <declaration-part> + <compound-statement>
+        if (blockNode != nullptr && blockNode->getChildren().size() >= 2) {
+            localDecls = convertDeclarationPart(blockNode->getChildren()[0]);
+            bodyBlock = convertCompoundStatement(blockNode->getChildren()[1]);
+        }
+    }
     
     return new SubprogramDeclNode(isFunc, subName, params, retType, localDecls, bodyBlock);
 }
@@ -236,7 +247,8 @@ vector<ASTNode*> ASTConverter::convertFormalParameterList(ParseNode* node) {
             typeDef = convertType(group->getChildren()[2]); 
         } else {
             // Jika hanya ident biasa (misal: "integer")
-            typeDef = new NamedTypeNode(typeStr);
+            string actualTypeName = group->getChildren()[2]->getToken().value;
+            typeDef = new NamedTypeNode(actualTypeName);
         }
         
         // isVar diset false secara default, jika pass-by-reference maka true
@@ -274,8 +286,10 @@ ASTNode* ASTConverter::convertType(ParseNode* node) {
     else if (typeName == "<record-type>") {
         return convertRecordType(actualType);
     }
-
-    return nullptr;
+    else {
+        string actualName = actualType->getToken().value;
+        return new NamedTypeNode(actualName);
+    }
 }
 
 /*
@@ -297,7 +311,7 @@ ASTNode* ASTConverter::convertArrayType(ParseNode* node) {
         indexType = convertRange(idxNode);
     } else {
         // Jika index menggunakan nama tipe (misal: array [char] of integer)
-        indexType = new NamedTypeNode(idxNode->getName());
+        indexType = new NamedTypeNode(idxNode->getToken().value);
     }
 
     ASTNode* elementType = convertType(node->getChildren()[5]);
@@ -332,7 +346,7 @@ ASTNode* ASTConverter::convertEnumerated(ParseNode* node) {
     // children[last] = rparent ')'
     // [1]=ident, (Pola berulang tiap 2 token: [2]=comma, [3]=ident)
     for (size_t i = 1; i < node->getChildren().size() - 1; i += 2) {
-        identifiers.push_back(node->getChildren()[i]->getName());
+        identifiers.push_back(node->getChildren()[i]->getToken().value);
     }
     
     return new EnumNode(identifiers);
@@ -375,23 +389,24 @@ ASTNode* ASTConverter::convertConstant(ParseNode* node) {
     string sign = "";
     
     // Cek apakah ada tanda unary plus/minus
-    string firstToken = node->getChildren()[0]->getName();
-    if (firstToken == "+" || firstToken == "-") {
-        sign = firstToken;
+    TokenType firstTokenType = node->getChildren()[0]->getToken().type;
+    if (firstTokenType == TokenType::PLUS || firstTokenType == TokenType::MINUS) {
+        sign = node->getChildren()[0]->getToken().value;
         idx++;
     }
 
     ParseNode* valNode = node->getChildren()[idx];
-    string valStr = sign + valNode->getName(); // Gabungkan, misal "-" dan "5" menjadi "-5"
+    string valStr = sign + valNode->getToken().value; // Gabungkan, misal "-" dan "5" menjadi "-5"
+    if (valStr.empty()) return nullptr;
  
     // Deduksi tipenya berdasarkan karakter string-nya:
     
     // Karakter (contoh: 'A')
-    if (valStr.front() == '\'' && valStr.back() == '\'') {
+    if (valStr.length() >= 2 && valStr.front() == '\'' && valStr.back() == '\'') {
         return new CharNode(valStr);
     }
     // String (contoh: "Hello")
-    else if (valStr.front() == '"' && valStr.back() == '"') {
+    else if (valStr.length() >= 2 && valStr.front() == '"' && valStr.back() == '"') {
         return new StringNode(valStr);
     }
     // Real / Float (mengandung titik)
@@ -582,10 +597,10 @@ ASTNode* ASTConverter::convertFor(ParseNode* node) {
     // children[7] = <compound-statement>
     // children[8] = semicolon
     
-    string iteratorName = node->getChildren()[1]->getName();
+    string iteratorName = node->getChildren()[1]->getToken().value;
     ASTNode* startVal = convertExpression(node->getChildren()[3]);
     
-    bool isDownto = (node->getChildren()[4]->getName() == "downto");
+    bool isDownto = (node->getChildren()[4]->getToken().type == TokenType::DOWNTO);
     
     ASTNode* endVal = convertExpression(node->getChildren()[5]);
     ASTNode* loopBlock = convertCompoundStatement(node->getChildren()[7]);
@@ -599,7 +614,7 @@ ASTNode* ASTConverter::convertFor(ParseNode* node) {
  */
 ASTNode* ASTConverter::convertProcCall(ParseNode* node) {
     // children[0] = ident (nama prosedur)
-    string procName = node->getChildren()[0]->getName();
+    string procName = node->getChildren()[0]->getToken().value;
     vector<ASTNode*> args;
     
     // Pengecekan keberadaan parameter
@@ -633,23 +648,25 @@ vector<ASTNode*> ASTConverter::convertParameterList(ParseNode* node) {
  * Semantic Action: Bungkus node variabel dasar dengan ArrayAccessNode atau RecordAccessNode
  */
 ASTNode* ASTConverter::convertVariable(ParseNode* node) {
+    if (!node || node->getChildren().empty()) return nullptr;
+
     // Dasar variabel: children[0] ident
-    string baseName = node->getChildren()[0]->getName();
+    string baseName = node->getChildren()[0]->getToken().value;
     ASTNode* currentVar = new VarNode(baseName);
     
     // Looping jika ada akses ke dalam array atau record
     for (size_t i = 1; i < node->getChildren().size(); i++) {
         ParseNode* comp = node->getChildren()[i]; // <component-variable>
-        string firstCompToken = comp->getChildren()[0]->getName();
+        TokenType firstCompType = comp->getChildren()[0]->getToken().type;
         
-        if (firstCompToken == "[") {
+        if (firstCompType == TokenType::LBRACK) {
             // comp->children[1] adalah <index-list>
             vector<ASTNode*> indices = convertIndexList(comp->getChildren()[1]);
             currentVar = new ArrayAccessNode(currentVar, indices);
         } 
-        else if (firstCompToken == ".") { // Akses Record
+        else if (firstCompType == TokenType::PERIOD) { // Akses Record
             // comp->children[1] adalah ident (nama field)
-            string fieldName = comp->getChildren()[1]->getName();
+            string fieldName = comp->getChildren()[1]->getToken().value;
             currentVar = new RecordAccessNode(currentVar, fieldName);
         }
     }
@@ -668,10 +685,11 @@ vector<ASTNode*> ASTConverter::convertIndexList(ParseNode* node) {
     for (size_t i = 0; i < node->getChildren().size(); i += 2) {
         ParseNode* valNode = node->getChildren()[i];
         
-        string valStr = valNode->getName();
+        string valStr = valNode->getToken().value;
+        if (valStr.empty()) continue;
         if (isalpha(valStr[0])) {
             indices.push_back(new VarNode(valStr));
-        } else if (valStr.front() == '\'' && valStr.back() == '\'') {
+        } else if (valStr.length() >= 2 && valStr.front() == '\'' && valStr.back() == '\'') {
             indices.push_back(new CharNode(valStr));
         } else {
             indices.push_back(new NumberNode(valStr, false));
@@ -695,7 +713,7 @@ ASTNode* ASTConverter::convertExpression(ParseNode* node) {
         // children[1] = <relational-operator> (isinya eql, neq, lss, gtr, dsb)
         // children[2] = <simple-expression>
         
-        string op = node->getChildren()[1]->getChildren()[0]->getName();
+        string op = node->getChildren()[1]->getChildren()[0]->getToken().value;
         ASTNode* right = convertSimpleExpression(node->getChildren()[2]);
         
         return new BinOpNode(op, left, right);
@@ -713,11 +731,12 @@ ASTNode* ASTConverter::convertSimpleExpression(ParseNode* node) {
     ASTNode* currentLeft = nullptr;
 
     // Cek unary operator di awal
-    string firstToken = node->getChildren()[0]->getName();
-    if (firstToken == "+" || firstToken == "-") {
+    TokenType firstType = node->getChildren()[0]->getToken().type;
+    if (firstType == TokenType::PLUS || firstType == TokenType::MINUS) {
+        string sign = node->getChildren()[0]->getToken().value;
         idx++;
         ASTNode* termNode = convertTerm(node->getChildren()[idx]);
-        currentLeft = new UnaryOpNode(firstToken, termNode);
+        currentLeft = new UnaryOpNode(sign, termNode);
     } else {
         currentLeft = convertTerm(node->getChildren()[idx]);
     }
@@ -727,7 +746,7 @@ ASTNode* ASTConverter::convertSimpleExpression(ParseNode* node) {
     // Loop untuk (additive-operator + term)*
     // Pola berulang tiap 2 token: [op], [term]
     while (idx < node->getChildren().size()) {
-        string op = node->getChildren()[idx]->getChildren()[0]->getName(); // misal "+" atau "or"
+        string op = node->getChildren()[idx]->getChildren()[0]->getToken().value; // misal "+" atau "or"
         idx++;
         
         ASTNode* nextRight = convertTerm(node->getChildren()[idx]);
@@ -752,7 +771,7 @@ ASTNode* ASTConverter::convertTerm(ParseNode* node) {
     
     // Loop untuk (multiplicative-operator + factor)*
     while (idx < node->getChildren().size()) {
-        string op = node->getChildren()[idx]->getChildren()[0]->getName(); // misal "*" atau "and"
+        string op = node->getChildren()[idx]->getChildren()[0]->getToken().value; // misal "*" atau "and"
         idx++;
         
         ASTNode* nextRight = convertFactor(node->getChildren()[idx]);
@@ -771,41 +790,49 @@ ASTNode* ASTConverter::convertTerm(ParseNode* node) {
  */
 ASTNode* ASTConverter::convertFactor(ParseNode* node) {
     ParseNode* child = node->getChildren()[0];
-    string childName = child->getName();
+    
+    // Pengecekan non-terminal
+    string nodeName = child->getName();
 
-    // Jika berupa kurung (lparent + <expression> + rparent)
-    if (childName == "(") {
-        // children[1] adalah <expression>
-        return convertExpression(node->getChildren()[1]); // PASSTHROUGH (Kurung dibuang)
-    }
-    
-    // Jika berupa NOT (notsy + <factor>)
-    if (childName == "not") {
-        return new UnaryOpNode("not", convertFactor(node->getChildren()[1]));
-    }
-    
     // Jika berupa pemanggilan fungsi/prosedur
-    if (childName == "<procedure/function-call>") {
+    if (nodeName == "<procedure/function-call>") {
         return convertProcCall(child);
     }
     
     // Jika berupa variabel (termasuk akses array/record)
-    if (childName == "<variable>") {
+    if (nodeName == "<variable>") {
         return convertVariable(child);
+    }
+
+    // Pengecekan terminal
+    string valStr = child->getToken().value;
+
+    if (valStr.empty()) return nullptr;
+
+    // Jika berupa kurung (lparent + <expression> + rparent)
+    if (valStr == "(") {
+        // children[1] adalah <expression>
+        return convertExpression(node->getChildren()[1]); // kurung dibuang
+    }
+    
+    // Jika berupa NOT (notsy + <factor>)
+    if (valStr == "not" || valStr == "NOT") {
+        return new UnaryOpNode("not", convertFactor(node->getChildren()[1]));
     }
     
     // Jika berupa Literal/Konstanta (intcon, realcon, charcon, string)
-    if (childName.front() == '\'' && childName.back() == '\'') {
-        return new CharNode(childName);
+    if (valStr.length() >= 2 && valStr.front() == '\'' && valStr.back() == '\'') {
+        return new CharNode(valStr);
     } 
-    else if (childName.front() == '"' && childName.back() == '"') {
-        return new StringNode(childName);
+    else if (valStr.length() >= 2 && valStr.front() == '"' && valStr.back() == '"') {
+        return new StringNode(valStr);
     } 
-    else if (childName.find('.') != string::npos && isdigit(childName[0])) {
-        return new NumberNode(childName, true); // true = isReal
+    else if (valStr.find('.') != string::npos && isdigit(valStr[0])) {
+        return new NumberNode(valStr, true); // true = isReal
     } 
-    else if (isdigit(childName[0])) {
-        return new NumberNode(childName, false); // false = isInteger
+    else if (isdigit(valStr[0])) {
+        return new NumberNode(valStr, false); // false = isInteger
     }
-    return new VarNode(childName);
+    
+    return new VarNode(valStr);
 }
