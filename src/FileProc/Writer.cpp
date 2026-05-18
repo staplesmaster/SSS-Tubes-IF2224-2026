@@ -151,16 +151,16 @@ void writeParseResult(const string& filepath, ParseNode* root, const vector<stri
     }
 
     if (!errors.empty()) {
-        outFile << "=== DAFTAR SYNTAX ERROR ===\n";
+        outFile << "DAFTAR SYNTAX ERROR\n";
         for (const string& err : errors) {
             outFile << err << "\n";
         }
         outFile << "\n";
     } else {
-        outFile << "=== TIDAK ADA SYNTAX ERROR (PROGRAM VALID) ===\n\n";
+        outFile << "TIDAK ADA SYNTAX ERROR (PROGRAM VALID)\n\n";
     }
 
-    outFile << "=== HASIL PARSE TREE ===\n";
+    outFile << "HASIL PARSE TREE\n";
     if (root != nullptr) {
         writeTreeRecursive(outFile, root);
     }
@@ -333,7 +333,7 @@ void writeASTResult(const string& filepath, ASTNode* root) {
         throw runtime_error("Gagal membuka file untuk menulis AST: " + filepath);
     }
 
-    outFile << "=== HASIL ABSTRACT SYNTAX TREE (AST) ===\n";
+    outFile << "HASIL ABSTRACT SYNTAX TREE (AST)\n";
     if (root != nullptr) {
         writeASTRecursive(outFile, root);
     } else {
@@ -689,7 +689,7 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
     const auto& allArrays = symbolTable.getAllArrays();
 
     // SEMANTIC ERROR REPORT
-    outFile << "=== SEMANTIC ERROR REPORT ===\n";
+    outFile << "SEMANTIC ERROR REPORT\n";
     if (!hasErrors && !errorReporter.hasErrors()) {
         outFile << "NO SEMANTIC ERRORS (Program is semantically valid)\n";
     } else {
