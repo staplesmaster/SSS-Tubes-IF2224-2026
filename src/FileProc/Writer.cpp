@@ -69,22 +69,6 @@ const SymbolInfo* lookupSymbol(const SymbolTable& symbolTable, const string& nam
     return const_cast<SymbolTable&>(symbolTable).lookup(name);
 }
 
-int typeCodeFromExprType(ExprType type) {
-    switch (type) {
-        case ExprType::INTEGER: return 1;
-        case ExprType::REAL: return 2;
-        case ExprType::CHAR: return 3;
-        case ExprType::BOOLEAN: return 4;
-        case ExprType::STRING: return 5;
-        case ExprType::ARRAY: return 6;
-        case ExprType::RECORD: return 7;
-        case ExprType::ENUM: return 8;
-        case ExprType::SUBRANGE: return 9;
-        case ExprType::VOID: return 10;
-        default: return 0;
-    }
-}
-
 int typeCodeForNode(const SymbolTable& symbolTable, ASTNode* typeNode);
 
 int typeSizeForNode(const SymbolTable& symbolTable, ASTNode* typeNode);
@@ -93,28 +77,22 @@ int typeCodeForNode(const SymbolTable& symbolTable, ASTNode* typeNode) {
     if (!typeNode) return 0;
 
     if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
-        if (namedType->typeName == "integer") return typeCodeFromExprType(ExprType::INTEGER);
-        if (namedType->typeName == "real") return typeCodeFromExprType(ExprType::REAL);
-        if (namedType->typeName == "char") return typeCodeFromExprType(ExprType::CHAR);
-        if (namedType->typeName == "boolean") return typeCodeFromExprType(ExprType::BOOLEAN);
-        if (namedType->typeName == "string") return typeCodeFromExprType(ExprType::STRING);
-
         const SymbolInfo* info = lookupSymbol(symbolTable, namedType->typeName);
         if (info && info->kind == SymbolKind::TYPE) {
-            if (info->type != ExprType::UNKNOWN) {
-                return typeCodeFromExprType(info->type);
-            }
-            if (info->typeDef && info->typeDef != typeNode) {
-                return typeCodeForNode(symbolTable, info->typeDef);
-            }
+            return info->tabIndex;
         }
         return 0;
     }
 
-    if (dynamic_cast<ArrayTypeNode*>(typeNode)) return typeCodeFromExprType(ExprType::ARRAY);
-    if (dynamic_cast<RecordTypeNode*>(typeNode)) return typeCodeFromExprType(ExprType::RECORD);
-    if (dynamic_cast<EnumNode*>(typeNode)) return typeCodeFromExprType(ExprType::ENUM);
-    if (dynamic_cast<RangeNode*>(typeNode)) return typeCodeFromExprType(ExprType::SUBRANGE);
+    if (dynamic_cast<RangeNode*>(typeNode)) {
+        const SymbolInfo* info = lookupSymbol(symbolTable, "integer");
+        return (info && info->kind == SymbolKind::TYPE) ? info->tabIndex : 0;
+    }
+
+    if (dynamic_cast<EnumNode*>(typeNode)) {
+        const SymbolInfo* info = lookupSymbol(symbolTable, "integer");
+        return (info && info->kind == SymbolKind::TYPE) ? info->tabIndex : 0;
+    }
 
     return 0;
 }
