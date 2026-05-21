@@ -42,10 +42,10 @@ Token Parser::match(TokenType expected) {
     
     int errorPos = isAtEnd() ? sourceCode.length() : currentToken().start;
     int lineNum = 1;
-    for (int i = 0; i < errorPos; i++) {
-        if (sourceCode[i] == '\n') {
-            lineNum++;
-        }
+    if (!isAtEnd()) {
+        lineNum = currentToken().line;
+    } else if (!tokens.empty()) {
+        lineNum = tokens.back().line; 
     }
 
     string errLex = isAtEnd() ? "EOF" : currentToken().value; 

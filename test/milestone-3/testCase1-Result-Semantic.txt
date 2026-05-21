@@ -1,6 +1,6 @@
 SEMANTIC ERROR REPORT
 SEMANTIC ERRORS FOUND:
-  [SEMANTIC ERROR] Baris 0: Tipe assignment tidak kompatible
+  [SEMANTIC ERROR] Baris 34: Tipe assignment tidak kompatible
   [SEMANTIC ERROR] Baris 35: Variabel 'Senin' belum dideklarasikan
   [SEMANTIC ERROR] Baris 43: Iterator 'i' belum dideklarasikan
   [SEMANTIC ERROR] Baris 45: Ekspresi biner tidak kompatibel untuk operator '=='
@@ -17,7 +17,7 @@ idx  id                obj         type        ref   nrm   lev   adr   link
 39   Batas             type        subrange    39    1     0     11    0     
 40   umur              variable    integer     40    1     0     11    0     
 41   nilai             variable    real        41    1     0     310   0     
-42   lulus             variable    boolean     42    1     0     -10092947200     
+42   lulus             variable    boolean     42    1     0     -730105600     
 43   Siswa             type        record      43    1     0     12    0     
 44   DataSiswa         type        array       44    1     0     17    0     
 45   Matriks           type        array       45    1     0     18    0     

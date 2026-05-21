@@ -468,7 +468,7 @@ ASTNode* ASTConverter::convertAssignment(ParseNode* node) {
     ASTNode* target = convertVariable(node->getChildren()[0]);
     ASTNode* value = convertExpression(node->getChildren()[2]);
     
-    return setLine(new AssignNode(target, value), node->getChildren()[0]);
+    return setLine(new AssignNode(target, value), node->getChildren()[1]);
 }
 
 /*
