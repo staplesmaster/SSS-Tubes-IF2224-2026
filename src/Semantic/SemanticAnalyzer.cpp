@@ -155,6 +155,7 @@ void SemanticAnalyzer::visitConstDeclNode(ConstDeclNode* node) {
     SymbolInfo info(node->getConstName(), SymbolKind::CONSTANT);
     info.type = node->value ? node->value->exprType : ExprType::UNKNOWN;
     info.declLine = node->lineNum;
+    info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
     if (!symbolTable.declare(node->getConstName(), info)) {
         report(node, "Deklarasi ulang konstanta '" + node->getConstName() + "'");
@@ -172,6 +173,7 @@ void SemanticAnalyzer::visitTypeDeclNode(TypeDeclNode* node) {
     info.type = resolveTypeNode(node->typeDef);
     info.typeDef = node->typeDef;
     info.declLine = node->lineNum;
+    info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
     if (!symbolTable.declare(node->getTypeName(), info)) {
         report(node, "Deklarasi ulang tipe '" + node->getTypeName() + "'");
@@ -221,6 +223,7 @@ void SemanticAnalyzer::visitVarDeclNode(VarDeclNode* node) {
         info.type = varType;
         info.declLine = node->lineNum;
         info.typeDef = node->typeDef;
+        info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
         if (!symbolTable.declare(name, info)) {
             report(node, "Deklarasi ulang variabel '" + name + "'");
@@ -251,6 +254,7 @@ void SemanticAnalyzer::visitParamNode(ParamNode* node) {
         info.type = paramType;
         info.declLine = node->lineNum;
         info.isParameter = true;
+        info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
         if (!symbolTable.declare(name, info)) {
             report(node, "Deklarasi ulang parameter '" + name + "'");
@@ -265,6 +269,7 @@ void SemanticAnalyzer::visitSubprogramDeclNode(SubprogramDeclNode* node) {
     SymbolKind kind = node->isFunction ? SymbolKind::FUNCTION : SymbolKind::PROCEDURE;
     SymbolInfo info(node->getSubprogramName(), kind);
     info.type = node->isFunction ? resolveTypeNode(node->returnType) : ExprType::VOID;
+    info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
     if (!symbolTable.declare(node->getSubprogramName(), info)) {
         report(node, "Deklarasi ulang subprogram '" + node->getSubprogramName() + "'");

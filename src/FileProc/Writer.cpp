@@ -746,16 +746,32 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
     outFile << "\n";
 
     // BLOCK TABLE (BTAB)
-    outFile << "BTAB: \n";
-    outFile << "idx\tname\t\tparent\tlevel\tstart\tend\n";
-    outFile << string(80, '-') << "\n";
-    
+    outFile << "btab:\n";
+    outFile << "idx\tlast\tlpar\tpsze\tvsze\n";
+    outFile << "---------------------------\n";
+
     for (const auto& block : allBlocks) {
+        int last = 0;
+        int lpar = 0;
+        int psze = 0;
+        int vsze = 0;
+
+        for (const auto& sym : allSymbols) {
+            if (sym.blockIndex != block.blockIndex) continue;
+            if (sym.tabIndex > last) last = sym.tabIndex;
+            if (sym.kind == SymbolKind::PARAMETER) {
+                if (sym.tabIndex > lpar) lpar = sym.tabIndex;
+                ++psze;
+            } else if (sym.kind == SymbolKind::VARIABLE) {
+                ++vsze;
+            }
+        }
+
         outFile << block.blockIndex << "\t";
-        outFile << block.name << "\t\t";
-        outFile << block.parentBlock << "\t";
-        outFile << block.level << "\t";
-        outFile << block.startTabIndex << "\t" << block.endTabIndex << "\n";
+        outFile << last << "\t";
+        outFile << lpar << "\t";
+        outFile << psze << "\t";
+        outFile << vsze << "\n";
     }
     outFile << "\n";
 
