@@ -1,26 +1,26 @@
 SEMANTIC ERROR REPORT
 SEMANTIC ERRORS FOUND:
   [SEMANTIC ERROR] Baris 0: Tipe assignment tidak kompatible
-  [SEMANTIC ERROR] Baris 0: Variabel 'Senin' belum dideklarasikan
-  [SEMANTIC ERROR] Baris 0: Iterator 'i' belum dideklarasikan
-  [SEMANTIC ERROR] Baris 0: Ekspresi biner tidak kompatibel untuk operator '=='
+  [SEMANTIC ERROR] Baris 35: Variabel 'Senin' belum dideklarasikan
+  [SEMANTIC ERROR] Baris 43: Iterator 'i' belum dideklarasikan
+  [SEMANTIC ERROR] Baris 45: Ekspresi biner tidak kompatibel untuk operator '=='
 
 TAB (hanya sebagian yang relevan):
 idx  id                obj         type        ref   nrm   lev   adr   link  
 --------------------------------------------------------------------------------
-33   testCase1         program     void        33    1     0     0     0     
-34   PI                constant    real        34    1     0     0     0     
-35   MAX               constant    integer     35    1     0     0     0     
-36   HURUF             constant    char        36    1     0     0     0     
-37   PESAN             constant    string      37    1     0     0     0     
-38   Hari              type        enum        38    1     0     0     0     
-39   Batas             type        subrange    39    1     0     0     0     
-40   umur              variable    integer     40    1     0     0     0     
-41   nilai             variable    real        41    1     0     0     0     
-42   lulus             variable    boolean     42    1     0     0     0     
-43   Siswa             type        record      43    1     0     0     0     
-44   DataSiswa         type        array       44    1     0     0     0     
-45   Matriks           type        array       45    1     0     0     0     
+33   testCase1         program     void        33    1     0     1     0     
+34   PI                constant    real        34    1     0     4     0     
+35   MAX               constant    integer     35    1     0     5     0     
+36   HURUF             constant    char        36    1     0     6     0     
+37   PESAN             constant    string      37    1     0     7     0     
+38   Hari              type        enum        38    1     0     10    0     
+39   Batas             type        subrange    39    1     0     11    0     
+40   umur              variable    integer     40    1     0     11    0     
+41   nilai             variable    real        41    1     0     310   0     
+42   lulus             variable    boolean     42    1     0     -10092947200     
+43   Siswa             type        record      43    1     0     12    0     
+44   DataSiswa         type        array       44    1     0     17    0     
+45   Matriks           type        array       45    1     0     18    0     
 46   i                 variable    integer     46    1     0     0     0     
 47   j                 variable    integer     47    1     0     0     0     
 48   k                 variable    integer     48    1     0     0     0     
@@ -40,15 +40,15 @@ ATAB:
 DECORATED AST: 
 ProgramNode('testCase1') → block_index:0, lev:0
 ├─ Declarations
-│  ├─ ConstDecl('PI') → tab_index:34, type:real, lev:0, predefined
-│  ├─ ConstDecl('MAX') → tab_index:35, type:integer, lev:0, predefined
-│  ├─ ConstDecl('HURUF') → tab_index:36, type:char, lev:0, predefined
-│  ├─ ConstDecl('PESAN') → tab_index:37, type:string, lev:0, predefined
-│  ├─ TypeDecl('Hari') → tab_index:38, type:enum, lev:0, predefined
-│  ├─ TypeDecl('Batas') → tab_index:39, type:subrange, lev:0, predefined
-│  ├─ TypeDecl('Siswa') → tab_index:43, type:record, lev:0, predefined
-│  ├─ TypeDecl('DataSiswa') → tab_index:44, type:array, lev:0, predefined
-│  ├─ TypeDecl('Matriks') → tab_index:45, type:array, lev:0, predefined
+│  ├─ ConstDecl('PI') → tab_index:34, type:real, lev:0
+│  ├─ ConstDecl('MAX') → tab_index:35, type:integer, lev:0
+│  ├─ ConstDecl('HURUF') → tab_index:36, type:char, lev:0
+│  ├─ ConstDecl('PESAN') → tab_index:37, type:string, lev:0
+│  ├─ TypeDecl('Hari') → tab_index:38, type:enum, lev:0
+│  ├─ TypeDecl('Batas') → tab_index:39, type:subrange, lev:0
+│  ├─ TypeDecl('Siswa') → tab_index:43, type:record, lev:0
+│  ├─ TypeDecl('DataSiswa') → tab_index:44, type:array, lev:0
+│  ├─ TypeDecl('Matriks') → tab_index:45, type:array, lev:0
 │  ├─ VarDecl('i'), type:integer → tab_index:46, type:integer, lev:0, predefined
 │  ├─ VarDecl('murid'), type:Siswa → tab_index:49, type:record, lev:0, predefined
 │  ├─ VarDecl('kelas'), type:DataSiswa → tab_index:50, type:array, lev:0, predefined
@@ -69,7 +69,7 @@ ProgramNode('testCase1') → block_index:0, lev:0
    ├─ Assign('RecordAccess(base: Var('murid'), field: 'nilai')' := BinOp(op: '*', left: Var('PI'), right: Num(2.0))) → type:void
    │  ├─ RecordAccess('nilai') → type:real
    │  └─ BinOp '*' → type:real
-   │     ├─ 'PI' → tab_index:34, type:real, lev:0, predefined
+   │     ├─ 'PI' → tab_index:34, type:real, lev:0
    │     └─ 2.0 → type:real
    ├─ Assign('RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Num(1)]), field: 'lulus')' := Var('true')) → type:void
    │  ├─ RecordAccess('lulus')
@@ -83,7 +83,7 @@ ProgramNode('testCase1') → block_index:0, lev:0
    ├─ CaseStatement
    └─ ForLoop('i', to)
       ├─ 1 → type:integer
-      ├─ 'MAX' → tab_index:35, type:integer, lev:0, predefined
+      ├─ 'MAX' → tab_index:35, type:integer, lev:0
       └─ Block → lev:1
          └─ IfStatement
             ├─ BinOp '=='

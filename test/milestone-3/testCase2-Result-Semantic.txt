@@ -1,13 +1,13 @@
 SEMANTIC ERROR REPORT
 SEMANTIC ERRORS FOUND:
-  [SEMANTIC ERROR] Baris 0: Operator unary 'not' tidak dapat diterapkan pada tipe ini
-  [SEMANTIC ERROR] Baris 0: Ekspresi biner tidak kompatibel untuk operator '=='
-  [SEMANTIC ERROR] Baris 0: Iterator 'z' belum dideklarasikan
+  [SEMANTIC ERROR] Baris 36: Operator unary 'not' tidak dapat diterapkan pada tipe ini
+  [SEMANTIC ERROR] Baris 36: Ekspresi biner tidak kompatibel untuk operator '=='
+  [SEMANTIC ERROR] Baris 43: Iterator 'z' belum dideklarasikan
 
 TAB (hanya sebagian yang relevan):
 idx  id                obj         type        ref   nrm   lev   adr   link  
 --------------------------------------------------------------------------------
-33   testCase2         program     void        33    1     0     0     0     
+33   testCase2         program     void        33    1     0     1     0     
 34   x                 variable    integer     34    1     0     0     0     
 35   y                 variable    integer     35    1     0     0     0     
 36   z                 variable    integer     36    1     0     0     0     

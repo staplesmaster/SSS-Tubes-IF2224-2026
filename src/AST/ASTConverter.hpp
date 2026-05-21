@@ -2,10 +2,9 @@
 #define ASTCONVERTER_HPP
 
 #include "ASTNode.hpp"
+#include "ParseNode.hpp"
 #include <vector>
 #include <string>
-
-class ParseNode;
 
 class ASTConverter {
 public:

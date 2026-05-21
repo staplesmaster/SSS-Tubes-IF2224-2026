@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-Lexer::Lexer(const string& input) : line(input), pos(0) {}
+Lexer::Lexer(const string& input) : line(input), pos(0), currentLine(1) {}
 
 char Lexer::current() {
     if (isEnd()) {
@@ -15,9 +15,15 @@ char Lexer::adv() {
     if (isEnd()) {
         return '\0';
     }
-    return line[pos++];
+    
+    char c = line[pos++];
+    
+    if (c == '\n') {
+        currentLine++;
+    }
+    
+    return c;
 }
-
 bool Lexer::isEnd() {
     return pos >= (int)line.size();
 }
@@ -70,7 +76,7 @@ char Lexer::toLowerChar(char c) {
 }
 
 Token Lexer::makeToken(TokenType type, int start, int end) {
-    return {type, line.substr(start, end - start), start, end};
+    return {type, line.substr(start, end - start), start, end, currentLine};
 }
 
 void Lexer::skip() {

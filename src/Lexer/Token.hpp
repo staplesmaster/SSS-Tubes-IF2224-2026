@@ -77,6 +77,7 @@ struct Token {
     string value;
     int start;
     int end;
+    int line;
 };
 
 string typeToString(TokenType type);
