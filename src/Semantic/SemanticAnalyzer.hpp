@@ -16,6 +16,7 @@ class SemanticAnalyzer : public ASTVisitor {
         ExprType resolveTypeNode(ASTNode* typeNode);
         bool tryGetIntLiteral(ASTNode* node, int& value);
         ExprType resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName);
+        ASTNode* getTypeDefForExpression(ASTNode* expr);
         void report(ASTNode* node, const std::string& message);
 
     public:

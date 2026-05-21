@@ -40,7 +40,7 @@ Token Parser::match(TokenType expected) {
     
     hasError = true;
     
-    int errorPos = isAtEnd() ? sourceCode.length() : currentToken().start;
+    // int errorPos = isAtEnd() ? sourceCode.length() : currentToken().start;
     int lineNum = 1;
     if (!isAtEnd()) {
         lineNum = currentToken().line;

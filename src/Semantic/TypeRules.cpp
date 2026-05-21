@@ -41,7 +41,7 @@ namespace TypeRules {
             return ExprType::UNKNOWN;
         }
 
-        if (op == "=" || op == "<>" || op == "<" || op == ">" || op == "<=" || op == ">=") {
+        if (op == "=" || op == "==" || op == "<>" || op == "<" || op == ">" || op == "<=" || op == ">=") {
             ExprType r = resultOfRelational(left, right);
             return r == ExprType::BOOLEAN ? ExprType::BOOLEAN : ExprType::UNKNOWN;
         }

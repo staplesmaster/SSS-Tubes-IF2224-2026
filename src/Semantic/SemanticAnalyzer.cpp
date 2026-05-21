@@ -98,6 +98,41 @@ ExprType SemanticAnalyzer::resolveRecordFieldType(ASTNode* typeNode, const std::
     return ExprType::UNKNOWN;
 }
 
+ASTNode* SemanticAnalyzer::getTypeDefForExpression(ASTNode* expr) {
+    if (!expr) return nullptr;
+    if (auto* varNode = dynamic_cast<VarNode*>(expr)) {
+        SymbolInfo* info = symbolTable.lookup(varNode->name);
+        return info ? info->typeDef : nullptr;
+    }
+    if (auto* arrayAcc = dynamic_cast<ArrayAccessNode*>(expr)) {
+        ASTNode* parentTypeDef = getTypeDefForExpression(arrayAcc->arrayVar);
+        if (auto* named = dynamic_cast<NamedTypeNode*>(parentTypeDef)) {
+            SymbolInfo* info = symbolTable.lookup(named->typeName);
+            parentTypeDef = info ? info->typeDef : nullptr;
+        }
+        if (auto* arrType = dynamic_cast<ArrayTypeNode*>(parentTypeDef)) {
+            return arrType->elementType;
+        }
+    }
+    if (auto* recAcc = dynamic_cast<RecordAccessNode*>(expr)) {
+        ASTNode* parentTypeDef = getTypeDefForExpression(recAcc->recordVar);
+        if (auto* named = dynamic_cast<NamedTypeNode*>(parentTypeDef)) {
+            SymbolInfo* info = symbolTable.lookup(named->typeName);
+            parentTypeDef = info ? info->typeDef : nullptr;
+        }
+        if (auto* recType = dynamic_cast<RecordTypeNode*>(parentTypeDef)) {
+            for (ASTNode* fieldNode : recType->fields) {
+                if (auto* fieldDecl = dynamic_cast<VarDeclNode*>(fieldNode)) {
+                    for (const std::string& name : fieldDecl->getVarNames()) {
+                        if (name == recAcc->fieldName) return fieldDecl->typeDef;
+                    }
+                }
+            }
+        }
+    }
+    return nullptr;
+}
+
 void SemanticAnalyzer::visitProgramNode(ProgramNode* node) {
     if (!node) return;
 
@@ -359,6 +394,17 @@ void SemanticAnalyzer::visitRangeNode(RangeNode* node) {
 void SemanticAnalyzer::visitEnumNode(EnumNode* node) {
     if (!node) return;
     node->exprType = ExprType::ENUM;
+
+    for (const std::string& enumVal : node->identifiers) {
+        SymbolInfo enumConst(enumVal, SymbolKind::CONSTANT);
+        enumConst.type = ExprType::ENUM;
+        enumConst.typeDef = node;
+        enumConst.declLine = node->lineNum;
+        enumConst.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
+        if (!symbolTable.declare(enumVal, enumConst)) {
+            report(node, "Deklarasi ulang konstanta enum '" + enumVal + "'");
+        }
+    }
 }
 
 void SemanticAnalyzer::visitAssignNode(AssignNode* node) {
@@ -429,7 +475,7 @@ void SemanticAnalyzer::visitRepeatNode(RepeatNode* node) {
 void SemanticAnalyzer::visitForNode(ForNode* node) {
     if (!node) return;
 
-    SymbolInfo* iter = symbolTable.lookUpCurrent(node->iteratorName);
+    SymbolInfo* iter = symbolTable.lookup(node->iteratorName);
     if (!iter) {
         report(node, "Iterator '" + node->iteratorName + "' belum dideklarasikan");
     } 
@@ -503,7 +549,11 @@ void SemanticAnalyzer::visitProcCallNode(ProcCallNode* node) {
         }
     }
 
-    node->exprType = ExprType::VOID;
+    if (procInfo) {
+        node->exprType = procInfo->type;
+    } else {
+        node->exprType = ExprType::UNKNOWN;
+    }
 }
 
 void SemanticAnalyzer::visitVarNode(VarNode* node) {
@@ -537,22 +587,34 @@ void SemanticAnalyzer::visitArrayAccessNode(ArrayAccessNode* node) {
         }
     }
 
-    node->exprType = node->arrayVar ? node->arrayVar->exprType : ExprType::UNKNOWN;
+    node->exprType = ExprType::UNKNOWN;
+    
+    ASTNode* arrayTypeDef = getTypeDefForExpression(node->arrayVar);
+    if (auto* named = dynamic_cast<NamedTypeNode*>(arrayTypeDef)) {
+        SymbolInfo* info = symbolTable.lookup(named->typeName);
+        if (info) arrayTypeDef = info->typeDef;
+    }
 
-    if (auto* varNode = dynamic_cast<VarNode*>(node->arrayVar)) {
-        SymbolInfo* arraySym = symbolTable.lookup(varNode->name);
-        if (arraySym && arraySym->arrayIndex >= 0) {
-            const ArrayInfo* arrInfo = symbolTable.getArray(arraySym->arrayIndex);
-            if (arrInfo) {
-                node->exprType = arrInfo->elementType;
+    if (auto* arrType = dynamic_cast<ArrayTypeNode*>(arrayTypeDef)) {
+        node->exprType = resolveTypeNode(arrType->elementType);
 
-                if (arrInfo->hasStaticBounds && !node->indices.empty()) {
-                    int idxValue = 0;
-                    if (tryGetIntLiteral(node->indices[0], idxValue)) {
-                        if (idxValue < arrInfo->lowerBound || idxValue > arrInfo->upperBound) {
-                            report(node->indices[0], "Index array di luar batas statis");
-                        }
-                    }
+        bool hasStaticBounds = false;
+        int lowerBound = 0;
+        int upperBound = 0;
+        if (auto* rangeType = dynamic_cast<RangeNode*>(arrType->indexType)) {
+            int low = 0, high = 0;
+            if (tryGetIntLiteral(rangeType->lowerBound, low) && tryGetIntLiteral(rangeType->upperBound, high)) {
+                hasStaticBounds = true;
+                lowerBound = low;
+                upperBound = high;
+            }
+        }
+
+        if (hasStaticBounds && !node->indices.empty()) {
+            int idxValue = 0;
+            if (tryGetIntLiteral(node->indices[0], idxValue)) {
+                if (idxValue < lowerBound || idxValue > upperBound) {
+                    report(node->indices[0], "Index array di luar batas statis");
                 }
             }
         }

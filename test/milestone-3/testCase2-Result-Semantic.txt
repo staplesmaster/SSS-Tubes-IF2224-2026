@@ -1,8 +1,5 @@
 SEMANTIC ERROR REPORT
-SEMANTIC ERRORS FOUND:
-  [SEMANTIC ERROR] Baris 36: Operator unary 'not' tidak dapat diterapkan pada tipe ini
-  [SEMANTIC ERROR] Baris 36: Ekspresi biner tidak kompatibel untuk operator '=='
-  [SEMANTIC ERROR] Baris 43: Iterator 'z' belum dideklarasikan
+NO SEMANTIC ERRORS (Program is semantically valid)
 
 TAB (hanya sebagian yang relevan):
 idx  id                obj         type        ref   nrm   lev   adr   link  
@@ -91,17 +88,17 @@ ProgramNode('testCase2') → block_index:0, lev:0
    │  └─ ''Mulai: '' → type:string
    ├─ Assign('Var('status')' := BinOp(op: 'or', left: BinOp(op: 'and', left: UnaryOp(op: 'not', operand: ComplexExpression), right: BinOp(op: '<>', left: Var('x'), right: Var('y'))), right: BinOp(op: '==', left: Var('x'), right: Num(10)))) → type:void
    │  ├─ 'status' → tab_index:37, type:boolean, lev:0, predefined
-   │  └─ BinOp 'or'
-   │     ├─ BinOp 'and'
-   │     │  ├─ UnaryOp 'not'
-   │     │  │  └─ CekValid(...) → tab_index:43, type:void, lev:0
+   │  └─ BinOp 'or' → type:boolean
+   │     ├─ BinOp 'and' → type:boolean
+   │     │  ├─ UnaryOp 'not' → type:boolean
+   │     │  │  └─ CekValid(...) → tab_index:43, type:boolean, lev:0
    │     │  │     ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
    │     │  │     ├─ 'y' → tab_index:35, type:integer, lev:0, predefined
    │     │  │     └─ 15.5 → type:real
    │     │  └─ BinOp '<>' → type:boolean
    │     │     ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
    │     │     └─ 'y' → tab_index:35, type:integer, lev:0, predefined
-   │     └─ BinOp '=='
+   │     └─ BinOp '==' → type:boolean
    │        ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
    │        └─ 10 → type:integer
    ├─ RepeatUntil
