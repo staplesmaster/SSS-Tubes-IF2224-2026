@@ -4,6 +4,7 @@
 #include <fstream>
 #include <functional>
 #include <stdexcept>
+#include <iomanip>
 
 namespace {
 int countNewline(const string& sourceCode, int start, int end) {
@@ -62,6 +63,153 @@ int countNewline(const string& sourceCode, int start, int end) {
     }
 
     return newlineCount;
+}
+
+const SymbolInfo* lookupSymbol(const SymbolTable& symbolTable, const string& name) {
+    return const_cast<SymbolTable&>(symbolTable).lookup(name);
+}
+
+int typeCodeFromExprType(ExprType type) {
+    switch (type) {
+        case ExprType::INTEGER: return 1;
+        case ExprType::REAL: return 2;
+        case ExprType::CHAR: return 3;
+        case ExprType::BOOLEAN: return 4;
+        case ExprType::STRING: return 5;
+        case ExprType::ARRAY: return 6;
+        case ExprType::RECORD: return 7;
+        case ExprType::ENUM: return 8;
+        case ExprType::SUBRANGE: return 9;
+        case ExprType::VOID: return 10;
+        default: return 0;
+    }
+}
+
+int typeCodeForNode(const SymbolTable& symbolTable, ASTNode* typeNode);
+
+int typeSizeForNode(const SymbolTable& symbolTable, ASTNode* typeNode);
+
+int typeCodeForNode(const SymbolTable& symbolTable, ASTNode* typeNode) {
+    if (!typeNode) return 0;
+
+    if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
+        if (namedType->typeName == "integer") return typeCodeFromExprType(ExprType::INTEGER);
+        if (namedType->typeName == "real") return typeCodeFromExprType(ExprType::REAL);
+        if (namedType->typeName == "char") return typeCodeFromExprType(ExprType::CHAR);
+        if (namedType->typeName == "boolean") return typeCodeFromExprType(ExprType::BOOLEAN);
+        if (namedType->typeName == "string") return typeCodeFromExprType(ExprType::STRING);
+
+        const SymbolInfo* info = lookupSymbol(symbolTable, namedType->typeName);
+        if (info && info->kind == SymbolKind::TYPE) {
+            if (info->type != ExprType::UNKNOWN) {
+                return typeCodeFromExprType(info->type);
+            }
+            if (info->typeDef && info->typeDef != typeNode) {
+                return typeCodeForNode(symbolTable, info->typeDef);
+            }
+        }
+        return 0;
+    }
+
+    if (dynamic_cast<ArrayTypeNode*>(typeNode)) return typeCodeFromExprType(ExprType::ARRAY);
+    if (dynamic_cast<RecordTypeNode*>(typeNode)) return typeCodeFromExprType(ExprType::RECORD);
+    if (dynamic_cast<EnumNode*>(typeNode)) return typeCodeFromExprType(ExprType::ENUM);
+    if (dynamic_cast<RangeNode*>(typeNode)) return typeCodeFromExprType(ExprType::SUBRANGE);
+
+    return 0;
+}
+
+int typeSizeFromExprType(ExprType type) {
+    switch (type) {
+        case ExprType::INTEGER: return 4;
+        case ExprType::REAL: return 8;
+        case ExprType::CHAR: return 1;
+        case ExprType::BOOLEAN: return 1;
+        case ExprType::STRING: return 1;
+        default: return 0;
+    }
+}
+
+int typeSizeForNode(const SymbolTable& symbolTable, ASTNode* typeNode) {
+    if (!typeNode) return 0;
+
+    if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
+        if (namedType->typeName == "integer") return typeSizeFromExprType(ExprType::INTEGER);
+        if (namedType->typeName == "real") return typeSizeFromExprType(ExprType::REAL);
+        if (namedType->typeName == "char") return typeSizeFromExprType(ExprType::CHAR);
+        if (namedType->typeName == "boolean") return typeSizeFromExprType(ExprType::BOOLEAN);
+        if (namedType->typeName == "string") return typeSizeFromExprType(ExprType::STRING);
+
+        const SymbolInfo* info = lookupSymbol(symbolTable, namedType->typeName);
+        if (info && info->kind == SymbolKind::TYPE) {
+            if (info->typeDef && info->typeDef != typeNode) {
+                return typeSizeForNode(symbolTable, info->typeDef);
+            }
+            return typeSizeFromExprType(info->type);
+        }
+        return 0;
+    }
+
+    if (auto* arrayType = dynamic_cast<ArrayTypeNode*>(typeNode)) {
+        int elemSize = typeSizeForNode(symbolTable, arrayType->elementType);
+        int low = 0;
+        int high = 0;
+        if (auto* rangeType = dynamic_cast<RangeNode*>(arrayType->indexType)) {
+            auto getIntValue = [](ASTNode* node, int& value) {
+                if (auto* numberNode = dynamic_cast<NumberNode*>(node)) {
+                    if (numberNode->isReal) return false;
+                    try {
+                        value = std::stoi(numberNode->value);
+                        return true;
+                    } catch (...) {
+                        return false;
+                    }
+                }
+                return false;
+            };
+
+            if (getIntValue(rangeType->lowerBound, low) && getIntValue(rangeType->upperBound, high) && high >= low) {
+                return (high - low + 1) * elemSize;
+            }
+        }
+        return elemSize;
+    }
+
+    if (auto* recordType = dynamic_cast<RecordTypeNode*>(typeNode)) {
+        int total = 0;
+        for (ASTNode* fieldNode : recordType->fields) {
+            auto* fieldDecl = dynamic_cast<VarDeclNode*>(fieldNode);
+            if (!fieldDecl) continue;
+            int fieldSize = typeSizeForNode(symbolTable, fieldDecl->typeDef);
+            total += fieldSize * static_cast<int>(fieldDecl->getVarNames().size());
+        }
+        return total;
+    }
+
+    if (dynamic_cast<EnumNode*>(typeNode)) return typeSizeFromExprType(ExprType::INTEGER);
+    if (dynamic_cast<RangeNode*>(typeNode)) return typeSizeFromExprType(ExprType::INTEGER);
+
+    return typeSizeFromExprType(dynamic_cast<ASTNode*>(typeNode)->exprType);
+}
+
+int arrayDetailRef(const SymbolTable& symbolTable, ASTNode* elementTypeNode) {
+    if (!elementTypeNode) return 0;
+
+    if (auto* namedType = dynamic_cast<NamedTypeNode*>(elementTypeNode)) {
+        const SymbolInfo* info = lookupSymbol(symbolTable, namedType->typeName);
+        if (!info) return 0;
+        if (info->kind == SymbolKind::TYPE && info->type == ExprType::ARRAY && info->arrayIndex >= 0) {
+            return info->arrayIndex + 1;
+        }
+        if (info->kind == SymbolKind::TYPE && info->type == ExprType::RECORD) {
+            return info->blockIndex >= 0 ? info->blockIndex + 1 : 0;
+        }
+        if (info->kind == SymbolKind::TYPE && info->typeDef) {
+            return arrayDetailRef(symbolTable, info->typeDef);
+        }
+    }
+
+    return 0;
 }
 }
 
@@ -704,9 +852,17 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
     outFile << "\n";
 
     // SYMBOL TABLE (TAB)
-    outFile << "TAB (hanya sebagian yang relevan):\n";
-    outFile << "idx\tid\t\tobj\t\ttype\tref\tnrm\tlev\tadr\tlink\n";
-    outFile << string(80, '-') << "\n";
+        outFile << "TAB (hanya sebagian yang relevan):\n";
+        outFile << left << setw(5) << "idx"
+            << setw(18) << "id"
+            << setw(12) << "obj"
+            << setw(12) << "type"
+            << setw(6)  << "ref"
+            << setw(6)  << "nrm"
+            << setw(6)  << "lev"
+            << setw(6)  << "adr"
+            << setw(6)  << "link" << "\n";
+        outFile << string(80, '-') << "\n";
 
     std::vector<const SymbolInfo*> tabRows;
     std::vector<const SymbolInfo*> builtinRows;
@@ -724,31 +880,40 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
 
     int displayIndex = 33;
     for (const SymbolInfo* sym : tabRows) {
-        outFile << displayIndex++ << "\t";
-        outFile << sym->name << "\t\t";
         if (isPredefinedSymbol(*sym)) {
-            // Predefined: show kind then ellipsis for all data columns
-            outFile << symbolKindToString(sym->kind) << "\t\t";
-            outFile << "...\t...\t...\t...\t...\t...";
-            outFile << "\t(predefined)";
+            outFile << left << setw(5)  << displayIndex++
+                    << setw(18) << sym->name
+                    << setw(12) << symbolKindToString(sym->kind)
+                    << setw(12) << "..."
+                    << setw(6)  << "..."
+                    << setw(6)  << "..."
+                    << setw(6)  << "..."
+                    << setw(6)  << "..."
+                    << setw(6)  << "..."
+                    << "\t(predefined)" << "\n";
         } else {
-            outFile << tabObjectLabel(*sym) << "\t\t";
-            outFile << exprTypeToString(sym->type) << "\t";
-            // Sesuaikan nama field berikut dengan SymbolInfo milikmu:
-            outFile << (sym->tabIndex) << "\t";   // ref  — ganti jika ada field ref
-            outFile << 1 << "\t";                 // nrm  — ganti jika ada field normal/nrm
-            outFile << sym->level << "\t";
-            outFile << sym->declLine << "\t";     // adr  — ganti jika ada field adr/address
-            outFile << 0;                         // link — ganti jika ada field link
+            outFile << left << setw(5)  << displayIndex++
+                    << setw(18) << sym->name
+                    << setw(12) << tabObjectLabel(*sym)
+                    << setw(12) << exprTypeToString(sym->type)
+                    << setw(6)  << (sym->tabIndex)
+                    << setw(6)  << 1
+                    << setw(6)  << sym->level
+                    << setw(6)  << sym->declLine
+                    << setw(6)  << 0
+                    << "\n";
         }
-        outFile << "\n";
     }
     outFile << "\n";
 
     // BLOCK TABLE (BTAB)
     outFile << "btab:\n";
-    outFile << "idx\tlast\tlpar\tpsze\tvsze\n";
-    outFile << "---------------------------\n";
+    outFile << left << setw(6) << "idx"
+            << setw(8) << "last"
+            << setw(8) << "lpar"
+            << setw(8) << "psze"
+            << setw(8) << "vsze" << "\n";
+    outFile << string(50, '-') << "\n";
 
     for (const auto& block : allBlocks) {
         int last = 0;
@@ -767,26 +932,48 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
             }
         }
 
-        outFile << block.blockIndex << "\t";
-        outFile << last << "\t";
-        outFile << lpar << "\t";
-        outFile << psze << "\t";
-        outFile << vsze << "\n";
+        outFile << left << setw(6) << block.blockIndex
+                << setw(8) << last
+                << setw(8) << lpar
+                << setw(8) << psze
+                << setw(8) << vsze << "\n";
     }
     outFile << "\n";
 
     // ARRAY TABLE (ATAB)
-    outFile << "ATAB: \n";
+    outFile << "ATAB:\n";
     if (allArrays.empty()) {
         outFile << "  (No arrays declared)\n";
     } else {
-        outFile << "idx\telementType\tindexType\tlower\tupper\n";
-        outFile << string(80, '-') << "\n";
+        outFile << left << setw(8)  << "arrays"
+            << setw(8)  << "xtyp"
+            << setw(8)  << "etyp"
+            << setw(8)  << "eref"
+            << setw(8)  << "low"
+            << setw(8)  << "high"
+            << setw(8)  << "elsz"
+            << setw(8)  << "size" << "\n";
+        outFile << string(64, '-') << "\n";
         for (const auto& arr : allArrays) {
-            outFile << arr.arrayIndex << "\t";
-            outFile << exprTypeToString(arr.elementType) << "\t\t";
-            outFile << exprTypeToString(arr.indexType) << "\t\t";
-            outFile << arr.lowerBound << "\t" << arr.upperBound << "\n";
+            int xtyp = typeCodeForNode(symbolTable, arr.indexTypeNode);
+            int etyp = typeCodeForNode(symbolTable, arr.elementTypeNode);
+            int eref = arrayDetailRef(symbolTable, arr.elementTypeNode);
+            int elsz = typeSizeForNode(symbolTable, arr.elementTypeNode);
+            int totalSize = 0;
+            if (arr.hasStaticBounds && arr.upperBound >= arr.lowerBound) {
+                totalSize = (arr.upperBound - arr.lowerBound + 1) * elsz;
+            } else {
+                totalSize = elsz;
+            }
+
+            outFile << left << setw(8)  << (arr.arrayIndex + 1)
+                    << setw(8)  << xtyp
+                    << setw(8)  << etyp
+                    << setw(8)  << eref
+                    << setw(8)  << arr.lowerBound
+                    << setw(8)  << arr.upperBound
+                    << setw(8)  << elsz
+                    << setw(8)  << totalSize << "\n";
         }
     }
     outFile << "\n";
