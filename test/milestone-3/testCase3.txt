@@ -1,0 +1,43 @@
+{ state skip: brace comment }
+(* 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+state skip: paren-star comment 
+*)
+
+program p5;
+const c1 == 123;
+c2 == 123;
+type t1 == hama;
+var v1, v2, v3: array[1..3] of integer;
+
+function f1(a1: integer): integer;
+begin
+    if a1 >= 10 then
+        a1 := a1 - 1
+    else
+        a1 := a1 + 2;
+    f1 := a1 div 2 mod 3;
+end;
+
+procedure p1;
+begin
+    repeat
+        while v1 < v2 do
+        begin
+            v1 := v1 + 1
+        end;;
+        for v3 := 10 downto 1 do
+        begin
+            v2 := v2 * 2 / 4;
+        end;
+    until v1 == v2;
+end;
+
+begin
+    v1 := -42;
+    v2 := 3.1415;
+end.

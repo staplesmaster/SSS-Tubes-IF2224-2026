@@ -1,0 +1,47 @@
+program testCase2;
+
+var
+    x, y, z : integer;
+    status : boolean;
+    hasil : real;
+
+procedure HitungMundur(start : integer; prefix : string);
+var
+    counter : integer;
+begin
+    counter := start;
+    while counter > 0 do
+    begin
+        counter := counter - 1;
+    end;
+end;
+
+function CekValid(a, b : integer; limit : real) : boolean;
+var
+    temp : real;
+begin
+    temp := (a + b) / 2.0;
+    if temp <= limit then
+        CekValid := true
+    else
+        CekValid := false;
+end;
+
+begin
+    x := 10;
+    y := 20;
+
+    HitungMundur(x, 'Mulai: ');
+
+    status := not CekValid(x, y, 15.5) and (x <> y) or (x == 10);
+
+    repeat
+        z := x * y div 2 mod 3;
+        x := x + 1;
+    until x >= 20;
+
+    for z := 10 downto 1 do
+    begin
+        y := y - 1;
+    end;
+end.

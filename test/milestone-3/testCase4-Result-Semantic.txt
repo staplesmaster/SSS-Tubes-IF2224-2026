@@ -1,0 +1,59 @@
+SEMANTIC ERROR REPORT
+SEMANTIC ERRORS FOUND:
+  [SEMANTIC ERROR] Baris 0: Identifier 'Point' bukan subprogram
+  [SEMANTIC ERROR] Baris 0: Jumlah argumen tidak sesuai untuk pemanggilan 'Point'
+  [SEMANTIC ERROR] Baris 0: Tipe assignment tidak kompatible
+  [SEMANTIC ERROR] Baris 0: Identifier 'Point' bukan subprogram
+  [SEMANTIC ERROR] Baris 0: Jumlah argumen tidak sesuai untuk pemanggilan 'Point'
+  [SEMANTIC ERROR] Baris 0: Tipe assignment tidak kompatible
+  [SEMANTIC ERROR] Baris 0: Iterator 'i' belum dideklarasikan
+  [SEMANTIC ERROR] Baris 0: Subprogram 'print' belum dideklarasikan
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+33   Test4             program     void        33    1     0     0     0     
+34   x                 variable    integer     34    1     0     0     0     
+35   y                 variable    integer     35    1     0     0     0     
+36   Point             type        record      36    1     0     0     0     
+37   now               variable    record      37    1     0     0     0     
+38   ends              variable    record      38    1     0     0     0     
+39   i                 variable    integer     39    1     0     0     0     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     39      0       0       5       
+
+ATAB:
+  (No arrays declared)
+
+DECORATED AST: 
+ProgramNode('Test4') → block_index:0, lev:0
+├─ Declarations
+│  ├─ TypeDecl('Point') → tab_index:36, type:record, lev:0, predefined
+│  ├─ VarDecl('now'), type:Point → tab_index:37, type:record, lev:0, predefined
+│  └─ VarDecl('i'), type:integer → tab_index:39, type:integer, lev:0, predefined
+└─ Block → block_index:0, lev:1
+   ├─ Assign('Var('now')' := ComplexExpression) → type:void
+   │  ├─ 'now' → tab_index:37, type:record, lev:0, predefined
+   │  └─ Point(...) → tab_index:36, type:void, lev:0
+   │     ├─ 0 → type:integer
+   │     └─ 0 → type:integer
+   ├─ Assign('Var('ends')' := ComplexExpression) → type:void
+   │  ├─ 'ends' → tab_index:38, type:record, lev:0, predefined
+   │  └─ Point(...) → tab_index:36, type:void, lev:0
+   │     ├─ 10 → type:integer
+   │     └─ 10 → type:integer
+   ├─ ForLoop('i', downto)
+   │  ├─ 10 → type:integer
+   │  ├─ 0 → type:integer
+   │  └─ Block → lev:1
+   │     └─ CaseStatement
+   └─ ProcCall('print') → type:void
+      ├─ ''Point = '' → type:string
+      ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+      ├─ ''And'' → type:string
+      └─ 'y' → tab_index:35, type:integer, lev:0, predefined
+
+Semantic analysis completed

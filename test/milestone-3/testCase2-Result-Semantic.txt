@@ -1,0 +1,118 @@
+SEMANTIC ERROR REPORT
+SEMANTIC ERRORS FOUND:
+  [SEMANTIC ERROR] Baris 0: Operator unary 'not' tidak dapat diterapkan pada tipe ini
+  [SEMANTIC ERROR] Baris 0: Ekspresi biner tidak kompatibel untuk operator '=='
+  [SEMANTIC ERROR] Baris 0: Iterator 'z' belum dideklarasikan
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+33   testCase2         program     void        33    1     0     0     0     
+34   x                 variable    integer     34    1     0     0     0     
+35   y                 variable    integer     35    1     0     0     0     
+36   z                 variable    integer     36    1     0     0     0     
+37   status            variable    boolean     37    1     0     0     0     
+38   hasil             variable    real        38    1     0     0     0     
+39   HitungMundur      procedure   void        39    1     0     0     0     
+40   start             parameter   integer     40    1     1     0     0     
+41   prefix            parameter   string      41    1     1     0     0     
+42   counter           variable    integer     42    1     1     0     0     
+43   CekValid          function    boolean     43    1     0     0     0     
+44   a                 parameter   integer     44    1     1     0     0     
+45   b                 parameter   integer     45    1     1     0     0     
+46   limit             parameter   real        46    1     1     0     0     
+47   temp              variable    real        47    1     1     0     0     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     43      0       0       5       
+1     42      41      2       1       
+2     47      46      3       1       
+
+ATAB:
+  (No arrays declared)
+
+DECORATED AST: 
+ProgramNode('testCase2') → block_index:0, lev:0
+├─ Declarations
+│  ├─ VarDecl('x'), type:integer → tab_index:34, type:integer, lev:0, predefined
+│  ├─ VarDecl('status'), type:boolean → tab_index:37, type:boolean, lev:0, predefined
+│  ├─ VarDecl('hasil'), type:real → tab_index:38, type:real, lev:0, predefined
+│  ├─ ProcedureDecl('HitungMundur') → block_index:1, tab_index:39, type:void, lev:0, predefined
+│  │  ├─ ASTNode
+│  │  ├─ ASTNode
+│  │  ├─ VarDecl('counter'), type:integer
+│  │  └─ Block → block_index:1, lev:1
+│  │     ├─ Assign('Var('counter')' := Var('start')) → type:void
+│  │     │  ├─ 'counter' → tab_index:42, type:integer, lev:1
+│  │     │  └─ 'start' → tab_index:40, type:integer, lev:1
+│  │     └─ WhileLoop
+│  │        ├─ BinOp '>' → type:boolean
+│  │        │  ├─ 'counter' → tab_index:42, type:integer, lev:1
+│  │        │  └─ 0 → type:integer
+│  │        └─ Block → lev:1
+│  │           └─ Assign('Var('counter')' := BinOp(op: '-', left: Var('counter'), right: Num(1))) → type:void
+│  │              ├─ 'counter' → tab_index:42, type:integer, lev:1
+│  │              └─ BinOp '-' → type:integer
+│  │                 ├─ 'counter' → tab_index:42, type:integer, lev:1
+│  │                 └─ 1 → type:integer
+│  └─ FunctionDecl('CekValid') → block_index:2, tab_index:43, type:boolean, lev:0, predefined
+│     ├─ ASTNode
+│     ├─ ASTNode
+│     ├─ VarDecl('temp'), type:real
+│     └─ Block → block_index:2, lev:1
+│        ├─ Assign('Var('temp')' := BinOp(op: '/', left: BinOp(op: '+', left: Var('a'), right: Var('b')), right: Num(2.0))) → type:void
+│        │  ├─ 'temp' → tab_index:47, type:real, lev:1
+│        │  └─ BinOp '/' → type:real
+│        │     ├─ BinOp '+' → type:integer
+│        │     │  ├─ 'a' → tab_index:44, type:integer, lev:1
+│        │     │  └─ 'b' → tab_index:45, type:integer, lev:1
+│        │     └─ 2.0 → type:real
+│        └─ IfStatement
+│           ├─ BinOp '<=' → type:boolean
+│           │  ├─ 'temp' → tab_index:47, type:real, lev:1
+│           │  └─ 'limit' → tab_index:46, type:real, lev:1
+│           ├─ Assign('Var('CekValid')' := Var('true')) → type:void
+│           │  ├─ 'CekValid' → tab_index:43, type:boolean, lev:0, predefined
+│           │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+│           └─ Assign('Var('CekValid')' := Var('false')) → type:void
+│              ├─ 'CekValid' → tab_index:43, type:boolean, lev:0, predefined
+│              └─ 'false' → tab_index:6, type:boolean, lev:0, predefined
+└─ Block → block_index:0, lev:1
+   ├─ Assign('Var('x')' := Num(10)) → type:void
+   │  ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+   │  └─ 10 → type:integer
+   ├─ Assign('Var('y')' := Num(20)) → type:void
+   │  ├─ 'y' → tab_index:35, type:integer, lev:0, predefined
+   │  └─ 20 → type:integer
+   ├─ HitungMundur(...) → tab_index:39, type:void, lev:0
+   │  ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+   │  └─ ''Mulai: '' → type:string
+   ├─ Assign('Var('status')' := BinOp(op: 'or', left: BinOp(op: 'and', left: UnaryOp(op: 'not', operand: ComplexExpression), right: BinOp(op: '<>', left: Var('x'), right: Var('y'))), right: BinOp(op: '==', left: Var('x'), right: Num(10)))) → type:void
+   │  ├─ 'status' → tab_index:37, type:boolean, lev:0, predefined
+   │  └─ BinOp 'or'
+   │     ├─ BinOp 'and'
+   │     │  ├─ UnaryOp 'not'
+   │     │  │  └─ CekValid(...) → tab_index:43, type:void, lev:0
+   │     │  │     ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+   │     │  │     ├─ 'y' → tab_index:35, type:integer, lev:0, predefined
+   │     │  │     └─ 15.5 → type:real
+   │     │  └─ BinOp '<>' → type:boolean
+   │     │     ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+   │     │     └─ 'y' → tab_index:35, type:integer, lev:0, predefined
+   │     └─ BinOp '=='
+   │        ├─ 'x' → tab_index:34, type:integer, lev:0, predefined
+   │        └─ 10 → type:integer
+   ├─ RepeatUntil
+   └─ ForLoop('z', downto)
+      ├─ 10 → type:integer
+      ├─ 1 → type:integer
+      └─ Block → lev:1
+         └─ Assign('Var('y')' := BinOp(op: '-', left: Var('y'), right: Num(1))) → type:void
+            ├─ 'y' → tab_index:35, type:integer, lev:0, predefined
+            └─ BinOp '-' → type:integer
+               ├─ 'y' → tab_index:35, type:integer, lev:0, predefined
+               └─ 1 → type:integer
+
+Semantic analysis completed
