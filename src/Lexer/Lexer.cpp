@@ -327,9 +327,6 @@ Token Lexer::nextToken() {
                     } else {
                         return makeToken(INTCON, tokenStart, pos);
                     }
-                } else if (isAlphabet(c)) {
-                    adv();
-                    state = State::UNKNOWN;
                 }
                 else {
                     return makeToken(INTCON, tokenStart, pos);
