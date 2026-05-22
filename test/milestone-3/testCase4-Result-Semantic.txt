@@ -2,8 +2,10 @@ SEMANTIC ERROR REPORT
 SEMANTIC ERRORS FOUND:
   [SEMANTIC ERROR] Baris 14: Identifier 'Point' bukan subprogram
   [SEMANTIC ERROR] Baris 14: Jumlah argumen tidak sesuai untuk pemanggilan 'Point'
+  [SEMANTIC ERROR] Baris 14: Tipe assignment tidak kompatible
   [SEMANTIC ERROR] Baris 15: Identifier 'Point' bukan subprogram
   [SEMANTIC ERROR] Baris 15: Jumlah argumen tidak sesuai untuk pemanggilan 'Point'
+  [SEMANTIC ERROR] Baris 15: Tipe assignment tidak kompatible
   [SEMANTIC ERROR] Baris 23: Subprogram 'print' belum dideklarasikan
 
 TAB (hanya sebagian yang relevan):
