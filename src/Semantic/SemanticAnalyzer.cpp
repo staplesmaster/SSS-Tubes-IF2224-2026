@@ -431,6 +431,14 @@ void SemanticAnalyzer::visitIfNode(IfNode* node) {
     if (!node) return;
 
     if(node->condition) node->condition->accept(this);
+    if (node->condition) {
+        ExprType condType = node->condition->exprType;
+        if (condType != ExprType::UNKNOWN &&
+            condType != ExprType::BOOLEAN &&
+            condType != ExprType::INTEGER) {
+            report(node->condition, "Kondisi if harus bertipe boolean atau integer");
+        }
+    }
     if(node->thenBlock) node->thenBlock->accept(this);
     if(node->elseBlock) node->elseBlock->accept(this);
 }
@@ -459,6 +467,14 @@ void SemanticAnalyzer::visitWhileNode(WhileNode* node) {
     if (!node) return;
 
     if(node->condition) node->condition->accept(this);
+    if (node->condition) {
+        ExprType condType = node->condition->exprType;
+        if (condType != ExprType::UNKNOWN &&
+            condType != ExprType::BOOLEAN &&
+            condType != ExprType::INTEGER) {
+            report(node->condition, "Kondisi while harus bertipe boolean atau integer");
+        }
+    }
     if(node->loopBlock) node->loopBlock->accept(this);
 }
 
@@ -470,6 +486,14 @@ void SemanticAnalyzer::visitRepeatNode(RepeatNode* node) {
     }
 
     if(node->condition) node->condition->accept(this);
+    if (node->condition) {
+        ExprType condType = node->condition->exprType;
+        if (condType != ExprType::UNKNOWN &&
+            condType != ExprType::BOOLEAN &&
+            condType != ExprType::INTEGER) {
+            report(node->condition, "Kondisi repeat-until harus bertipe boolean atau integer");
+        }
+    }
 }
 
 void SemanticAnalyzer::visitForNode(ForNode* node) {
