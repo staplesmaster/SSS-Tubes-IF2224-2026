@@ -56,6 +56,95 @@ ExprType SemanticAnalyzer::resolveTypeNode(ASTNode* typeNode){
 
     return ExprType::UNKNOWN;
 }
+int SemanticAnalyzer::getEnumDomainIdForTypeNode(ASTNode* typeNode) {
+    if (!typeNode) return -1;
+
+    if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
+        SymbolInfo* typeInfo = symbolTable.lookup(namedType->typeName);
+        if (typeInfo && typeInfo->kind == SymbolKind::TYPE) {
+            return typeInfo->enumDomainId;
+        }
+        return -1;
+    }
+
+    if (dynamic_cast<EnumNode*>(typeNode)) {
+        auto it = enumDomainIds.find(typeNode);
+        if (it != enumDomainIds.end()) return it->second;
+
+        int domainId = nextEnumDomainId++;
+        enumDomainIds[typeNode] = domainId;
+        return domainId;
+    }
+
+    return -1;
+}
+
+int SemanticAnalyzer::getEnumDomainIdForExpression(ASTNode* expr) {
+    if (!expr || expr->exprType != ExprType::ENUM) return -1;
+    if (expr->enumDomainId != -1) return expr->enumDomainId;
+    return getEnumDomainIdForTypeNode(getTypeDefForExpression(expr));
+}
+
+bool SemanticAnalyzer::areTypeNodesCompatible(ASTNode* leftTypeNode, ASTNode* rightTypeNode) {
+    if (!leftTypeNode || !rightTypeNode) return false;
+
+    if (auto* leftNamed = dynamic_cast<NamedTypeNode*>(leftTypeNode)) {
+        SymbolInfo* info = symbolTable.lookup(leftNamed->typeName);
+        if (info && info->kind == SymbolKind::TYPE && info->typeDef) {
+            leftTypeNode = info->typeDef;
+        }
+    }
+
+    if (auto* rightNamed = dynamic_cast<NamedTypeNode*>(rightTypeNode)) {
+        SymbolInfo* info = symbolTable.lookup(rightNamed->typeName);
+        if (info && info->kind == SymbolKind::TYPE && info->typeDef) {
+            rightTypeNode = info->typeDef;
+        }
+    }
+
+    ExprType leftType = resolveTypeNode(leftTypeNode);
+    ExprType rightType = resolveTypeNode(rightTypeNode);
+
+    if (leftType == ExprType::ENUM || rightType == ExprType::ENUM) {
+        return leftType == rightType &&
+               getEnumDomainIdForTypeNode(leftTypeNode) == getEnumDomainIdForTypeNode(rightTypeNode);
+    }
+
+    if (leftType == ExprType::ARRAY || rightType == ExprType::ARRAY) {
+        auto* leftArray = dynamic_cast<ArrayTypeNode*>(leftTypeNode);
+        auto* rightArray = dynamic_cast<ArrayTypeNode*>(rightTypeNode);
+        return leftArray && rightArray &&
+               areTypeNodesCompatible(leftArray->indexType, rightArray->indexType) &&
+               areTypeNodesCompatible(leftArray->elementType, rightArray->elementType);
+    }
+
+    if (leftType == ExprType::RECORD || rightType == ExprType::RECORD) {
+        auto* leftRecord = dynamic_cast<RecordTypeNode*>(leftTypeNode);
+        auto* rightRecord = dynamic_cast<RecordTypeNode*>(rightTypeNode);
+        if (!leftRecord || !rightRecord || leftRecord->fields.size() != rightRecord->fields.size()) {
+            return false;
+        }
+
+        for (std::size_t i = 0; i < leftRecord->fields.size(); ++i) {
+            auto* leftField = dynamic_cast<VarDeclNode*>(leftRecord->fields[i]);
+            auto* rightField = dynamic_cast<VarDeclNode*>(rightRecord->fields[i]);
+            if (!leftField || !rightField) return false;
+            if (leftField->getVarNames() != rightField->getVarNames()) return false;
+            if (!areTypeNodesCompatible(leftField->typeDef, rightField->typeDef)) return false;
+        }
+        return true;
+    }
+
+    if (leftType == ExprType::SUBRANGE || rightType == ExprType::SUBRANGE) {
+        auto* leftRange = dynamic_cast<RangeNode*>(leftTypeNode);
+        auto* rightRange = dynamic_cast<RangeNode*>(rightTypeNode);
+        ExprType leftBase = leftRange && leftRange->lowerBound ? leftRange->lowerBound->exprType : leftType;
+        ExprType rightBase = rightRange && rightRange->lowerBound ? rightRange->lowerBound->exprType : rightType;
+        return TypeRules::isAssignable(leftBase, rightBase) && TypeRules::isAssignable(rightBase, leftBase);
+    }
+
+    return TypeRules::isAssignable(leftType, rightType) || TypeRules::isAssignable(rightType, leftType);
+}
 
 bool SemanticAnalyzer::tryGetIntLiteral(ASTNode* node, int& value) {
     if (!node) return false;
@@ -189,6 +278,7 @@ void SemanticAnalyzer::visitConstDeclNode(ConstDeclNode* node) {
 
     SymbolInfo info(node->getConstName(), SymbolKind::CONSTANT);
     info.type = node->value ? node->value->exprType : ExprType::UNKNOWN;
+    info.enumDomainId = node->value ? getEnumDomainIdForExpression(node->value) : -1;
     info.declLine = node->lineNum;
     info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
@@ -207,6 +297,7 @@ void SemanticAnalyzer::visitTypeDeclNode(TypeDeclNode* node) {
     SymbolInfo info(node->getTypeName(), SymbolKind::TYPE);
     info.type = resolveTypeNode(node->typeDef);
     info.typeDef = node->typeDef;
+    info.enumDomainId = getEnumDomainIdForTypeNode(node->typeDef);
     info.declLine = node->lineNum;
     info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
@@ -258,6 +349,7 @@ void SemanticAnalyzer::visitVarDeclNode(VarDeclNode* node) {
         info.type = varType;
         info.declLine = node->lineNum;
         info.typeDef = node->typeDef;
+        info.enumDomainId = getEnumDomainIdForTypeNode(node->typeDef);
         info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
         if (!symbolTable.declare(name, info)) {
@@ -289,6 +381,7 @@ void SemanticAnalyzer::visitParamNode(ParamNode* node) {
         info.type = paramType;
         info.declLine = node->lineNum;
         info.isParameter = true;
+        info.enumDomainId = getEnumDomainIdForTypeNode(node->typeDef);
         info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
 
         if (!symbolTable.declare(name, info)) {
@@ -331,6 +424,7 @@ void SemanticAnalyzer::visitSubprogramDeclNode(SubprogramDeclNode* node) {
                 ParamInfo pInfo;
                 pInfo.name = pName;
                 pInfo.type = pType;
+                pInfo.enumDomainId = getEnumDomainIdForTypeNode(paramDecl->typeDef);
                 pInfo.isVarParam = paramDecl->isVarParam;
                 pInfo.declLine = paramDecl->lineNum;
                 declaredSub->parameters.push_back(pInfo);
@@ -369,6 +463,15 @@ void SemanticAnalyzer::visitArrayTypeNode(ArrayTypeNode* node) {
     if(node->indexType) node->indexType->accept(this);
     if(node->elementType) node->elementType->accept(this);
 
+    ExprType indexType = resolveTypeNode(node->indexType);
+    if (indexType == ExprType::REAL) {
+        report(node->indexType, "Tipe indeks array tidak boleh real");
+    } else if (indexType != ExprType::UNKNOWN &&
+               indexType != ExprType::SUBRANGE &&
+               !TypeRules::isValidArrayIndexType(indexType)) {
+        report(node->indexType, "Tipe indeks array harus simple type dan bukan real");
+    }
+
     node->exprType = ExprType::ARRAY;
 }
 
@@ -388,17 +491,44 @@ void SemanticAnalyzer::visitRangeNode(RangeNode* node) {
     if(node->lowerBound) node->lowerBound->accept(this);
     if(node->upperBound) node->upperBound->accept(this);
 
+    ExprType lowerType = node->lowerBound ? node->lowerBound->exprType : ExprType::UNKNOWN;
+    ExprType upperType = node->upperBound ? node->upperBound->exprType : ExprType::UNKNOWN;
+
+    if (lowerType == ExprType::REAL || upperType == ExprType::REAL) {
+        report(node, "Subrange tidak boleh bertipe real");
+    } else if (lowerType != ExprType::UNKNOWN && upperType != ExprType::UNKNOWN) {
+        if (!TypeRules::isAssignable(lowerType, upperType) || !TypeRules::isAssignable(upperType, lowerType)) {
+            report(node, "Batas bawah dan batas atas subrange harus memiliki tipe compatible");
+        }
+    }
+
+    int lowerValue = 0;
+    int upperValue = 0;
+    if (tryGetIntLiteral(node->lowerBound, lowerValue) && tryGetIntLiteral(node->upperBound, upperValue) &&
+        lowerValue > upperValue) {
+        report(node, "Lower bound subrange tidak boleh lebih besar dari upper bound");
+    }
+
+    auto* lowerChar = dynamic_cast<CharNode*>(node->lowerBound);
+    auto* upperChar = dynamic_cast<CharNode*>(node->upperBound);
+    if (lowerChar && upperChar && !lowerChar->value.empty() && !upperChar->value.empty() &&
+        lowerChar->value[0] > upperChar->value[0]) {
+        report(node, "Lower bound subrange tidak boleh lebih besar dari upper bound");
+    }
+
     node->exprType = ExprType::SUBRANGE;
 }
 
 void SemanticAnalyzer::visitEnumNode(EnumNode* node) {
     if (!node) return;
     node->exprType = ExprType::ENUM;
+    node->enumDomainId = getEnumDomainIdForTypeNode(node);
 
     for (const std::string& enumVal : node->identifiers) {
         SymbolInfo enumConst(enumVal, SymbolKind::CONSTANT);
         enumConst.type = ExprType::ENUM;
         enumConst.typeDef = node;
+        enumConst.enumDomainId = node->enumDomainId;
         enumConst.declLine = node->lineNum;
         enumConst.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
         if (!symbolTable.declare(enumVal, enumConst)) {
@@ -418,8 +548,21 @@ void SemanticAnalyzer::visitAssignNode(AssignNode* node) {
         ExprType valueType = node->value->exprType;
 
         if (targetType != ExprType::UNKNOWN && valueType != ExprType::UNKNOWN) {
-            if (!TypeRules::isAssignable(targetType, valueType)) {
+            bool compatible = TypeRules::isAssignable(targetType, valueType);
+
+            if ((targetType == ExprType::ARRAY || targetType == ExprType::RECORD ||
+                 valueType == ExprType::ARRAY || valueType == ExprType::RECORD)) {
+                compatible = areTypeNodesCompatible(
+                    getTypeDefForExpression(node->target),
+                    getTypeDefForExpression(node->value)
+                );
+            }
+
+            if (!compatible) {
                 report(node, "Tipe assignment tidak kompatible");
+            } else if (targetType == ExprType::ENUM && valueType == ExprType::ENUM &&
+                       getEnumDomainIdForExpression(node->target) != getEnumDomainIdForExpression(node->value)) {
+                report(node, "Tipe assignment enum berasal dari domain berbeda");
             }
         }
     }
@@ -568,6 +711,9 @@ void SemanticAnalyzer::visitProcCallNode(ProcCallNode* node) {
                 ExprType paramType = procInfo->parameters[i].type;
                 if (argType != ExprType::UNKNOWN && paramType != ExprType::UNKNOWN && !TypeRules::isAssignable(paramType, argType)) {
                     report(arg, "Tipe argumen ke-" + std::to_string(i + 1) + " tidak kompatibel");
+                } else if (argType == ExprType::ENUM && paramType == ExprType::ENUM &&
+                           procInfo->parameters[i].enumDomainId != getEnumDomainIdForExpression(arg)) {
+                    report(arg, "Tipe argumen enum ke-" + std::to_string(i + 1) + " berasal dari domain berbeda");
                 }
             }
         }
@@ -593,6 +739,7 @@ void SemanticAnalyzer::visitVarNode(VarNode* node) {
     node->tabIndex = varInfo->tabIndex;
     node->lev = varInfo->level;
     node->exprType = varInfo->type;
+    node->enumDomainId = varInfo->enumDomainId;
 }
 
 void SemanticAnalyzer::visitArrayAccessNode(ArrayAccessNode* node) {
@@ -621,6 +768,19 @@ void SemanticAnalyzer::visitArrayAccessNode(ArrayAccessNode* node) {
 
     if (auto* arrType = dynamic_cast<ArrayTypeNode*>(arrayTypeDef)) {
         node->exprType = resolveTypeNode(arrType->elementType);
+        node->enumDomainId = getEnumDomainIdForTypeNode(arrType->elementType);
+
+        ExprType declaredIndexType = resolveTypeNode(arrType->indexType);
+        if (auto* rangeType = dynamic_cast<RangeNode*>(arrType->indexType)) {
+            declaredIndexType = rangeType->lowerBound ? rangeType->lowerBound->exprType : declaredIndexType;
+        }
+
+        for (ASTNode* idx : node->indices) {
+            if (!idx || idx->exprType == ExprType::UNKNOWN || declaredIndexType == ExprType::UNKNOWN) continue;
+            if (!TypeRules::isAssignable(declaredIndexType, idx->exprType)) {
+                report(idx, "Tipe indeks tidak kompatibel dengan tipe indeks array");
+            }
+        }
 
         bool hasStaticBounds = false;
         int lowerBound = 0;
@@ -683,6 +843,17 @@ void SemanticAnalyzer::visitBinOpNode(BinOpNode* node) {
 
     ExprType result = TypeRules::resultOfBinary(node->op, leftType, rightType);
     node->exprType = result;
+
+    const bool isRelational =
+        node->op == "=" || node->op == "==" || node->op == "<>" || node->op == "<" ||
+        node->op == ">" || node->op == "<=" || node->op == ">=";
+
+    if (isRelational && leftType == ExprType::ENUM && rightType == ExprType::ENUM &&
+        getEnumDomainIdForExpression(node->left) != getEnumDomainIdForExpression(node->right)) {
+        node->exprType = ExprType::UNKNOWN;
+        report(node, "Ekspresi enum berasal dari domain berbeda");
+        return;
+    }
 
     if (result == ExprType::UNKNOWN && leftType != ExprType::UNKNOWN && rightType != ExprType::UNKNOWN) {
         report(node, "Ekspresi biner tidak kompatibel untuk operator '" + node->op + "'");

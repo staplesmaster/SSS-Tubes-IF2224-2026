@@ -17,6 +17,7 @@ enum class SymbolKind {
 struct ParamInfo {
     std::string name;
     ExprType type = ExprType::UNKNOWN;
+    int enumDomainId = -1;
 
     bool isVarParam = false;
     int declLine = 0;
@@ -33,6 +34,7 @@ struct SymbolInfo {
 
     std::vector<ParamInfo> parameters; 
     ASTNode* typeDef = nullptr;
+    int enumDomainId = -1;
 
     bool isParameter = false;
     bool isUsed = false;

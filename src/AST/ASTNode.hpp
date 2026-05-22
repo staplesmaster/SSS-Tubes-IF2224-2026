@@ -16,6 +16,7 @@ enum class ExprType {
 class ASTNode {
 public:
     ExprType exprType = ExprType::UNKNOWN; 
+    int enumDomainId = -1;
     int tabIndex = -1; // Referensi indeks di symbol table (tab)
     int lev = -1;      // Kedalaman scope (0 = global)
     int lineNum = 0;   // Baris node ini berasal dari source code

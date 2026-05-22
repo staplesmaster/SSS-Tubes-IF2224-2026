@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "ASTVisitor.hpp"
 #include "ASTNode.hpp"
 #include "SymbolTable.hpp"
@@ -12,8 +13,13 @@ class SemanticAnalyzer : public ASTVisitor {
         SymbolTable symbolTable;
         ErrorReporter errorReporter;
         std::vector<int> activeBlocks;
+        std::unordered_map<ASTNode*, int> enumDomainIds;
+        int nextEnumDomainId = 1;
 
         ExprType resolveTypeNode(ASTNode* typeNode);
+        int getEnumDomainIdForTypeNode(ASTNode* typeNode);
+        int getEnumDomainIdForExpression(ASTNode* expr);
+        bool areTypeNodesCompatible(ASTNode* leftTypeNode, ASTNode* rightTypeNode);
         bool tryGetIntLiteral(ASTNode* node, int& value);
         ExprType resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName);
         ASTNode* getTypeDefForExpression(ASTNode* expr);

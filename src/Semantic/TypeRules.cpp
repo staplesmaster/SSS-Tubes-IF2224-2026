@@ -15,6 +15,7 @@ namespace TypeRules {
     bool canImplicitCast(ExprType from, ExprType to) {
         if (from == to) return true;
         if (from == ExprType::INTEGER && to == ExprType::REAL) return true;
+        if (from == ExprType::REAL && to == ExprType::INTEGER) return true;
         return false;
     }
 
@@ -26,7 +27,12 @@ namespace TypeRules {
 
     // Binary / unary results 
     ExprType resultOfBinary(const std::string& op, ExprType left, ExprType right) {
-        if (op == "+" || op == "-" || op == "*" || op == "/" || op == "div" || op == "mod") {
+        if (op == "div" || op == "mod") {
+            if (isInteger(left) && isInteger(right)) return ExprType::INTEGER;
+            return ExprType::UNKNOWN;
+        }
+
+        if (op == "+" || op == "-" || op == "*" || op == "/") {
             if (isNumeric(left) && isNumeric(right)) {
                 if (left == ExprType::REAL || right == ExprType::REAL || op == "/") return ExprType::REAL;
                 return ExprType::INTEGER;
