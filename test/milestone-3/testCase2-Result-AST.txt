@@ -1,0 +1,33 @@
+HASIL ABSTRACT SYNTAX TREE (AST)
+ProgramNode(name: 'testCase2')
+├── Declarations
+│   ├── VarDecl(name: 'x', type: 'integer')
+│   │   VarDecl(name: 'y', type: 'integer')
+│   │   VarDecl(name: 'z', type: 'integer')
+│   ├── VarDecl(name: 'status', type: 'boolean')
+│   ├── VarDecl(name: 'hasil', type: 'real')
+│   ├── ProcedureDecl(name: 'HitungMundur')
+│   │   └── CompoundStatement
+│   │       ├── Assign(target: Var('counter'), value: Var('start'))
+│   │       └── WhileLoop(condition: BinOp(op: '>', left: Var('counter'), right: Num(0)))
+│   │           └── DoBlock
+│   │               └── CompoundStatement
+│   │                   └── Assign(target: Var('counter'), value: BinOp(op: '-', left: Var('counter'), right: Num(1)))
+│   └── FunctionDecl(name: 'CekValid')
+│       └── CompoundStatement
+│           ├── Assign(target: Var('temp'), value: BinOp(op: '/', left: BinOp(op: '+', left: Var('a'), right: Var('b')), right: Num(2.0)))
+│           └── IfStatement(condition: BinOp(op: '<=', left: Var('temp'), right: Var('limit')))
+│               ├── ThenBlock
+│               │   └── Assign(target: Var('CekValid'), value: Var('true'))
+│               └── ElseBlock
+│                   └── Assign(target: Var('CekValid'), value: Var('false'))
+└── Block
+    ├── Assign(target: Var('x'), value: Num(10))
+    ├── Assign(target: Var('y'), value: Num(20))
+    ├── ProcedureCall(name: 'HitungMundur', args: [Var('x'), String(''Mulai: '')])
+    ├── Assign(target: Var('status'), value: BinOp(op: 'or', left: BinOp(op: 'and', left: UnaryOp(op: 'not', operand: ComplexExpression), right: BinOp(op: '<>', left: Var('x'), right: Var('y'))), right: BinOp(op: '==', left: Var('x'), right: Num(10))))
+    ├── ASTNode(ComplexExpression)
+    └── ForLoop(iterator: 'z', start: Num(10), end: Num(1), direction: downto)
+        └── DoBlock
+            └── CompoundStatement
+                └── Assign(target: Var('y'), value: BinOp(op: '-', left: Var('y'), right: Num(1)))

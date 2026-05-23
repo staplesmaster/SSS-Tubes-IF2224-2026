@@ -153,6 +153,7 @@ private :
     string line; 
 
     int pos;
+    int currentLine;
 
     char current();
     char adv ();

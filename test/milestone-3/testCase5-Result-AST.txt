@@ -1,0 +1,25 @@
+HASIL ABSTRACT SYNTAX TREE (AST)
+ProgramNode(name: 'testCase5')
+├── Declarations
+│   ├── ConstDecl(name: 'c1', value: Num(123))
+│   ├── ConstDecl(name: 'c2', value: Num(123))
+│   ├── TypeDecl(name: 'hama')
+│   ├── TypeDecl(name: 't1')
+│   ├── VarDecl(name: 'v1', type: ComplexExpression)
+│   │   VarDecl(name: 'v2', type: ComplexExpression)
+│   │   VarDecl(name: 'v3', type: ComplexExpression)
+│   ├── VarDecl(name: 'i', type: 'integer')
+│   ├── FunctionDecl(name: 'f1')
+│   │   └── CompoundStatement
+│   │       ├── IfStatement(condition: BinOp(op: '>=', left: Var('a1'), right: Num(10)))
+│   │       │   ├── ThenBlock
+│   │       │   │   └── Assign(target: Var('a1'), value: BinOp(op: '-', left: Var('a1'), right: Num(1)))
+│   │       │   └── ElseBlock
+│   │       │       └── Assign(target: Var('a1'), value: BinOp(op: '+', left: Var('a1'), right: Num(2)))
+│   │       └── Assign(target: Var('f1'), value: BinOp(op: 'mod', left: BinOp(op: 'div', left: Var('a1'), right: Num(2)), right: Num(3)))
+│   └── ProcedureDecl(name: 'p1')
+│       └── CompoundStatement
+│           └── ASTNode(ComplexExpression)
+└── Block
+    ├── Assign(target: ArrayAccess(base: Var('v1'), indices: [Num(1)]), value: UnaryOp(op: '-', operand: Num(42)))
+    └── Assign(target: ArrayAccess(base: Var('v2'), indices: [Num(1)]), value: Num(3))

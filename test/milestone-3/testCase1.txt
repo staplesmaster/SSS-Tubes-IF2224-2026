@@ -1,0 +1,50 @@
+program testCase1;
+
+const
+    PI == 3.14;
+    MAX == 100;
+    HURUF == 'A';
+    PESAN == 'Halo Dunia';
+
+type
+    Hari == (Senin, Selasa, Rabu, Kamis, Jumat);
+    Batas == 1 .. 100;
+    Siswa == record
+        umur : integer;
+        nilai : real;
+        lulus : boolean
+    end;
+    DataSiswa == array [1..100] of Siswa;
+    Matriks == array [1..10] of array [1..10] of integer;
+
+var
+    i, j, k : integer;
+    murid : Siswa;
+    kelas : DataSiswa;
+    papan : Matriks;
+    libur : Hari;
+
+begin
+    i := +10;
+    j := -5;
+    
+    murid.umur := 15;
+    murid.nilai := PI * 2.0;
+    kelas[1].lulus := true;
+    papan[1][2] := 100;
+    libur := Senin;
+
+    case i of
+        1, 2, 3 : k := 10;
+        4 : k := 20;
+        5 : k := 0
+    end;
+
+    for i := 1 to MAX do
+    begin
+        if i == 50 then
+            kelas[i].lulus := true
+        else
+            kelas[i].lulus := false;
+    end;
+end.

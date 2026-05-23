@@ -1,0 +1,23 @@
+HASIL ABSTRACT SYNTAX TREE (AST)
+ProgramNode(name: 'p5')
+├── Declarations
+│   ├── ConstDecl(name: 'c1', value: Num(123))
+│   ├── ConstDecl(name: 'c2', value: Num(123))
+│   ├── TypeDecl(name: 't1')
+│   ├── VarDecl(name: 'v1', type: ComplexExpression)
+│   │   VarDecl(name: 'v2', type: ComplexExpression)
+│   │   VarDecl(name: 'v3', type: ComplexExpression)
+│   ├── FunctionDecl(name: 'f1')
+│   │   └── CompoundStatement
+│   │       ├── IfStatement(condition: BinOp(op: '>=', left: Var('a1'), right: Num(10)))
+│   │       │   ├── ThenBlock
+│   │       │   │   └── Assign(target: Var('a1'), value: BinOp(op: '-', left: Var('a1'), right: Num(1)))
+│   │       │   └── ElseBlock
+│   │       │       └── Assign(target: Var('a1'), value: BinOp(op: '+', left: Var('a1'), right: Num(2)))
+│   │       └── Assign(target: Var('f1'), value: BinOp(op: 'mod', left: BinOp(op: 'div', left: Var('a1'), right: Num(2)), right: Num(3)))
+│   └── ProcedureDecl(name: 'p1')
+│       └── CompoundStatement
+│           └── ASTNode(ComplexExpression)
+└── Block
+    ├── Assign(target: Var('v1'), value: UnaryOp(op: '-', operand: Num(42)))
+    └── Assign(target: Var('v2'), value: Num(3.1415))
