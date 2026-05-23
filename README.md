@@ -129,8 +129,8 @@ end.
 
 | Nama | NIM | Bagian | Persentase |
 | --- | --- | --- | --- |
-| Geraldo Artemius | 13524005 | Parse Type, Parse Statement, Laporan | 20% |
-| Mikhael Andrian Yonatan | 13524051 | Error Handling, ParseTree, Laporan | 20% |
-| Junior Narta Situmorang | 13524055 | Parse Statement, Expression, Laporan  | 20% |
-| Reynard Nathanael | 13524103 | Parse Statement, Laporan | 20% |
-| Nicholas Luis Chandra | 13524105 | Parse Declaration, Laporan | 20% |
+| Geraldo Artemius | 13524005 | Semantic Analyzer, Laporan | 20% |
+| Mikhael Andrian Yonatan | 13524051 | AST Node & Visitor, AST Converter, Tester & Debugger | 20% |
+| Junior Narta Situmorang | 13524055 | AST Node, Integration, Writer, Error Reporter  | 20% |
+| Reynard Nathanael | 13524103 | Symbol Info, Type Rules, Laporan | 20% |
+| Nicholas Luis Chandra | 13524105 | Symbol Table, Laporan | 20% |
