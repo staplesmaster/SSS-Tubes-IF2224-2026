@@ -488,6 +488,7 @@ string symbolKindToString(SymbolKind kind) {
     switch (kind) {
         case SymbolKind::VARIABLE: return "variable";
         case SymbolKind::CONSTANT: return "constant";
+        case SymbolKind::RESERVED: return "reserved";
         case SymbolKind::FUNCTION: return "function";
         case SymbolKind::PROCEDURE: return "procedure";
         case SymbolKind::TYPE: return "type";
@@ -498,12 +499,15 @@ string symbolKindToString(SymbolKind kind) {
 }
 
 bool isPredefinedSymbol(const SymbolInfo& sym) {
-    return sym.tabIndex >= 0 && sym.tabIndex < 33;
+    return sym.kind == SymbolKind::RESERVED
+        || sym.kind == SymbolKind::TYPE
+        || sym.kind == SymbolKind::CONSTANT
+        || sym.kind == SymbolKind::FUNCTION
+        || sym.kind == SymbolKind::PROCEDURE;
 }
 
 bool shouldPrintTabSymbol(const SymbolInfo& sym) {
-    if (!isPredefinedSymbol(sym)) return true;
-    return (sym.kind == SymbolKind::PROCEDURE || sym.kind == SymbolKind::FUNCTION) && sym.isUsed;
+    return !isPredefinedSymbol(sym);
 }
 
 string joinMetadata(const vector<string>& items) {
@@ -856,7 +860,12 @@ void writeSemanticResult(const string& filepath, ASTNode* root, const class Sema
     }
     tabRows.insert(tabRows.end(), builtinRows.begin(), builtinRows.end());
 
-    int displayIndex = 33;
+    int displayIndex = 1;
+    for (const auto& sym : allSymbols) {
+        if (isPredefinedSymbol(sym)) {
+            ++displayIndex;
+        }
+    }
     for (const SymbolInfo* sym : tabRows) {
         if (isPredefinedSymbol(*sym)) {
             outFile << left << setw(5)  << displayIndex++
