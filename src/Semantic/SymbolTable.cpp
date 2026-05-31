@@ -101,7 +101,21 @@ SymbolTable::SymbolTable() : nextIndex(0) {
     symbolsList.push_back(lenFunc);
     scopes.back().emplace("length", lenFunc);
 
-    nextIndex = 33;
+    std::vector<std::string> reserved = {
+        "and","array","begin","case","const","div","downto","do","else","end",
+        "for","function","if","mod","not","of","or","procedure","program","record",
+        "repeat","integer","real","boolean","char","string","then","to","type",
+        "until","var","while"
+    };
+
+    for (const auto& kw : reserved) {
+        if (scopes.back().find(kw) != scopes.back().end()) continue;
+        SymbolInfo info(kw, SymbolKind::RESERVED);
+        info.tabIndex = nextIndex++;
+        info.level = 0;
+        symbolsList.push_back(info);
+        scopes.back().emplace(kw, info);
+    }
 }
 
 void SymbolTable::enterScope() {

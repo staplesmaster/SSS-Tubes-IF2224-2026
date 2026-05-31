@@ -33,6 +33,8 @@ class SemanticAnalyzer : public ASTVisitor {
         const ErrorReporter& getErrorReporter() const;
         const SymbolTable& getSymbolTable() const;
 
+        SymbolTable& getSymbolTable();
+
         void visitProgramNode(ProgramNode* node) override;
         void visitCompoundNode(CompoundNode* node) override;
         void visitConstDeclNode(ConstDeclNode* node) override;

@@ -16,6 +16,10 @@ const SymbolTable& SemanticAnalyzer::getSymbolTable() const {
     return symbolTable;
 }
 
+SymbolTable& SemanticAnalyzer::getSymbolTable() {
+    return symbolTable;
+}
+
 void SemanticAnalyzer::report(ASTNode* node, const std::string& message) {
     int line = node ? node->lineNum : 0; 
     errorReporter.addErrors(line, message);
@@ -543,6 +547,15 @@ void SemanticAnalyzer::visitAssignNode(AssignNode* node) {
     if(node->target) node->target->accept(this);
     if(node->value) node->value->accept(this);
 
+    if (auto* targetVar = dynamic_cast<VarNode*>(node->target)) {
+        SymbolInfo* targetInfo = symbolTable.lookup(targetVar->name);
+        if (targetInfo && targetInfo->kind == SymbolKind::CONSTANT) {
+            report(node->target, "Konstanta '" + targetVar->name + "' tidak dapat di-assign");
+            node->exprType = ExprType::VOID;
+            return;
+        }
+    }
+
     if(node->target && node->value) {
         ExprType targetType = node->target->exprType;
         ExprType valueType = node->value->exprType;
@@ -735,6 +748,7 @@ void SemanticAnalyzer::visitVarNode(VarNode* node) {
         node->exprType = ExprType::UNKNOWN;
         return;
     } 
+
     varInfo->isUsed = true;
     node->tabIndex = varInfo->tabIndex;
     node->lev = varInfo->level;
