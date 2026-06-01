@@ -14,9 +14,7 @@ enum class PCodeOp {
     JMP,
     JPC,
     OPR,
-    RET,
-    LABEL,
-    NOP
+    RET
 };
 
 enum class OprCode {
@@ -37,7 +35,7 @@ enum class OprCode {
 };
 
 struct Instruction {
-    PCodeOp op = PCodeOp::NOP;
+    PCodeOp op = PCodeOp::LIT;
     int level = 0;    
     int value = 0;   
     std::string text;  
