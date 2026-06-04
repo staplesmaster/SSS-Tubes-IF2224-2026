@@ -140,14 +140,10 @@ void CodeGenerator::visitSubprogramDeclNode(SubprogramDeclNode* node) {
 
     emit(Instruction(PCodeOp::INT, 0, 3 + localVarCount));
 
-    // Pop arguments from operandStack into parameter slots (in reverse order)
-    // Caller pushes args left-to-right, so last non-string param is on top.
-    // NOTE: parameter scopes are already closed; use allSymbols() flat list.
     std::vector<const SymbolInfo*> pushableParams;
     for (auto* p : node->parameters) {
         if (auto* pn = dynamic_cast<ParamNode*>(p)) {
             for (const auto& name : pn->paramNames) {
-                // Search in flat symbolsList (scopes are already closed)
                 const SymbolInfo* found = nullptr;
                 for (const auto& sym : symbolTable->allSymbols()) {
                     if (sym.name == name && sym.isParameter) {
@@ -310,7 +306,6 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
             }
 
             arg->accept(this);
-            // Boolean values print as "true"/"false"; others print as integer
             if (arg->exprType == ExprType::BOOLEAN) {
                 emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::WRTBOOL)));
             } else {
@@ -323,7 +318,6 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
         return;
     }
 
-    // Push all non-string arguments onto operandStack
     for (auto* arg : node->arguments) {
         if (!arg) continue;
         arg->accept(this);
@@ -333,8 +327,6 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
     if (info && info->entryAddress >= 0) {
         int diff = currentLevel - info->level;
 
-        // For functions: pre-reserve the return slot in caller's memory
-        // so it is not freed when the callee's frame is popped.
         if (info->kind == SymbolKind::FUNCTION) {
             emit(Instruction(PCodeOp::LIT, 0, 0));
             emit(Instruction(PCodeOp::STO, diff, info->tabIndex));
@@ -342,7 +334,6 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
 
         emit(Instruction(PCodeOp::CAL, diff, info->entryAddress));
 
-        // For functions: push the stored return value onto operandStack
         if (info->kind == SymbolKind::FUNCTION) {
             emit(Instruction(PCodeOp::LOD, diff, info->tabIndex));
         }
@@ -379,7 +370,6 @@ void CodeGenerator::visitVarNode(VarNode* node) {
 
         int diff = currentLevel - lev;
         if (isAddressMode) {
-            // Push absolute base address onto stack
             emit(Instruction(PCodeOp::LODA, diff, tabIdx));
         } else {
             emit(Instruction(PCodeOp::LOD, diff, tabIdx));
@@ -433,7 +423,6 @@ void CodeGenerator::visitArrayAccessNode(ArrayAccessNode* node) {
 }
 
 void CodeGenerator::visitRecordAccessNode(RecordAccessNode* node) {
-    // Push base address of the record variable onto the stack
     bool prevAddressMode = isAddressMode;
     bool prevLValue      = isLValueMode;
     isAddressMode = true;
@@ -442,11 +431,9 @@ void CodeGenerator::visitRecordAccessNode(RecordAccessNode* node) {
     isAddressMode = prevAddressMode;
     isLValueMode  = prevLValue;
 
-    // Add field offset → absolute address of field
     emit(Instruction(PCodeOp::LIT, 0, node->fieldOffset));
     emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::ADD)));
 
-    // In r-value context, dereference; in l-value context, leave address on stack for STOI
     if (!isLValueMode) {
         emit(Instruction(PCodeOp::LODI, 0, 0));
     }

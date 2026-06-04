@@ -69,7 +69,7 @@ int SemanticAnalyzer::getTypeWidth(ASTNode* typeNode) {
         if (typeInfo && typeInfo->kind == SymbolKind::TYPE && typeInfo->typeDef) {
             return getTypeWidth(typeInfo->typeDef);
         }
-        return 1; // Base types are 1 word
+        return 1;
     }
 
     if (auto* arrayType = dynamic_cast<ArrayTypeNode*>(typeNode)) {
@@ -80,7 +80,7 @@ int SemanticAnalyzer::getTypeWidth(ASTNode* typeNode) {
                 return (high - low + 1) * elemWidth;
             }
         }
-        return 1; // Fallback if dynamically sized (unlikely in this Pascal dialect)
+        return 1;
     }
 
     if (auto* recordType = dynamic_cast<RecordTypeNode*>(typeNode)) {
@@ -94,7 +94,7 @@ int SemanticAnalyzer::getTypeWidth(ASTNode* typeNode) {
         return width;
     }
 
-    return 1; // Default for enums, subranges, primitives
+    return 1; 
 }
 int SemanticAnalyzer::getEnumDomainIdForTypeNode(ASTNode* typeNode) {
     if (!typeNode) return -1;
