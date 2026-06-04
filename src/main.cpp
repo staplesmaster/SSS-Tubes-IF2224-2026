@@ -8,6 +8,9 @@
 #include "ASTNode.hpp"
 #include "ASTConverter.hpp"
 #include "SemanticAnalyzer.hpp"
+#include "CodeGen/CodeGenerator.hpp"
+#include "Interpreter/VM.hpp"
+#include <fstream>
 
 using namespace std;
 
@@ -17,7 +20,7 @@ int main() {
     cin >> filename;
 
     // Input file
-    string inputFilePath = "test/milestone-3/" + filename;
+    string inputFilePath = "test/milestone-4/" + filename;
     string sourceCode;
     try {
         sourceCode = readFile(inputFilePath);
@@ -60,10 +63,10 @@ int main() {
     int lastIndex = filename.find_last_of('.');
     string baseName = (lastIndex != int(string::npos)) ? filename.substr(0, lastIndex) : filename;
     string extension = (lastIndex != int(string::npos)) ? filename.substr(lastIndex) : ".txt";
-    string tokenOutputPath = "test/milestone-3/" + baseName + "-Result-Token" + extension;
-    string parseOutputPath = "test/milestone-3/" + baseName + "-Result-Parse" + extension;
-    string astOutputPath   = "test/milestone-3/" + baseName + "-Result-AST" + extension;
-    string semanticOutputPath = "test/milestone-3/" + baseName + "-Result-Semantic" + extension;
+    string tokenOutputPath = "test/milestone-4/" + baseName + "-Result-Token" + extension;
+    string parseOutputPath = "test/milestone-4/" + baseName + "-Result-Parse" + extension;
+    string astOutputPath   = "test/milestone-4/" + baseName + "-Result-AST" + extension;
+    string semanticOutputPath = "test/milestone-4/" + baseName + "-Result-Semantic" + extension;
 
     try {
         writeTokens(tokenOutputPath, tokens, sourceCode);
@@ -75,6 +78,26 @@ int main() {
         cout << "File Parse: " << parseOutputPath << "\n";
         cout << "File AST: " << astOutputPath << "\n";
         cout << "File Semantic: " << semanticOutputPath << "\n";
+
+        if (!semanticHasErrors && astRoot) {
+            try {
+                SymbolTable& symtab = analyzer.getSymbolTable();
+                CodeGenerator codegen(symtab);
+                codegen.generate(astRoot);
+
+                const auto& program = codegen.getInstructions();
+                std::string dumpPath = "test/milestone-4/" + baseName + "-Result-PCode" + extension;
+                std::ofstream ofs(dumpPath);
+                if (ofs) ofs << codegen.dump();
+                cout << "File P-Code: " << dumpPath << "\n";
+
+                VM vm(program, cin, cout);
+                vm.run();
+            } catch (const std::exception& e) {
+                cerr << "Runtime error: " << e.what() << endl;
+            }
+        }
+
     } catch (const exception& e) {
         cerr << e.what() << endl;
         return 1;
