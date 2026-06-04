@@ -128,7 +128,7 @@ void SymbolTable::exitScope() {
     }
 }
 
-bool SymbolTable::declare(const std::string& name, SymbolInfo info) {
+bool SymbolTable::declare(const std::string& name, SymbolInfo info, int width) {
     if (scopes.empty()) enterScope();
 
     auto& currentScope = scopes.back();
@@ -145,7 +145,7 @@ bool SymbolTable::declare(const std::string& name, SymbolInfo info) {
     
     currentScope.emplace(name, info);
 
-    ++nextIndex;
+    nextIndex += width;
 
     return true;
 }
@@ -219,7 +219,8 @@ int SymbolTable::createArray(
     ASTNode* elementTypeNode,
     bool hasStaticBounds,
     int lowerBound,
-    int upperBound
+    int upperBound,
+    int elemWidth
 ) {
     ArrayInfo info;
     info.arrayIndex = nextArrayIndex++;
@@ -230,6 +231,7 @@ int SymbolTable::createArray(
     info.hasStaticBounds = hasStaticBounds;
     info.lowerBound = lowerBound;
     info.upperBound = upperBound;
+    info.elemWidth = elemWidth;
 
     arraysList.push_back(info);
     return info.arrayIndex;

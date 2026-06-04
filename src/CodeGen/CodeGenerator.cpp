@@ -50,6 +50,8 @@ OprCode CodeGenerator::mapBinaryOpr(const std::string& op) const {
     if (op == ">") return OprCode::GTR;
     if (op == "<=") return OprCode::LEQ;
     if (op == ">=") return OprCode::GEQ;
+    if (op == "and") return OprCode::AND;
+    if (op == "or")  return OprCode::OR;
     return OprCode::ADD;
 }
 
@@ -83,7 +85,10 @@ void CodeGenerator::visitProgramNode(ProgramNode* node) {
     int varCount = 0;
     for (auto* decl : node->declarations) {
         if (auto* v = dynamic_cast<VarDeclNode*>(decl)) {
-            varCount += static_cast<int>(v->varNames.size());
+            for (const std::string& name : v->varNames) {
+                SymbolInfo* info = symbolTable->lookup(name);
+                varCount += info ? info->width : 1;
+            }
         }
     }
 
@@ -123,12 +128,42 @@ void CodeGenerator::visitSubprogramDeclNode(SubprogramDeclNode* node) {
 
     int localVarCount = 0;
     for (auto* decl : node->declarations) {
-        if (auto* v = dynamic_cast<VarDeclNode*>(decl)) localVarCount += static_cast<int>(v->varNames.size());
+        if (auto* v = dynamic_cast<VarDeclNode*>(decl)) {
+            for (const std::string& name : v->varNames) {
+                SymbolInfo* info = symbolTable->lookup(name);
+                localVarCount += info ? info->width : 1;
+            }
+        }
     }
     int paramCount = 0;
     for (auto* p : node->parameters) if (auto* pn = dynamic_cast<ParamNode*>(p)) paramCount += static_cast<int>(pn->paramNames.size());
 
     emit(Instruction(PCodeOp::INT, 0, 3 + localVarCount));
+
+    // Pop arguments from operandStack into parameter slots (in reverse order)
+    // Caller pushes args left-to-right, so last non-string param is on top.
+    // NOTE: parameter scopes are already closed; use allSymbols() flat list.
+    std::vector<const SymbolInfo*> pushableParams;
+    for (auto* p : node->parameters) {
+        if (auto* pn = dynamic_cast<ParamNode*>(p)) {
+            for (const auto& name : pn->paramNames) {
+                // Search in flat symbolsList (scopes are already closed)
+                const SymbolInfo* found = nullptr;
+                for (const auto& sym : symbolTable->allSymbols()) {
+                    if (sym.name == name && sym.isParameter) {
+                        found = &sym;
+                        break;
+                    }
+                }
+                if (found && found->type != ExprType::STRING) {
+                    pushableParams.push_back(found);
+                }
+            }
+        }
+    }
+    for (int i = static_cast<int>(pushableParams.size()) - 1; i >= 0; --i) {
+        emit(Instruction(PCodeOp::STO, 0, pushableParams[i]->tabIndex));
+    }
 
     for (auto* decl : node->declarations) if (decl) decl->accept(this);
     if (node->body) node->body->accept(this);
@@ -149,16 +184,16 @@ void CodeGenerator::visitAssignNode(AssignNode* node) {
     if (node->value) node->value->accept(this);
 
     if (auto* var = dynamic_cast<VarNode*>(node->target)) {
-        if (var->tabIndex >= 0 && var->lev >= 0) {
-            int diff = currentLevel - var->lev;
-            emit(Instruction(PCodeOp::STO, diff, var->tabIndex));
-            return;
-        }
-
         SymbolInfo* info = symbolTable->lookup(var->name);
-        if (info) {
-            int diff = currentLevel - info->level;
-            emit(Instruction(PCodeOp::STO, diff, info->tabIndex));
+        int width = info ? info->width : 1;
+        int baseTabIndex = var->tabIndex >= 0 ? var->tabIndex : (info ? info->tabIndex : -1);
+        int lev = var->lev >= 0 ? var->lev : (info ? info->level : -1);
+
+        if (baseTabIndex >= 0 && lev >= 0) {
+            int diff = currentLevel - lev;
+            for (int i = width - 1; i >= 0; --i) {
+                emit(Instruction(PCodeOp::STO, diff, baseTabIndex + i));
+            }
             return;
         }
     }
@@ -166,6 +201,7 @@ void CodeGenerator::visitAssignNode(AssignNode* node) {
     isLValueMode = true;
     if (node->target) node->target->accept(this);
     isLValueMode = false;
+    emit(Instruction(PCodeOp::STOI, 0, 0));
 }
 
 void CodeGenerator::visitIfNode(IfNode* node) {
@@ -274,7 +310,12 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
             }
 
             arg->accept(this);
-            emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::WRT)));
+            // Boolean values print as "true"/"false"; others print as integer
+            if (arg->exprType == ExprType::BOOLEAN) {
+                emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::WRTBOOL)));
+            } else {
+                emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::WRT)));
+            }
         }
         if (node->procName == "writeln") {
             emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::WRTLN)));
@@ -282,37 +323,41 @@ void CodeGenerator::visitProcCallNode(ProcCallNode* node) {
         return;
     }
 
+    // Push all non-string arguments onto operandStack
     for (auto* arg : node->arguments) {
         if (!arg) continue;
         arg->accept(this);
     }
+
     SymbolInfo* info = symbolTable->lookup(node->procName);
     if (info && info->entryAddress >= 0) {
         int diff = currentLevel - info->level;
+
+        // For functions: pre-reserve the return slot in caller's memory
+        // so it is not freed when the callee's frame is popped.
+        if (info->kind == SymbolKind::FUNCTION) {
+            emit(Instruction(PCodeOp::LIT, 0, 0));
+            emit(Instruction(PCodeOp::STO, diff, info->tabIndex));
+        }
+
         emit(Instruction(PCodeOp::CAL, diff, info->entryAddress));
+
+        // For functions: push the stored return value onto operandStack
+        if (info->kind == SymbolKind::FUNCTION) {
+            emit(Instruction(PCodeOp::LOD, diff, info->tabIndex));
+        }
     } else {
         emit(Instruction(PCodeOp::CAL, 0, 0));
     }
 }
 
 void CodeGenerator::visitVarNode(VarNode* node) {
-    if (node->tabIndex >= 0 && node->lev >= 0) {
-        if (node->name == "true") {
-            emit(Instruction(PCodeOp::LIT, 0, 1));
-            return;
-        }
-        if (node->name == "false") {
-            emit(Instruction(PCodeOp::LIT, 0, 0));
-            return;
-        }
-
-        int diff = currentLevel - node->lev;
-        emit(Instruction(PCodeOp::LOD, diff, node->tabIndex));
-        return;
-    }
-
     SymbolInfo* info = symbolTable->lookup(node->name);
     if (info) {
+        if (info->kind == SymbolKind::CONSTANT && info->hasConstValue) {
+            emit(Instruction(PCodeOp::LIT, 0, info->constValue));
+            return;
+        }
         if (info->kind == SymbolKind::CONSTANT && info->type == ExprType::BOOLEAN) {
             if (node->name == "true") {
                 emit(Instruction(PCodeOp::LIT, 0, 1));
@@ -323,28 +368,88 @@ void CodeGenerator::visitVarNode(VarNode* node) {
                 return;
             }
         }
+    }
 
-        int diff = currentLevel - info->level;
-        emit(Instruction(PCodeOp::LOD, diff, info->tabIndex));
+    int tabIdx = node->tabIndex >= 0 ? node->tabIndex : (info ? info->tabIndex : -1);
+    int lev    = node->lev    >= 0 ? node->lev    : (info ? info->level   : -1);
+
+    if (tabIdx >= 0 && lev >= 0) {
+        if (node->name == "true")  { emit(Instruction(PCodeOp::LIT, 0, 1)); return; }
+        if (node->name == "false") { emit(Instruction(PCodeOp::LIT, 0, 0)); return; }
+
+        int diff = currentLevel - lev;
+        if (isAddressMode) {
+            // Push absolute base address onto stack
+            emit(Instruction(PCodeOp::LODA, diff, tabIdx));
+        } else {
+            emit(Instruction(PCodeOp::LOD, diff, tabIdx));
+        }
     }
 }
 
 void CodeGenerator::visitArrayAccessNode(ArrayAccessNode* node) {
-    if (isLValueMode) {
-        for (auto* idx : node->indices) if (idx) idx->accept(this);
-        return;
+    SymbolInfo* info = nullptr;
+    if (auto* v = dynamic_cast<VarNode*>(node->arrayVar)) {
+        info = symbolTable->lookup(v->name);
     }
+    
+    if (info) {
+        int diff = currentLevel - info->level;
+        emit(Instruction(PCodeOp::LODA, diff, info->tabIndex));
 
-    if (node->arrayVar) node->arrayVar->accept(this);
-    for (auto* idx : node->indices) if (idx) idx->accept(this);
+        const ArrayInfo* arrInfo = (info->arrayIndex >= 0) ? symbolTable->getArray(info->arrayIndex) : nullptr;
+        int lowerBound = 0;
+        int upperBound = 0;
+        int elemSize = 1;
+        bool hasBounds = false;
+        
+        if (arrInfo) {
+            lowerBound = arrInfo->lowerBound;
+            upperBound = arrInfo->upperBound;
+            elemSize = arrInfo->elemWidth;
+            hasBounds = arrInfo->hasStaticBounds;
+        }
+
+        for (auto* idx : node->indices) {
+            if (idx) idx->accept(this);
+            
+            if (hasBounds) {
+                emit(Instruction(PCodeOp::CHK, lowerBound, upperBound));
+            }
+            
+            emit(Instruction(PCodeOp::LIT, 0, lowerBound));
+            emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::SUB)));
+            if (elemSize > 1) {
+                emit(Instruction(PCodeOp::LIT, 0, elemSize));
+                emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::MUL)));
+            }
+            emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::ADD)));
+        }
+        
+        if (!isLValueMode) {
+            emit(Instruction(PCodeOp::LODI, 0, 0));
+        }
+    }
 }
 
 void CodeGenerator::visitRecordAccessNode(RecordAccessNode* node) {
-    if (isLValueMode) {
-        return;
-    }
-
+    // Push base address of the record variable onto the stack
+    bool prevAddressMode = isAddressMode;
+    bool prevLValue      = isLValueMode;
+    isAddressMode = true;
+    isLValueMode  = false;
     if (node->recordVar) node->recordVar->accept(this);
+    isAddressMode = prevAddressMode;
+    isLValueMode  = prevLValue;
+
+    // Add field offset → absolute address of field
+    emit(Instruction(PCodeOp::LIT, 0, node->fieldOffset));
+    emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::ADD)));
+
+    // In r-value context, dereference; in l-value context, leave address on stack for STOI
+    if (!isLValueMode) {
+        emit(Instruction(PCodeOp::LODI, 0, 0));
+    }
 }
 
 void CodeGenerator::visitBinOpNode(BinOpNode* node) {

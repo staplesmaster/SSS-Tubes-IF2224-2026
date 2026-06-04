@@ -62,6 +62,40 @@ void VM::execute(const Instruction& instruction) {
             break;
         }
 
+        case PCodeOp::LODA: {
+            std::size_t addr = stack.resolveAbsoluteAddress(instruction.level, instruction.value);
+            stack.push(static_cast<int>(addr));
+            ++pc;
+            break;
+        }
+
+        case PCodeOp::LODI: {
+            std::size_t addr = static_cast<std::size_t>(stack.pop());
+            stack.push(stack.load(addr));
+            ++pc;
+            break;
+        }
+
+        case PCodeOp::STOI: {
+            std::size_t addr = static_cast<std::size_t>(stack.pop());
+            int value = stack.pop();
+            stack.store(addr, value);
+            ++pc;
+            break;
+        }
+
+        case PCodeOp::CHK: {
+            int value = stack.pop();
+            int lower = instruction.level;
+            int upper = instruction.value;
+            if (value < lower || value > upper) {
+                throw std::runtime_error("Array index out of bounds");
+            }
+            stack.push(value);
+            ++pc;
+            break;
+        }
+
         case PCodeOp::INT:
             stack.allocate(static_cast<std::size_t>(instruction.value));
             ++pc;
@@ -72,7 +106,8 @@ void VM::execute(const Instruction& instruction) {
                 int diff = instruction.level;
                 std::size_t callerLevel = stack.lexicalLevel();
                 std::size_t calleeLevel = static_cast<std::size_t>(static_cast<int>(callerLevel) - diff);
-                stack.pushFrame(pc + 1, calleeLevel);
+                std::size_t staticLink = stack.computeStaticLink(diff);
+                stack.pushFrame(pc + 1, calleeLevel, staticLink);
                 pc = static_cast<std::size_t>(instruction.value);
             }
             break;
@@ -181,8 +216,25 @@ void VM::execute(const Instruction& instruction) {
                     (*output) << stack.pop();
                     break;
                 }
+                case static_cast<int>(OprCode::WRTBOOL): {
+                    int val = stack.pop();
+                    (*output) << (val ? "true" : "false");
+                    break;
+                }
                 case static_cast<int>(OprCode::WRTLN): {
                     (*output) << '\n';
+                    break;
+                }
+                case static_cast<int>(OprCode::AND): {
+                    int rhs = stack.pop();
+                    int lhs = stack.pop();
+                    stack.push((lhs && rhs) ? 1 : 0);
+                    break;
+                }
+                case static_cast<int>(OprCode::OR): {
+                    int rhs = stack.pop();
+                    int lhs = stack.pop();
+                    stack.push((lhs || rhs) ? 1 : 0);
                     break;
                 }
                 default:

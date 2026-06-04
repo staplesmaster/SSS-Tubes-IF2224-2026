@@ -14,7 +14,11 @@ enum class PCodeOp {
     JMP,
     JPC,
     OPR,
-    RET
+    RET,
+    LODA,
+    LODI,
+    STOI,
+    CHK
 };
 
 enum class OprCode {
@@ -31,7 +35,10 @@ enum class OprCode {
     GTR = 11,
     LEQ = 12,
     WRT = 13,
-    WRTLN = 14
+    WRTLN = 14,
+    AND = 15,
+    OR  = 16,
+    WRTBOOL = 17
 };
 
 struct Instruction {

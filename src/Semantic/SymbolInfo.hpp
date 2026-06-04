@@ -43,6 +43,10 @@ struct SymbolInfo {
     int blockIndex = -1;
     int arrayIndex = -1;
 
+    int width = 1;
+    int constValue = 0;
+    bool hasConstValue = false;
+
     SymbolInfo() = default;
     SymbolInfo(const std::string& name, SymbolKind kind) : name(name), kind(kind) {}
 };

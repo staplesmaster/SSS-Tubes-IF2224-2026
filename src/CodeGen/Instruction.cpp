@@ -18,6 +18,10 @@ std::string toString(PCodeOp op) {
         case PCodeOp::JPC: return "JPC";
         case PCodeOp::OPR: return "OPR";
         case PCodeOp::RET: return "RET";
+        case PCodeOp::LODA: return "LODA";
+        case PCodeOp::LODI: return "LODI";
+        case PCodeOp::STOI: return "STOI";
+        case PCodeOp::CHK: return "CHK";
     }
     return "";
 }
@@ -38,6 +42,9 @@ std::string toString(OprCode op) {
         case OprCode::LEQ: return "LEQ";
         case OprCode::WRT: return "WRT";
         case OprCode::WRTLN: return "WRTLN";
+        case OprCode::AND: return "AND";
+        case OprCode::OR:  return "OR";
+        case OprCode::WRTBOOL: return "WRTBOOL";
     }
     return "WRT";
 }

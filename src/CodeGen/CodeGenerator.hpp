@@ -16,6 +16,7 @@ private:
     std::vector<Instruction> instructions;
     int currentLevel = 0;
     bool isLValueMode = false;
+    bool isAddressMode = false;  // push base address (LODA) instead of value (LOD)
     void emit(const Instruction& instr);
     int resolveTabIndex(ASTNode* node) const;
     int resolveLevel(ASTNode* node) const;

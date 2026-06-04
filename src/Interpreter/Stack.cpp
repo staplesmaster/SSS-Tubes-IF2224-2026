@@ -36,7 +36,7 @@ std::size_t Stack::stackSize() const {
 
 void Stack::ensureDataIndex(std::size_t index) {
     if (index >= dataMemory.size()) {
-        dataMemory.resize(index + 1, 0);
+        dataMemory.resize(index + 1, Cell{0, false});
     }
 }
 
@@ -44,30 +44,37 @@ void Stack::allocate(std::size_t count) {
     std::size_t currentFrameBase = callFrames.empty() ? 0 : callFrames.back().baseAddress;
     std::size_t requiredSize = currentFrameBase + count;
     if (requiredSize > dataMemory.size()) {
-        dataMemory.resize(requiredSize, 0);
+        dataMemory.resize(requiredSize, Cell{0, false});
     }
 }
 
 void Stack::store(std::size_t address, int value) {
     ensureDataIndex(address);
-    dataMemory[address] = value;
+    if (dataMemory[address].readOnly) {
+        throw std::runtime_error("Attempt to modify read-only memory (CONST violation)");
+    }
+    dataMemory[address].value = value;
 }
 
 int Stack::load(std::size_t address) const {
     if (address >= dataMemory.size()) {
         return 0;
     }
+    return dataMemory[address].value;
+}
 
-    return dataMemory[address];
+void Stack::setReadOnly(std::size_t address, bool readOnly) {
+    ensureDataIndex(address);
+    dataMemory[address].readOnly = readOnly;
 }
 
 std::size_t Stack::dataSize() const {
     return dataMemory.size();
 }
 
-void Stack::pushFrame(std::size_t returnAddress, std::size_t lexicalLevel) {
+void Stack::pushFrame(std::size_t returnAddress, std::size_t lexicalLevel, std::size_t staticLink) {
     std::size_t currentBase = dataMemory.size();
-    callFrames.push_back(CallFrame{returnAddress, lexicalLevel, currentBase});
+    callFrames.push_back(CallFrame{returnAddress, lexicalLevel, currentBase, staticLink});
 }
 
 bool Stack::hasFrame() const {
@@ -103,14 +110,43 @@ std::size_t Stack::resolveAbsoluteAddress(int levelDiff, int tabIndex) const {
         return static_cast<std::size_t>(tabIndex);
     }
 
-    int currentLevel = static_cast<int>(lexicalLevel());
-    int targetLevel = currentLevel - levelDiff;
+    std::size_t base = callFrames.back().baseAddress;
+    std::size_t staticLnk = callFrames.back().staticLink;
 
-    for (auto it = callFrames.rbegin(); it != callFrames.rend(); ++it) {
-        if (static_cast<int>(it->lexicalLevel) == targetLevel) {
-            return it->baseAddress + static_cast<std::size_t>(tabIndex);
+    for (int i = 0; i < levelDiff; ++i) {
+        base = staticLnk;
+        bool found = false;
+        for (auto it = callFrames.rbegin(); it != callFrames.rend(); ++it) {
+            if (it->baseAddress == base) {
+                staticLnk = it->staticLink;
+                found = true;
+                break;
+            }
         }
+        if (!found) break; 
     }
 
-    return static_cast<std::size_t>(tabIndex);
+    return base + static_cast<std::size_t>(tabIndex);
+}
+
+std::size_t Stack::computeStaticLink(int levelDiff) const {
+    if (callFrames.empty()) return 0;
+    
+    if (levelDiff < 0) {
+        return callFrames.back().baseAddress;
+    } else {
+        std::size_t staticLnk = callFrames.back().staticLink;
+        for (int i = 0; i < levelDiff; ++i) {
+            bool found = false;
+            for (auto it = callFrames.rbegin(); it != callFrames.rend(); ++it) {
+                if (it->baseAddress == staticLnk) {
+                    staticLnk = it->staticLink;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) break;
+        }
+        return staticLnk;
+    }
 }
