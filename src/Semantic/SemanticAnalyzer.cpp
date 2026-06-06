@@ -16,6 +16,10 @@ const SymbolTable& SemanticAnalyzer::getSymbolTable() const {
     return symbolTable;
 }
 
+SymbolTable& SemanticAnalyzer::getSymbolTable() {
+    return symbolTable;
+}
+
 void SemanticAnalyzer::report(ASTNode* node, const std::string& message) {
     int line = node ? node->lineNum : 0; 
     errorReporter.addErrors(line, message);
@@ -55,6 +59,42 @@ ExprType SemanticAnalyzer::resolveTypeNode(ASTNode* typeNode){
     if (dynamic_cast<EnumNode*>(typeNode)) return ExprType::ENUM;
 
     return ExprType::UNKNOWN;
+}
+
+int SemanticAnalyzer::getTypeWidth(ASTNode* typeNode) {
+    if (!typeNode) return 1;
+
+    if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
+        SymbolInfo* typeInfo = symbolTable.lookup(namedType->typeName);
+        if (typeInfo && typeInfo->kind == SymbolKind::TYPE && typeInfo->typeDef) {
+            return getTypeWidth(typeInfo->typeDef);
+        }
+        return 1;
+    }
+
+    if (auto* arrayType = dynamic_cast<ArrayTypeNode*>(typeNode)) {
+        int elemWidth = getTypeWidth(arrayType->elementType);
+        if (auto* rangeType = dynamic_cast<RangeNode*>(arrayType->indexType)) {
+            int low = 0, high = 0;
+            if (tryGetIntLiteral(rangeType->lowerBound, low) && tryGetIntLiteral(rangeType->upperBound, high)) {
+                return (high - low + 1) * elemWidth;
+            }
+        }
+        return 1;
+    }
+
+    if (auto* recordType = dynamic_cast<RecordTypeNode*>(typeNode)) {
+        int width = 0;
+        for (ASTNode* fieldNode : recordType->fields) {
+            if (auto* fieldDecl = dynamic_cast<VarDeclNode*>(fieldNode)) {
+                int fieldWidth = getTypeWidth(fieldDecl->typeDef);
+                width += fieldWidth * static_cast<int>(fieldDecl->getVarNames().size());
+            }
+        }
+        return width;
+    }
+
+    return 1; 
 }
 int SemanticAnalyzer::getEnumDomainIdForTypeNode(ASTNode* typeNode) {
     if (!typeNode) return -1;
@@ -150,36 +190,40 @@ bool SemanticAnalyzer::tryGetIntLiteral(ASTNode* node, int& value) {
     if (!node) return false;
     if (auto* numberNode = dynamic_cast<NumberNode*>(node)) {
         if (numberNode->isReal) return false;
-        char* endPtr = nullptr;
-        long parsed = std::strtol(numberNode->value.c_str(), &endPtr, 10);
-        if (endPtr && *endPtr == '\0') {
-            value = static_cast<int>(parsed);
+        try {
+            value = std::stoi(numberNode->value);
             return true;
+        } catch(...) {
+            return false;
         }
     }
     return false;
 }
 
-ExprType SemanticAnalyzer::resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName) {
+ExprType SemanticAnalyzer::resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName, int& outOffset) {
     if (!typeNode) return ExprType::UNKNOWN;
 
     if (auto* namedType = dynamic_cast<NamedTypeNode*>(typeNode)) {
         SymbolInfo* typeInfo = symbolTable.lookup(namedType->typeName);
         if (typeInfo && typeInfo->kind == SymbolKind::TYPE) {
             typeInfo->isUsed = true;
-            return resolveRecordFieldType(typeInfo->typeDef, fieldName);
+            return resolveRecordFieldType(typeInfo->typeDef, fieldName, outOffset);
         }
         return ExprType::UNKNOWN;
     }
 
     if (auto* recordType = dynamic_cast<RecordTypeNode*>(typeNode)) {
+        int currentOffset = 0;
         for (ASTNode* fieldNode : recordType->fields) {
             auto* fieldDecl = dynamic_cast<VarDeclNode*>(fieldNode);
             if (!fieldDecl) continue;
+            int width = getTypeWidth(fieldDecl->typeDef);
             for (const std::string& name : fieldDecl->getVarNames()) {
                 if (name == fieldName) {
+                    outOffset = currentOffset;
                     return resolveTypeNode(fieldDecl->typeDef);
                 }
+                currentOffset += width;
             }
         }
     }
@@ -281,6 +325,15 @@ void SemanticAnalyzer::visitConstDeclNode(ConstDeclNode* node) {
     info.enumDomainId = node->value ? getEnumDomainIdForExpression(node->value) : -1;
     info.declLine = node->lineNum;
     info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
+    
+    int cVal = 0;
+    if (tryGetIntLiteral(node->value, cVal)) {
+        info.constValue = cVal;
+        info.hasConstValue = true;
+    } else if (auto* boolNode = dynamic_cast<VarNode*>(node->value)) {
+        if (boolNode->name == "true") { info.constValue = 1; info.hasConstValue = true; }
+        else if (boolNode->name == "false") { info.constValue = 0; info.hasConstValue = true; }
+    }
 
     if (!symbolTable.declare(node->getConstName(), info)) {
         report(node, "Deklarasi ulang konstanta '" + node->getConstName() + "'");
@@ -333,6 +386,8 @@ void SemanticAnalyzer::visitVarDeclNode(VarDeclNode* node) {
             }
         }
 
+        int elemWidth = getTypeWidth(arrayType->elementType);
+
         arrayInfoIndex = symbolTable.createArray(
             indexType,
             elementType,
@@ -340,9 +395,12 @@ void SemanticAnalyzer::visitVarDeclNode(VarDeclNode* node) {
             arrayType->elementType,
             hasStaticBounds,
             lowerBound,
-            upperBound
+            upperBound,
+            elemWidth
         );
     }
+
+    int width = getTypeWidth(node->typeDef);
 
     for (const std::string& name : node->getVarNames()){
         SymbolInfo info(name, SymbolKind::VARIABLE);
@@ -351,8 +409,9 @@ void SemanticAnalyzer::visitVarDeclNode(VarDeclNode* node) {
         info.typeDef = node->typeDef;
         info.enumDomainId = getEnumDomainIdForTypeNode(node->typeDef);
         info.blockIndex = activeBlocks.empty() ? -1 : activeBlocks.back();
+        info.width = width;
 
-        if (!symbolTable.declare(name, info)) {
+        if (!symbolTable.declare(name, info, width)) {
             report(node, "Deklarasi ulang variabel '" + name + "'");
             continue;
         }
@@ -543,6 +602,15 @@ void SemanticAnalyzer::visitAssignNode(AssignNode* node) {
     if(node->target) node->target->accept(this);
     if(node->value) node->value->accept(this);
 
+    if (auto* targetVar = dynamic_cast<VarNode*>(node->target)) {
+        SymbolInfo* targetInfo = symbolTable.lookup(targetVar->name);
+        if (targetInfo && targetInfo->kind == SymbolKind::CONSTANT) {
+            report(node->target, "Konstanta '" + targetVar->name + "' tidak dapat di-assign");
+            node->exprType = ExprType::VOID;
+            return;
+        }
+    }
+
     if(node->target && node->value) {
         ExprType targetType = node->target->exprType;
         ExprType valueType = node->value->exprType;
@@ -687,33 +755,37 @@ void SemanticAnalyzer::visitProcCallNode(ProcCallNode* node) {
         node->tabIndex = procInfo->tabIndex;
         node->lev = procInfo->level;
 
-        if (procInfo->kind != SymbolKind::PROCEDURE && procInfo->kind != SymbolKind::FUNCTION) {
-            report(node, "Identifier '" + node->procName + "' bukan subprogram");
-        }
-
-        const bool isBuiltinIo =
-            node->procName == "writeln" ||
-            node->procName == "write" ||
-            node->procName == "readln" ||
-            node->procName == "read";
-
-        if (!isBuiltinIo) {
-            const std::size_t expected = procInfo->parameters.size();
-            const std::size_t actual = args.size();
-            if (expected != actual) {
-                report(node, "Jumlah argumen tidak sesuai untuk pemanggilan '" + node->procName + "'");
+        if (procInfo->kind == SymbolKind::TYPE) {
+            node->exprType = procInfo->type;
+        } else {
+            if (procInfo->kind != SymbolKind::PROCEDURE && procInfo->kind != SymbolKind::FUNCTION) {
+                report(node, "Identifier '" + node->procName + "' bukan subprogram");
             }
 
-            const std::size_t n = expected < actual ? expected : actual;
-            for (std::size_t i = 0; i < n; ++i) {
-                ASTNode* arg = args[i];
-                ExprType argType = arg ? arg->exprType : ExprType::UNKNOWN;
-                ExprType paramType = procInfo->parameters[i].type;
-                if (argType != ExprType::UNKNOWN && paramType != ExprType::UNKNOWN && !TypeRules::isAssignable(paramType, argType)) {
-                    report(arg, "Tipe argumen ke-" + std::to_string(i + 1) + " tidak kompatibel");
-                } else if (argType == ExprType::ENUM && paramType == ExprType::ENUM &&
-                           procInfo->parameters[i].enumDomainId != getEnumDomainIdForExpression(arg)) {
-                    report(arg, "Tipe argumen enum ke-" + std::to_string(i + 1) + " berasal dari domain berbeda");
+            const bool isBuiltinIo =
+                node->procName == "writeln" ||
+                node->procName == "write" ||
+                node->procName == "readln" ||
+                node->procName == "read";
+
+            if (!isBuiltinIo) {
+                const std::size_t expected = procInfo->parameters.size();
+                const std::size_t actual = args.size();
+                if (expected != actual) {
+                    report(node, "Jumlah argumen tidak sesuai untuk pemanggilan '" + node->procName + "'");
+                }
+
+                const std::size_t n = expected < actual ? expected : actual;
+                for (std::size_t i = 0; i < n; ++i) {
+                    ASTNode* arg = args[i];
+                    ExprType argType = arg ? arg->exprType : ExprType::UNKNOWN;
+                    ExprType paramType = procInfo->parameters[i].type;
+                    if (argType != ExprType::UNKNOWN && paramType != ExprType::UNKNOWN && !TypeRules::isAssignable(paramType, argType)) {
+                        report(arg, "Tipe argumen ke-" + std::to_string(i + 1) + " tidak kompatibel");
+                    } else if (argType == ExprType::ENUM && paramType == ExprType::ENUM &&
+                               procInfo->parameters[i].enumDomainId != getEnumDomainIdForExpression(arg)) {
+                        report(arg, "Tipe argumen enum ke-" + std::to_string(i + 1) + " berasal dari domain berbeda");
+                    }
                 }
             }
         }
@@ -735,6 +807,7 @@ void SemanticAnalyzer::visitVarNode(VarNode* node) {
         node->exprType = ExprType::UNKNOWN;
         return;
     } 
+
     varInfo->isUsed = true;
     node->tabIndex = varInfo->tabIndex;
     node->lev = varInfo->level;
@@ -812,23 +885,14 @@ void SemanticAnalyzer::visitRecordAccessNode(RecordAccessNode* node) {
 
     node->exprType = ExprType::UNKNOWN;
 
-    auto* varNode = dynamic_cast<VarNode*>(node->recordVar);
-    if (!varNode) {
-        return;
-    }
-
-    SymbolInfo* recInfo = symbolTable.lookup(varNode->name);
-    if (!recInfo) {
-        report(node, "Record variable belum dideklarasikan");
-        return;
-    }
-
-    ExprType fieldType = resolveRecordFieldType(recInfo->typeDef, node->fieldName);
+    int offset = 0;
+    ExprType fieldType = resolveRecordFieldType(getTypeDefForExpression(node->recordVar), node->fieldName, offset);
     if (fieldType == ExprType::UNKNOWN) {
         report(node, "Field '" + node->fieldName + "' tidak ditemukan pada record");
         return;
     }
 
+    node->fieldOffset = offset;
     node->exprType = fieldType;
 }
 

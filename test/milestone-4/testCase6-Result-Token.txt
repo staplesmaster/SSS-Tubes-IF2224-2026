@@ -1,0 +1,196 @@
+programsy
+ident (testCase2)
+semicolon
+
+varsy
+ident (x)
+comma
+ident (y)
+comma
+ident (z)
+colon
+ident (integer)
+semicolon
+ident (status)
+colon
+ident (boolean)
+semicolon
+ident (hasil)
+colon
+ident (real)
+semicolon
+
+proceduresy
+ident (HitungMundur)
+lparent
+ident (start)
+colon
+ident (integer)
+semicolon
+ident (prefix)
+colon
+ident (string)
+rparent
+semicolon
+varsy
+ident (counter)
+colon
+ident (integer)
+semicolon
+beginsy
+ident (counter)
+becomes
+ident (start)
+semicolon
+whilesy
+ident (counter)
+gtr
+intcon (0)
+dosy
+beginsy
+ident (counter)
+becomes
+ident (counter)
+minus
+intcon (1)
+semicolon
+endsy
+semicolon
+endsy
+semicolon
+
+functionsy
+ident (CekValid)
+lparent
+ident (a)
+comma
+ident (b)
+colon
+ident (integer)
+semicolon
+ident (limit)
+colon
+ident (real)
+rparent
+colon
+ident (boolean)
+semicolon
+varsy
+ident (temp)
+colon
+ident (real)
+semicolon
+beginsy
+ident (temp)
+becomes
+lparent
+ident (a)
+plus
+ident (b)
+rparent
+rdiv
+realcon (2.0)
+semicolon
+ifsy
+ident (temp)
+leq
+ident (limit)
+thensy
+ident (CekValid)
+becomes
+ident (true)
+elsesy
+ident (CekValid)
+becomes
+ident (false)
+semicolon
+endsy
+semicolon
+
+beginsy
+ident (x)
+becomes
+intcon (10)
+semicolon
+ident (y)
+becomes
+intcon (20)
+semicolon
+
+ident (HitungMundur)
+lparent
+ident (x)
+comma
+string ('Mulai: ')
+rparent
+semicolon
+
+ident (status)
+becomes
+ident (CekValid)
+lparent
+ident (x)
+comma
+ident (y)
+comma
+realcon (15.5)
+rparent
+andsy
+lparent
+ident (x)
+neq
+ident (y)
+rparent
+orsy
+lparent
+ident (x)
+eql
+intcon (10)
+rparent
+semicolon
+ident (writeln)
+lparent
+ident (status)
+rparent
+semicolon
+repeatsy
+ident (z)
+becomes
+ident (x)
+times
+ident (y)
+idiv
+intcon (2)
+imod
+intcon (3)
+semicolon
+ident (x)
+becomes
+ident (x)
+plus
+intcon (1)
+semicolon
+untilsy
+ident (x)
+geq
+intcon (20)
+semicolon
+
+forsy
+ident (z)
+becomes
+intcon (10)
+downtosy
+intcon (1)
+dosy
+beginsy
+ident (y)
+becomes
+ident (y)
+minus
+intcon (1)
+semicolon
+endsy
+semicolon
+endsy
+period

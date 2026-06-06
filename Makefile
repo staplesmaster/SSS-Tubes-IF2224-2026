@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -Wextra -std=c++17
 SRCS = $(wildcard src/*.cpp src/*/*.cpp)
 INCLUDES = $(addprefix -I, $(sort $(dir $(SRCS))))
 
-TARGET = semantic
+TARGET = interpreter
 
 all: $(TARGET)
 

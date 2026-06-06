@@ -1,0 +1,69 @@
+SEMANTIC ERROR REPORT
+NO SEMANTIC ERRORS (Program is semantically valid)
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+43   testCase3         program     void        41    1     0     1     0     
+44   i                 variable    integer     43    1     0     10    0     
+45   total             variable    integer     44    1     0     10    0     
+46   selesai           variable    boolean     45    1     0     12    0     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     45      0       0       3       
+
+ATAB:
+  (No arrays declared)
+
+DECORATED AST: 
+ProgramNode('testCase3') → block_index:0, lev:0
+├─ Declarations
+│  ├─ ConstDecl('BATAS') → tab_index:42, type:integer, lev:0
+│  ├─ VarDecl('i'), type:integer → tab_index:43, type:integer, lev:0
+│  └─ VarDecl('selesai'), type:boolean → tab_index:45, type:boolean, lev:0
+└─ Block → block_index:0, lev:1
+   ├─ Assign('Var('i')' := Num(1)) → type:void
+   │  ├─ 'i' → tab_index:43, type:integer, lev:0
+   │  └─ 1 → type:integer
+   ├─ Assign('Var('total')' := Num(0)) → type:void
+   │  ├─ 'total' → tab_index:44, type:integer, lev:0
+   │  └─ 0 → type:integer
+   ├─ Assign('Var('selesai')' := Var('false')) → type:void
+   │  ├─ 'selesai' → tab_index:45, type:boolean, lev:0
+   │  └─ 'false' → tab_index:6, type:boolean, lev:0, predefined
+   ├─ WhileLoop
+   │  ├─ BinOp '<=' → type:boolean
+   │  │  ├─ 'i' → tab_index:43, type:integer, lev:0
+   │  │  └─ 'BATAS' → tab_index:42, type:integer, lev:0
+   │  └─ Block → lev:1
+   │     ├─ Assign('Var('total')' := BinOp(op: '+', left: Var('total'), right: BinOp(op: '*', left: Var('i'), right: Num(2)))) → type:void
+   │     │  ├─ 'total' → tab_index:44, type:integer, lev:0
+   │     │  └─ BinOp '+' → type:integer
+   │     │     ├─ 'total' → tab_index:44, type:integer, lev:0
+   │     │     └─ BinOp '*' → type:integer
+   │     │        ├─ 'i' → tab_index:43, type:integer, lev:0
+   │     │        └─ 2 → type:integer
+   │     └─ Assign('Var('i')' := BinOp(op: '+', left: Var('i'), right: Num(1))) → type:void
+   │        ├─ 'i' → tab_index:43, type:integer, lev:0
+   │        └─ BinOp '+' → type:integer
+   │           ├─ 'i' → tab_index:43, type:integer, lev:0
+   │           └─ 1 → type:integer
+   ├─ IfStatement
+   │  ├─ BinOp '>=' → type:boolean
+   │  │  ├─ 'total' → tab_index:44, type:integer, lev:0
+   │  │  └─ 20 → type:integer
+   │  ├─ Assign('Var('selesai')' := Var('true')) → type:void
+   │  │  ├─ 'selesai' → tab_index:45, type:boolean, lev:0
+   │  │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+   │  └─ Assign('Var('selesai')' := Var('false')) → type:void
+   │     ├─ 'selesai' → tab_index:45, type:boolean, lev:0
+   │     └─ 'false' → tab_index:6, type:boolean, lev:0, predefined
+   └─ Assign('Var('total')' := BinOp(op: '+', left: Var('total'), right: Num(0))) → type:void
+      ├─ 'total' → tab_index:44, type:integer, lev:0
+      └─ BinOp '+' → type:integer
+         ├─ 'total' → tab_index:44, type:integer, lev:0
+         └─ 0 → type:integer
+
+Semantic analysis completed

@@ -1,0 +1,394 @@
+TIDAK ADA SYNTAX ERROR (PROGRAM VALID)
+
+HASIL PARSE TREE
+<program>
+├── <program-header>
+│   ├── programsy
+│   ├── ident(testCase4)
+│   └── semicolon
+├── <declaration-part>
+│   ├── <type-declaration>
+│   │   ├── typesy
+│   │   ├── ident(Arah)
+│   │   ├── eql
+│   │   ├── <type>
+│   │   │   └── <enumerated>
+│   │   │       ├── lparent
+│   │   │       ├── ident(Utara)
+│   │   │       ├── comma
+│   │   │       ├── ident(Timur)
+│   │   │       ├── comma
+│   │   │       ├── ident(Selatan)
+│   │   │       ├── comma
+│   │   │       ├── ident(Barat)
+│   │   │       └── rparent
+│   │   ├── semicolon
+│   │   ├── ident(Point)
+│   │   ├── eql
+│   │   ├── <type>
+│   │   │   └── <record-type>
+│   │   │       ├── recordsy
+│   │   │       ├── <field-list>
+│   │   │       │   ├── <field-part>
+│   │   │       │   │   ├── <identifier-list>
+│   │   │       │   │   │   └── ident(x)
+│   │   │       │   │   ├── colon
+│   │   │       │   │   └── <type>
+│   │   │       │   │       └── ident(integer)
+│   │   │       │   ├── semicolon
+│   │   │       │   ├── <field-part>
+│   │   │       │   │   ├── <identifier-list>
+│   │   │       │   │   │   └── ident(y)
+│   │   │       │   │   ├── colon
+│   │   │       │   │   └── <type>
+│   │   │       │   │       └── ident(integer)
+│   │   │       │   ├── semicolon
+│   │   │       │   └── <field-part>
+│   │   │       │       ├── <identifier-list>
+│   │   │       │       │   └── ident(aktif)
+│   │   │       │       ├── colon
+│   │   │       │       └── <type>
+│   │   │       │           └── ident(boolean)
+│   │   │       └── endsy
+│   │   └── semicolon
+│   └── <var-declaration>
+│       ├── varsy
+│       ├── <identifier-list>
+│       │   ├── ident(posisi)
+│       │   ├── comma
+│       │   └── ident(tujuan)
+│       ├── colon
+│       ├── <type>
+│       │   └── ident(Point)
+│       ├── semicolon
+│       ├── <identifier-list>
+│       │   └── ident(langkah)
+│       ├── colon
+│       ├── <type>
+│       │   └── ident(integer)
+│       ├── semicolon
+│       ├── <identifier-list>
+│       │   └── ident(arahSekarang)
+│       ├── colon
+│       ├── <type>
+│       │   └── ident(Arah)
+│       └── semicolon
+├── <compound-statement>
+│   ├── beginsy
+│   ├── <statement-list>
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(posisi)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(x)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(0)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(posisi)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(y)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(0)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(posisi)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(aktif)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── <variable>
+│   │   │                           └── ident(true)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(tujuan)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(x)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(3)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(tujuan)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(y)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(2)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   ├── ident(tujuan)
+│   │   │       │   └── <component-variable>
+│   │   │       │       ├── period
+│   │   │       │       └── ident(aktif)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── <variable>
+│   │   │                           └── ident(true)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   └── ident(arahSekarang)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── <variable>
+│   │   │                           └── ident(Timur)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   └── ident(langkah)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(0)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <while-statement>
+│   │   │       ├── whilesy
+│   │   │       ├── <expression>
+│   │   │       │   ├── <simple-expression>
+│   │   │       │   │   └── <term>
+│   │   │       │   │       └── <factor>
+│   │   │       │   │           └── <variable>
+│   │   │       │   │               ├── ident(posisi)
+│   │   │       │   │               └── <component-variable>
+│   │   │       │   │                   ├── period
+│   │   │       │   │                   └── ident(x)
+│   │   │       │   ├── <relational-operator>
+│   │   │       │   │   └── lss
+│   │   │       │   └── <simple-expression>
+│   │   │       │       └── <term>
+│   │   │       │           └── <factor>
+│   │   │       │               └── <variable>
+│   │   │       │                   ├── ident(tujuan)
+│   │   │       │                   └── <component-variable>
+│   │   │       │                       ├── period
+│   │   │       │                       └── ident(x)
+│   │   │       ├── dosy
+│   │   │       ├── <compound-statement>
+│   │   │       │   ├── beginsy
+│   │   │       │   ├── <statement-list>
+│   │   │       │   │   ├── <statement>
+│   │   │       │   │   │   └── <assignment-statement>
+│   │   │       │   │   │       ├── <variable>
+│   │   │       │   │   │       │   ├── ident(posisi)
+│   │   │       │   │   │       │   └── <component-variable>
+│   │   │       │   │   │       │       ├── period
+│   │   │       │   │   │       │       └── ident(x)
+│   │   │       │   │   │       ├── becomes
+│   │   │       │   │   │       └── <expression>
+│   │   │       │   │   │           └── <simple-expression>
+│   │   │       │   │   │               ├── <term>
+│   │   │       │   │   │               │   └── <factor>
+│   │   │       │   │   │               │       └── <variable>
+│   │   │       │   │   │               │           ├── ident(posisi)
+│   │   │       │   │   │               │           └── <component-variable>
+│   │   │       │   │   │               │               ├── period
+│   │   │       │   │   │               │               └── ident(x)
+│   │   │       │   │   │               ├── <additive-operator>
+│   │   │       │   │   │               │   └── plus
+│   │   │       │   │   │               └── <term>
+│   │   │       │   │   │                   └── <factor>
+│   │   │       │   │   │                       └── intcon(1)
+│   │   │       │   │   ├── semicolon
+│   │   │       │   │   ├── <statement>
+│   │   │       │   │   │   └── <assignment-statement>
+│   │   │       │   │   │       ├── <variable>
+│   │   │       │   │   │       │   └── ident(langkah)
+│   │   │       │   │   │       ├── becomes
+│   │   │       │   │   │       └── <expression>
+│   │   │       │   │   │           └── <simple-expression>
+│   │   │       │   │   │               ├── <term>
+│   │   │       │   │   │               │   └── <factor>
+│   │   │       │   │   │               │       └── <variable>
+│   │   │       │   │   │               │           └── ident(langkah)
+│   │   │       │   │   │               ├── <additive-operator>
+│   │   │       │   │   │               │   └── plus
+│   │   │       │   │   │               └── <term>
+│   │   │       │   │   │                   └── <factor>
+│   │   │       │   │   │                       └── intcon(1)
+│   │   │       │   │   ├── semicolon
+│   │   │       │   │   └── <statement>
+│   │   │       │   └── endsy
+│   │   │       └── semicolon
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <if-statement>
+│   │   │       ├── ifsy
+│   │   │       ├── <expression>
+│   │   │       │   ├── <simple-expression>
+│   │   │       │   │   └── <term>
+│   │   │       │   │       └── <factor>
+│   │   │       │   │           └── <variable>
+│   │   │       │   │               ├── ident(posisi)
+│   │   │       │   │               └── <component-variable>
+│   │   │       │   │                   ├── period
+│   │   │       │   │                   └── ident(x)
+│   │   │       │   ├── <relational-operator>
+│   │   │       │   │   └── eql
+│   │   │       │   └── <simple-expression>
+│   │   │       │       └── <term>
+│   │   │       │           └── <factor>
+│   │   │       │               └── <variable>
+│   │   │       │                   ├── ident(tujuan)
+│   │   │       │                   └── <component-variable>
+│   │   │       │                       ├── period
+│   │   │       │                       └── ident(x)
+│   │   │       ├── thensy
+│   │   │       ├── <statement>
+│   │   │       │   └── <assignment-statement>
+│   │   │       │       ├── <variable>
+│   │   │       │       │   └── ident(arahSekarang)
+│   │   │       │       ├── becomes
+│   │   │       │       └── <expression>
+│   │   │       │           └── <simple-expression>
+│   │   │       │               └── <term>
+│   │   │       │                   └── <factor>
+│   │   │       │                       └── <variable>
+│   │   │       │                           └── ident(Utara)
+│   │   │       ├── elsesy
+│   │   │       └── <statement>
+│   │   │           └── <assignment-statement>
+│   │   │               ├── <variable>
+│   │   │               │   └── ident(arahSekarang)
+│   │   │               ├── becomes
+│   │   │               └── <expression>
+│   │   │                   └── <simple-expression>
+│   │   │                       └── <term>
+│   │   │                           └── <factor>
+│   │   │                               └── <variable>
+│   │   │                                   └── ident(Barat)
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <while-statement>
+│   │   │       ├── whilesy
+│   │   │       ├── <expression>
+│   │   │       │   ├── <simple-expression>
+│   │   │       │   │   └── <term>
+│   │   │       │   │       └── <factor>
+│   │   │       │   │           └── <variable>
+│   │   │       │   │               ├── ident(posisi)
+│   │   │       │   │               └── <component-variable>
+│   │   │       │   │                   ├── period
+│   │   │       │   │                   └── ident(y)
+│   │   │       │   ├── <relational-operator>
+│   │   │       │   │   └── lss
+│   │   │       │   └── <simple-expression>
+│   │   │       │       └── <term>
+│   │   │       │           └── <factor>
+│   │   │       │               └── <variable>
+│   │   │       │                   ├── ident(tujuan)
+│   │   │       │                   └── <component-variable>
+│   │   │       │                       ├── period
+│   │   │       │                       └── ident(y)
+│   │   │       ├── dosy
+│   │   │       ├── <compound-statement>
+│   │   │       │   ├── beginsy
+│   │   │       │   ├── <statement-list>
+│   │   │       │   │   ├── <statement>
+│   │   │       │   │   │   └── <assignment-statement>
+│   │   │       │   │   │       ├── <variable>
+│   │   │       │   │   │       │   ├── ident(posisi)
+│   │   │       │   │   │       │   └── <component-variable>
+│   │   │       │   │   │       │       ├── period
+│   │   │       │   │   │       │       └── ident(y)
+│   │   │       │   │   │       ├── becomes
+│   │   │       │   │   │       └── <expression>
+│   │   │       │   │   │           └── <simple-expression>
+│   │   │       │   │   │               ├── <term>
+│   │   │       │   │   │               │   └── <factor>
+│   │   │       │   │   │               │       └── <variable>
+│   │   │       │   │   │               │           ├── ident(posisi)
+│   │   │       │   │   │               │           └── <component-variable>
+│   │   │       │   │   │               │               ├── period
+│   │   │       │   │   │               │               └── ident(y)
+│   │   │       │   │   │               ├── <additive-operator>
+│   │   │       │   │   │               │   └── plus
+│   │   │       │   │   │               └── <term>
+│   │   │       │   │   │                   └── <factor>
+│   │   │       │   │   │                       └── intcon(1)
+│   │   │       │   │   ├── semicolon
+│   │   │       │   │   ├── <statement>
+│   │   │       │   │   │   └── <assignment-statement>
+│   │   │       │   │   │       ├── <variable>
+│   │   │       │   │   │       │   └── ident(langkah)
+│   │   │       │   │   │       ├── becomes
+│   │   │       │   │   │       └── <expression>
+│   │   │       │   │   │           └── <simple-expression>
+│   │   │       │   │   │               ├── <term>
+│   │   │       │   │   │               │   └── <factor>
+│   │   │       │   │   │               │       └── <variable>
+│   │   │       │   │   │               │           └── ident(langkah)
+│   │   │       │   │   │               ├── <additive-operator>
+│   │   │       │   │   │               │   └── plus
+│   │   │       │   │   │               └── <term>
+│   │   │       │   │   │                   └── <factor>
+│   │   │       │   │   │                       └── intcon(1)
+│   │   │       │   │   ├── semicolon
+│   │   │       │   │   └── <statement>
+│   │   │       │   └── endsy
+│   │   │       └── semicolon
+│   │   ├── semicolon
+│   │   ├── <statement>
+│   │   │   └── <assignment-statement>
+│   │   │       ├── <variable>
+│   │   │       │   └── ident(langkah)
+│   │   │       ├── becomes
+│   │   │       └── <expression>
+│   │   │           └── <simple-expression>
+│   │   │               ├── <term>
+│   │   │               │   └── <factor>
+│   │   │               │       └── <variable>
+│   │   │               │           └── ident(langkah)
+│   │   │               ├── <additive-operator>
+│   │   │               │   └── plus
+│   │   │               └── <term>
+│   │   │                   └── <factor>
+│   │   │                       └── intcon(0)
+│   │   ├── semicolon
+│   │   └── <statement>
+│   └── endsy
+└── period

@@ -1,0 +1,82 @@
+programsy
+ident (testCase3)
+semicolon
+
+constsy
+ident (BATAS)
+eql
+intcon (4)
+semicolon
+
+varsy
+ident (i)
+comma
+ident (total)
+colon
+ident (integer)
+semicolon
+ident (selesai)
+colon
+ident (boolean)
+semicolon
+
+beginsy
+ident (i)
+becomes
+intcon (1)
+semicolon
+ident (total)
+becomes
+intcon (0)
+semicolon
+ident (selesai)
+becomes
+ident (false)
+semicolon
+
+whilesy
+ident (i)
+leq
+ident (BATAS)
+dosy
+beginsy
+ident (total)
+becomes
+ident (total)
+plus
+ident (i)
+times
+intcon (2)
+semicolon
+ident (i)
+becomes
+ident (i)
+plus
+intcon (1)
+semicolon
+endsy
+semicolon
+semicolon
+
+ifsy
+ident (total)
+geq
+intcon (20)
+thensy
+ident (selesai)
+becomes
+ident (true)
+elsesy
+ident (selesai)
+becomes
+ident (false)
+semicolon
+
+ident (total)
+becomes
+ident (total)
+plus
+intcon (0)
+semicolon
+endsy
+period

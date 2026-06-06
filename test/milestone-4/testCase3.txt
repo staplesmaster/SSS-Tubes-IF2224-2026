@@ -1,0 +1,27 @@
+program testCase3;
+
+const
+    BATAS == 4;
+
+var
+    i, total : integer;
+    selesai : boolean;
+
+begin
+    i := 1;
+    total := 0;
+    selesai := false;
+
+    while i <= BATAS do
+    begin
+        total := total + i * 2;
+        i := i + 1;
+    end;;
+
+    if total >= 20 then
+        selesai := true
+    else
+        selesai := false;
+
+    total := total + 0;
+end.

@@ -1,0 +1,103 @@
+SEMANTIC ERROR REPORT
+NO SEMANTIC ERRORS (Program is semantically valid)
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+48   testCase4         program     void        41    1     0     1     0     
+49   x                 variable    integer     47    1     0     19    0     
+50   y                 variable    integer     48    1     0     16350216280     
+51   aktif             variable    boolean     49    1     0     352   0     
+52   posisi            variable    record      51    1     0     -2965185760     
+53   tujuan            variable    record      54    1     0     -2965185760     
+54   langkah           variable    integer     57    1     0     0     0     
+55   arahSekarang      variable    enum        58    1     0     19537195520     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     58      0       0       7       
+
+ATAB:
+  (No arrays declared)
+
+DECORATED AST: 
+ProgramNode('testCase4') → block_index:0, lev:0
+├─ Declarations
+│  ├─ TypeDecl('Arah') → tab_index:46, type:enum, lev:0
+│  ├─ TypeDecl('Point') → tab_index:50, type:record, lev:0
+│  ├─ VarDecl('posisi'), type:Point → tab_index:51, type:record, lev:0
+│  ├─ VarDecl('langkah'), type:integer → tab_index:57, type:integer, lev:0, predefined
+│  └─ VarDecl('arahSekarang'), type:Arah → tab_index:58, type:enum, lev:0
+└─ Block → block_index:0, lev:1
+   ├─ Assign('RecordAccess(base: Var('posisi'), field: 'x')' := Num(0)) → type:void
+   │  ├─ RecordAccess('x') → type:integer
+   │  └─ 0 → type:integer
+   ├─ Assign('RecordAccess(base: Var('posisi'), field: 'y')' := Num(0)) → type:void
+   │  ├─ RecordAccess('y') → type:integer
+   │  └─ 0 → type:integer
+   ├─ Assign('RecordAccess(base: Var('posisi'), field: 'aktif')' := Var('true')) → type:void
+   │  ├─ RecordAccess('aktif') → type:boolean
+   │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+   ├─ Assign('RecordAccess(base: Var('tujuan'), field: 'x')' := Num(3)) → type:void
+   │  ├─ RecordAccess('x') → type:integer
+   │  └─ 3 → type:integer
+   ├─ Assign('RecordAccess(base: Var('tujuan'), field: 'y')' := Num(2)) → type:void
+   │  ├─ RecordAccess('y') → type:integer
+   │  └─ 2 → type:integer
+   ├─ Assign('RecordAccess(base: Var('tujuan'), field: 'aktif')' := Var('true')) → type:void
+   │  ├─ RecordAccess('aktif') → type:boolean
+   │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+   ├─ Assign('Var('arahSekarang')' := Var('Timur')) → type:void
+   │  ├─ 'arahSekarang' → tab_index:58, type:enum, lev:0
+   │  └─ 'Timur' → tab_index:43, type:enum, lev:0
+   ├─ Assign('Var('langkah')' := Num(0)) → type:void
+   │  ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+   │  └─ 0 → type:integer
+   ├─ WhileLoop
+   │  ├─ BinOp '<' → type:boolean
+   │  │  ├─ RecordAccess('x') → type:integer
+   │  │  └─ RecordAccess('x') → type:integer
+   │  └─ Block → lev:1
+   │     ├─ Assign('RecordAccess(base: Var('posisi'), field: 'x')' := BinOp(op: '+', left: RecordAccess(base: Var('posisi'), field: 'x'), right: Num(1))) → type:void
+   │     │  ├─ RecordAccess('x') → type:integer
+   │     │  └─ BinOp '+' → type:integer
+   │     │     ├─ RecordAccess('x') → type:integer
+   │     │     └─ 1 → type:integer
+   │     └─ Assign('Var('langkah')' := BinOp(op: '+', left: Var('langkah'), right: Num(1))) → type:void
+   │        ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+   │        └─ BinOp '+' → type:integer
+   │           ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+   │           └─ 1 → type:integer
+   ├─ IfStatement
+   │  ├─ BinOp '==' → type:boolean
+   │  │  ├─ RecordAccess('x') → type:integer
+   │  │  └─ RecordAccess('x') → type:integer
+   │  ├─ Assign('Var('arahSekarang')' := Var('Utara')) → type:void
+   │  │  ├─ 'arahSekarang' → tab_index:58, type:enum, lev:0
+   │  │  └─ 'Utara' → tab_index:42, type:enum, lev:0
+   │  └─ Assign('Var('arahSekarang')' := Var('Barat')) → type:void
+   │     ├─ 'arahSekarang' → tab_index:58, type:enum, lev:0
+   │     └─ 'Barat' → tab_index:45, type:enum, lev:0
+   ├─ WhileLoop
+   │  ├─ BinOp '<' → type:boolean
+   │  │  ├─ RecordAccess('y') → type:integer
+   │  │  └─ RecordAccess('y') → type:integer
+   │  └─ Block → lev:1
+   │     ├─ Assign('RecordAccess(base: Var('posisi'), field: 'y')' := BinOp(op: '+', left: RecordAccess(base: Var('posisi'), field: 'y'), right: Num(1))) → type:void
+   │     │  ├─ RecordAccess('y') → type:integer
+   │     │  └─ BinOp '+' → type:integer
+   │     │     ├─ RecordAccess('y') → type:integer
+   │     │     └─ 1 → type:integer
+   │     └─ Assign('Var('langkah')' := BinOp(op: '+', left: Var('langkah'), right: Num(1))) → type:void
+   │        ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+   │        └─ BinOp '+' → type:integer
+   │           ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+   │           └─ 1 → type:integer
+   └─ Assign('Var('langkah')' := BinOp(op: '+', left: Var('langkah'), right: Num(0))) → type:void
+      ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+      └─ BinOp '+' → type:integer
+         ├─ 'langkah' → tab_index:57, type:integer, lev:0, predefined
+         └─ 0 → type:integer
+
+Semantic analysis completed

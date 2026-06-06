@@ -248,6 +248,7 @@ class RecordAccessNode : public ASTNode {
 public:
     ASTNode* recordVar;
     string fieldName;
+    int fieldOffset = -1;
 
     RecordAccessNode(ASTNode* recVar, string fName);
     ASTNode* getRecordVar();

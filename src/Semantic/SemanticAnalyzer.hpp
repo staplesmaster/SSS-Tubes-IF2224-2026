@@ -21,7 +21,7 @@ class SemanticAnalyzer : public ASTVisitor {
         int getEnumDomainIdForExpression(ASTNode* expr);
         bool areTypeNodesCompatible(ASTNode* leftTypeNode, ASTNode* rightTypeNode);
         bool tryGetIntLiteral(ASTNode* node, int& value);
-        ExprType resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName);
+        ExprType resolveRecordFieldType(ASTNode* typeNode, const std::string& fieldName, int& outOffset);
         ASTNode* getTypeDefForExpression(ASTNode* expr);
         void report(ASTNode* node, const std::string& message);
 
@@ -32,6 +32,10 @@ class SemanticAnalyzer : public ASTVisitor {
 
         const ErrorReporter& getErrorReporter() const;
         const SymbolTable& getSymbolTable() const;
+
+        SymbolTable& getSymbolTable();
+
+        int getTypeWidth(ASTNode* typeNode);
 
         void visitProgramNode(ProgramNode* node) override;
         void visitCompoundNode(CompoundNode* node) override;

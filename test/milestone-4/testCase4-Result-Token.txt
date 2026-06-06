@@ -1,0 +1,184 @@
+programsy
+ident (testCase4)
+semicolon
+
+typesy
+ident (Arah)
+eql
+lparent
+ident (Utara)
+comma
+ident (Timur)
+comma
+ident (Selatan)
+comma
+ident (Barat)
+rparent
+semicolon
+ident (Point)
+eql
+recordsy
+ident (x)
+colon
+ident (integer)
+semicolon
+ident (y)
+colon
+ident (integer)
+semicolon
+ident (aktif)
+colon
+ident (boolean)
+endsy
+semicolon
+
+varsy
+ident (posisi)
+comma
+ident (tujuan)
+colon
+ident (Point)
+semicolon
+ident (langkah)
+colon
+ident (integer)
+semicolon
+ident (arahSekarang)
+colon
+ident (Arah)
+semicolon
+
+beginsy
+ident (posisi)
+period
+ident (x)
+becomes
+intcon (0)
+semicolon
+ident (posisi)
+period
+ident (y)
+becomes
+intcon (0)
+semicolon
+ident (posisi)
+period
+ident (aktif)
+becomes
+ident (true)
+semicolon
+
+ident (tujuan)
+period
+ident (x)
+becomes
+intcon (3)
+semicolon
+ident (tujuan)
+period
+ident (y)
+becomes
+intcon (2)
+semicolon
+ident (tujuan)
+period
+ident (aktif)
+becomes
+ident (true)
+semicolon
+
+ident (arahSekarang)
+becomes
+ident (Timur)
+semicolon
+ident (langkah)
+becomes
+intcon (0)
+semicolon
+
+whilesy
+ident (posisi)
+period
+ident (x)
+lss
+ident (tujuan)
+period
+ident (x)
+dosy
+beginsy
+ident (posisi)
+period
+ident (x)
+becomes
+ident (posisi)
+period
+ident (x)
+plus
+intcon (1)
+semicolon
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (1)
+semicolon
+endsy
+semicolon
+semicolon
+
+ifsy
+ident (posisi)
+period
+ident (x)
+eql
+ident (tujuan)
+period
+ident (x)
+thensy
+ident (arahSekarang)
+becomes
+ident (Utara)
+elsesy
+ident (arahSekarang)
+becomes
+ident (Barat)
+semicolon
+
+whilesy
+ident (posisi)
+period
+ident (y)
+lss
+ident (tujuan)
+period
+ident (y)
+dosy
+beginsy
+ident (posisi)
+period
+ident (y)
+becomes
+ident (posisi)
+period
+ident (y)
+plus
+intcon (1)
+semicolon
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (1)
+semicolon
+endsy
+semicolon
+semicolon
+
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (0)
+semicolon
+endsy
+period

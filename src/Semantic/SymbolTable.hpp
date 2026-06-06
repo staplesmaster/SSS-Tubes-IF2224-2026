@@ -26,6 +26,7 @@ struct ArrayInfo {
     int lowerBound = 0;
     int upperBound = 0;
     bool hasStaticBounds = false;
+    int elemWidth = 1;
 };
 
 class SymbolTable {
@@ -44,7 +45,7 @@ class SymbolTable {
         void enterScope();
         void exitScope();
 
-        bool declare(const std::string& name, SymbolInfo info);
+        bool declare(const std::string& name, SymbolInfo info, int width = 1);
         SymbolInfo* lookup(const std::string& name);
         SymbolInfo* lookUpCurrent(const std::string& name);
 
@@ -65,7 +66,8 @@ class SymbolTable {
             ASTNode* elementTypeNode = nullptr,
             bool hasStaticBounds = false,
             int lowerBound = 0,
-            int upperBound = 0
+            int upperBound = 0,
+            int elemWidth = 1
         );
         const ArrayInfo* getArray(int arrayIndex) const;
         const std::vector<ArrayInfo>& getAllArrays() const;

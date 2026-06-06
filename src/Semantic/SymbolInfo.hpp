@@ -7,6 +7,7 @@
 enum class SymbolKind {
     VARIABLE,
     CONSTANT,
+    RESERVED,
     FUNCTION,
     PROCEDURE,
     TYPE, 
@@ -31,6 +32,7 @@ struct SymbolInfo {
     int tabIndex = -1;
     int level = -1;
     int declLine = 0;
+    int entryAddress = -1;
 
     std::vector<ParamInfo> parameters; 
     ASTNode* typeDef = nullptr;
@@ -40,6 +42,10 @@ struct SymbolInfo {
     bool isUsed = false;
     int blockIndex = -1;
     int arrayIndex = -1;
+
+    int width = 1;
+    int constValue = 0;
+    bool hasConstValue = false;
 
     SymbolInfo() = default;
     SymbolInfo(const std::string& name, SymbolKind kind) : name(name), kind(kind) {}
