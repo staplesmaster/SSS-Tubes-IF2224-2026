@@ -1,15 +1,34 @@
 HASIL ABSTRACT SYNTAX TREE (AST)
-ProgramNode(name: 'Test4')
+ProgramNode(name: 'testCase4')
 ├── Declarations
+│   ├── TypeDecl(name: 'Arah')
 │   ├── TypeDecl(name: 'Point')
-│   ├── VarDecl(name: 'now', type: 'Point')
-│   │   VarDecl(name: 'ends', type: 'Point')
-│   └── VarDecl(name: 'i', type: 'integer')
+│   ├── VarDecl(name: 'posisi', type: 'Point')
+│   │   VarDecl(name: 'tujuan', type: 'Point')
+│   ├── VarDecl(name: 'langkah', type: 'integer')
+│   └── VarDecl(name: 'arahSekarang', type: 'Arah')
 └── Block
-    ├── Assign(target: Var('now'), value: ComplexExpression)
-    ├── Assign(target: Var('ends'), value: ComplexExpression)
-    ├── ForLoop(iterator: 'i', start: Num(10), end: Num(0), direction: downto)
+    ├── Assign(target: RecordAccess(base: Var('posisi'), field: 'x'), value: Num(0))
+    ├── Assign(target: RecordAccess(base: Var('posisi'), field: 'y'), value: Num(0))
+    ├── Assign(target: RecordAccess(base: Var('posisi'), field: 'aktif'), value: Var('true'))
+    ├── Assign(target: RecordAccess(base: Var('tujuan'), field: 'x'), value: Num(3))
+    ├── Assign(target: RecordAccess(base: Var('tujuan'), field: 'y'), value: Num(2))
+    ├── Assign(target: RecordAccess(base: Var('tujuan'), field: 'aktif'), value: Var('true'))
+    ├── Assign(target: Var('arahSekarang'), value: Var('Timur'))
+    ├── Assign(target: Var('langkah'), value: Num(0))
+    ├── WhileLoop(condition: BinOp(op: '<', left: RecordAccess(base: Var('posisi'), field: 'x'), right: RecordAccess(base: Var('tujuan'), field: 'x')))
     │   └── DoBlock
     │       └── CompoundStatement
-    │           └── ASTNode(ComplexExpression)
-    └── ProcedureCall(name: 'print', args: [String(''Point = ''), Var('x'), String(''And''), Var('y')])
+    │           ├── Assign(target: RecordAccess(base: Var('posisi'), field: 'x'), value: BinOp(op: '+', left: RecordAccess(base: Var('posisi'), field: 'x'), right: Num(1)))
+    │           └── Assign(target: Var('langkah'), value: BinOp(op: '+', left: Var('langkah'), right: Num(1)))
+    ├── IfStatement(condition: BinOp(op: '==', left: RecordAccess(base: Var('posisi'), field: 'x'), right: RecordAccess(base: Var('tujuan'), field: 'x')))
+    │   ├── ThenBlock
+    │   │   └── Assign(target: Var('arahSekarang'), value: Var('Utara'))
+    │   └── ElseBlock
+    │       └── Assign(target: Var('arahSekarang'), value: Var('Barat'))
+    ├── WhileLoop(condition: BinOp(op: '<', left: RecordAccess(base: Var('posisi'), field: 'y'), right: RecordAccess(base: Var('tujuan'), field: 'y')))
+    │   └── DoBlock
+    │       └── CompoundStatement
+    │           ├── Assign(target: RecordAccess(base: Var('posisi'), field: 'y'), value: BinOp(op: '+', left: RecordAccess(base: Var('posisi'), field: 'y'), right: Num(1)))
+    │           └── Assign(target: Var('langkah'), value: BinOp(op: '+', left: Var('langkah'), right: Num(1)))
+    └── Assign(target: Var('langkah'), value: BinOp(op: '+', left: Var('langkah'), right: Num(0)))

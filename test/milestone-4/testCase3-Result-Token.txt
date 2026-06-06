@@ -1,131 +1,82 @@
 programsy
-ident (p5)
+ident (testCase3)
 semicolon
+
 constsy
-ident (c1)
+ident (BATAS)
 eql
-intcon (123)
-semicolon
-ident (c2)
-eql
-intcon (123)
-semicolon
-typesy
-ident (t1)
-eql
-ident (hama)
-semicolon
-varsy
-ident (v1)
-comma
-ident (v2)
-comma
-ident (v3)
-colon
-arraysy
-lbrack
-intcon (1)
-period
-period
-intcon (3)
-rbrack
-ofsy
-ident (integer)
-semicolon
-
-functionsy
-ident (f1)
-lparent
-ident (a1)
-colon
-ident (integer)
-rparent
-colon
-ident (integer)
-semicolon
-beginsy
-ifsy
-ident (a1)
-geq
-intcon (10)
-thensy
-ident (a1)
-becomes
-ident (a1)
-minus
-intcon (1)
-elsesy
-ident (a1)
-becomes
-ident (a1)
-plus
-intcon (2)
-semicolon
-ident (f1)
-becomes
-ident (a1)
-idiv
-intcon (2)
-imod
-intcon (3)
-semicolon
-endsy
-semicolon
-
-proceduresy
-ident (p1)
-semicolon
-beginsy
-repeatsy
-whilesy
-ident (v1)
-lss
-ident (v2)
-dosy
-beginsy
-ident (v1)
-becomes
-ident (v1)
-plus
-intcon (1)
-endsy
-semicolon
-semicolon
-forsy
-ident (v3)
-becomes
-intcon (10)
-downtosy
-intcon (1)
-dosy
-beginsy
-ident (v2)
-becomes
-ident (v2)
-times
-intcon (2)
-rdiv
 intcon (4)
 semicolon
-endsy
+
+varsy
+ident (i)
+comma
+ident (total)
+colon
+ident (integer)
 semicolon
-untilsy
-ident (v1)
-eql
-ident (v2)
-semicolon
-endsy
+ident (selesai)
+colon
+ident (boolean)
 semicolon
 
 beginsy
-ident (v1)
+ident (i)
 becomes
-minus
-intcon (42)
+intcon (1)
 semicolon
-ident (v2)
+ident (total)
 becomes
-realcon (3.1415)
+intcon (0)
+semicolon
+ident (selesai)
+becomes
+ident (false)
+semicolon
+
+whilesy
+ident (i)
+leq
+ident (BATAS)
+dosy
+beginsy
+ident (total)
+becomes
+ident (total)
+plus
+ident (i)
+times
+intcon (2)
+semicolon
+ident (i)
+becomes
+ident (i)
+plus
+intcon (1)
+semicolon
+endsy
+semicolon
+semicolon
+
+ifsy
+ident (total)
+geq
+intcon (20)
+thensy
+ident (selesai)
+becomes
+ident (true)
+elsesy
+ident (selesai)
+becomes
+ident (false)
+semicolon
+
+ident (total)
+becomes
+ident (total)
+plus
+intcon (0)
 semicolon
 endsy
 period

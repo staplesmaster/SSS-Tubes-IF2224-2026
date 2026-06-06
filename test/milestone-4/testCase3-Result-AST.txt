@@ -1,23 +1,22 @@
 HASIL ABSTRACT SYNTAX TREE (AST)
-ProgramNode(name: 'p5')
+ProgramNode(name: 'testCase3')
 ├── Declarations
-│   ├── ConstDecl(name: 'c1', value: Num(123))
-│   ├── ConstDecl(name: 'c2', value: Num(123))
-│   ├── TypeDecl(name: 't1')
-│   ├── VarDecl(name: 'v1', type: ComplexExpression)
-│   │   VarDecl(name: 'v2', type: ComplexExpression)
-│   │   VarDecl(name: 'v3', type: ComplexExpression)
-│   ├── FunctionDecl(name: 'f1')
-│   │   └── CompoundStatement
-│   │       ├── IfStatement(condition: BinOp(op: '>=', left: Var('a1'), right: Num(10)))
-│   │       │   ├── ThenBlock
-│   │       │   │   └── Assign(target: Var('a1'), value: BinOp(op: '-', left: Var('a1'), right: Num(1)))
-│   │       │   └── ElseBlock
-│   │       │       └── Assign(target: Var('a1'), value: BinOp(op: '+', left: Var('a1'), right: Num(2)))
-│   │       └── Assign(target: Var('f1'), value: BinOp(op: 'mod', left: BinOp(op: 'div', left: Var('a1'), right: Num(2)), right: Num(3)))
-│   └── ProcedureDecl(name: 'p1')
-│       └── CompoundStatement
-│           └── ASTNode(ComplexExpression)
+│   ├── ConstDecl(name: 'BATAS', value: Num(4))
+│   ├── VarDecl(name: 'i', type: 'integer')
+│   │   VarDecl(name: 'total', type: 'integer')
+│   └── VarDecl(name: 'selesai', type: 'boolean')
 └── Block
-    ├── Assign(target: Var('v1'), value: UnaryOp(op: '-', operand: Num(42)))
-    └── Assign(target: Var('v2'), value: Num(3.1415))
+    ├── Assign(target: Var('i'), value: Num(1))
+    ├── Assign(target: Var('total'), value: Num(0))
+    ├── Assign(target: Var('selesai'), value: Var('false'))
+    ├── WhileLoop(condition: BinOp(op: '<=', left: Var('i'), right: Var('BATAS')))
+    │   └── DoBlock
+    │       └── CompoundStatement
+    │           ├── Assign(target: Var('total'), value: BinOp(op: '+', left: Var('total'), right: BinOp(op: '*', left: Var('i'), right: Num(2))))
+    │           └── Assign(target: Var('i'), value: BinOp(op: '+', left: Var('i'), right: Num(1)))
+    ├── IfStatement(condition: BinOp(op: '>=', left: Var('total'), right: Num(20)))
+    │   ├── ThenBlock
+    │   │   └── Assign(target: Var('selesai'), value: Var('true'))
+    │   └── ElseBlock
+    │       └── Assign(target: Var('selesai'), value: Var('false'))
+    └── Assign(target: Var('total'), value: BinOp(op: '+', left: Var('total'), right: Num(0)))

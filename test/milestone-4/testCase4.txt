@@ -1,24 +1,46 @@
-program Test4;
+program testCase4;
 
-type Point ==
-record
-    x: integer; 
-    y: integer
-end;
+type
+    Arah == (Utara, Timur, Selatan, Barat);
+    Point == record
+        x : integer;
+        y : integer;
+        aktif : boolean
+    end;
 
 var
-    now, ends: Point;
-    i: integer;
+    posisi, tujuan : Point;
+    langkah : integer;
+    arahSekarang : Arah;
 
 begin
-    now := Point(0, 0);
-    ends := Point(10, 10);
-    for i := 10 downto 0 do
+    posisi.x := 0;
+    posisi.y := 0;
+    posisi.aktif := true;
+
+    tujuan.x := 3;
+    tujuan.y := 2;
+    tujuan.aktif := true;
+
+    arahSekarang := Timur;
+    langkah := 0;
+
+    while posisi.x < tujuan.x do
     begin
-        case i of 
-            x : now.x := now.x + 1;
-            y : now.y := now.y + 1;
-        end
+        posisi.x := posisi.x + 1;
+        langkah := langkah + 1;
     end;;
-    print('Point = ', x, 'And', y);
+
+    if posisi.x == tujuan.x then
+        arahSekarang := Utara
+    else
+        arahSekarang := Barat;
+
+    while posisi.y < tujuan.y do
+    begin
+        posisi.y := posisi.y + 1;
+        langkah := langkah + 1;
+    end;;
+
+    langkah := langkah + 0;
 end.

@@ -1,8 +1,20 @@
 programsy
-ident (Test4)
+ident (testCase4)
 semicolon
 
 typesy
+ident (Arah)
+eql
+lparent
+ident (Utara)
+comma
+ident (Timur)
+comma
+ident (Selatan)
+comma
+ident (Barat)
+rparent
+semicolon
 ident (Point)
 eql
 recordsy
@@ -13,89 +25,160 @@ semicolon
 ident (y)
 colon
 ident (integer)
+semicolon
+ident (aktif)
+colon
+ident (boolean)
 endsy
 semicolon
 
 varsy
-ident (now)
+ident (posisi)
 comma
-ident (ends)
+ident (tujuan)
 colon
 ident (Point)
 semicolon
-ident (i)
+ident (langkah)
 colon
 ident (integer)
 semicolon
+ident (arahSekarang)
+colon
+ident (Arah)
+semicolon
 
 beginsy
-ident (now)
+ident (posisi)
+period
+ident (x)
 becomes
-ident (Point)
-lparent
 intcon (0)
-comma
-intcon (0)
-rparent
 semicolon
-ident (ends)
+ident (posisi)
+period
+ident (y)
 becomes
-ident (Point)
-lparent
-intcon (10)
-comma
-intcon (10)
-rparent
-semicolon
-forsy
-ident (i)
-becomes
-intcon (10)
-downtosy
 intcon (0)
+semicolon
+ident (posisi)
+period
+ident (aktif)
+becomes
+ident (true)
+semicolon
+
+ident (tujuan)
+period
+ident (x)
+becomes
+intcon (3)
+semicolon
+ident (tujuan)
+period
+ident (y)
+becomes
+intcon (2)
+semicolon
+ident (tujuan)
+period
+ident (aktif)
+becomes
+ident (true)
+semicolon
+
+ident (arahSekarang)
+becomes
+ident (Timur)
+semicolon
+ident (langkah)
+becomes
+intcon (0)
+semicolon
+
+whilesy
+ident (posisi)
+period
+ident (x)
+lss
+ident (tujuan)
+period
+ident (x)
 dosy
 beginsy
-casesy
-ident (i)
-ofsy
-ident (x)
-colon
-ident (now)
+ident (posisi)
 period
 ident (x)
 becomes
-ident (now)
+ident (posisi)
 period
 ident (x)
 plus
 intcon (1)
 semicolon
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (1)
+semicolon
+endsy
+semicolon
+semicolon
+
+ifsy
+ident (posisi)
+period
+ident (x)
+eql
+ident (tujuan)
+period
+ident (x)
+thensy
+ident (arahSekarang)
+becomes
+ident (Utara)
+elsesy
+ident (arahSekarang)
+becomes
+ident (Barat)
+semicolon
+
+whilesy
+ident (posisi)
+period
 ident (y)
-colon
-ident (now)
+lss
+ident (tujuan)
+period
+ident (y)
+dosy
+beginsy
+ident (posisi)
 period
 ident (y)
 becomes
-ident (now)
+ident (posisi)
 period
 ident (y)
 plus
 intcon (1)
 semicolon
-endsy
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (1)
+semicolon
 endsy
 semicolon
 semicolon
-ident (print)
-lparent
-string ('Point = ')
-comma
-ident (x)
-comma
-string ('And')
-comma
-ident (y)
-rparent
+
+ident (langkah)
+becomes
+ident (langkah)
+plus
+intcon (0)
 semicolon
 endsy
 period
