@@ -1,0 +1,15 @@
+HASIL ABSTRACT SYNTAX TREE (AST)
+ProgramNode(name: 'Test4')
+├── Declarations
+│   ├── TypeDecl(name: 'Point')
+│   ├── VarDecl(name: 'now', type: 'Point')
+│   │   VarDecl(name: 'ends', type: 'Point')
+│   └── VarDecl(name: 'i', type: 'integer')
+└── Block
+    ├── Assign(target: Var('now'), value: ComplexExpression)
+    ├── Assign(target: Var('ends'), value: ComplexExpression)
+    ├── ForLoop(iterator: 'i', start: Num(10), end: Num(0), direction: downto)
+    │   └── DoBlock
+    │       └── CompoundStatement
+    │           └── ASTNode(ComplexExpression)
+    └── ProcedureCall(name: 'print', args: [String(''Point = ''), Var('x'), String(''And''), Var('y')])

@@ -1,0 +1,170 @@
+programsy
+ident (testCase5)
+semicolon
+constsy
+ident (c1)
+eql
+intcon (123)
+semicolon
+ident (c2)
+eql
+intcon (123)
+semicolon
+typesy
+ident (hama)
+eql
+ident (integer)
+semicolon
+ident (t1)
+eql
+ident (hama)
+semicolon
+varsy
+ident (v1)
+comma
+ident (v2)
+comma
+ident (v3)
+colon
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (3)
+rbrack
+ofsy
+ident (integer)
+semicolon
+ident (i)
+colon
+ident (integer)
+semicolon
+
+functionsy
+ident (f1)
+lparent
+ident (a1)
+colon
+ident (integer)
+rparent
+colon
+ident (integer)
+semicolon
+beginsy
+ifsy
+ident (a1)
+geq
+intcon (10)
+thensy
+ident (a1)
+becomes
+ident (a1)
+minus
+intcon (1)
+elsesy
+ident (a1)
+becomes
+ident (a1)
+plus
+intcon (2)
+semicolon
+ident (f1)
+becomes
+ident (a1)
+idiv
+intcon (2)
+imod
+intcon (3)
+semicolon
+endsy
+semicolon
+
+proceduresy
+ident (p1)
+semicolon
+beginsy
+repeatsy
+whilesy
+ident (v1)
+lbrack
+intcon (1)
+rbrack
+lss
+ident (v2)
+lbrack
+intcon (1)
+rbrack
+dosy
+beginsy
+ident (v1)
+lbrack
+intcon (1)
+rbrack
+becomes
+ident (v1)
+lbrack
+intcon (1)
+rbrack
+plus
+intcon (1)
+endsy
+semicolon
+semicolon
+
+forsy
+ident (i)
+becomes
+intcon (10)
+downtosy
+intcon (1)
+dosy
+beginsy
+ident (v2)
+lbrack
+intcon (1)
+rbrack
+becomes
+ident (v2)
+lbrack
+intcon (1)
+rbrack
+times
+intcon (2)
+idiv
+intcon (4)
+semicolon
+endsy
+semicolon
+untilsy
+ident (v1)
+lbrack
+intcon (1)
+rbrack
+eql
+ident (v2)
+lbrack
+intcon (1)
+rbrack
+semicolon
+endsy
+semicolon
+
+beginsy
+ident (v1)
+lbrack
+intcon (1)
+rbrack
+becomes
+minus
+intcon (42)
+semicolon
+ident (v2)
+lbrack
+intcon (1)
+rbrack
+becomes
+intcon (3)
+semicolon
+endsy
+period

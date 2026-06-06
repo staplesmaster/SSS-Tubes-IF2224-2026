@@ -1,0 +1,231 @@
+programsy
+ident (testCase1)
+semicolon
+
+constsy
+ident (PI)
+eql
+realcon (3.14)
+semicolon
+ident (MAX)
+eql
+intcon (100)
+semicolon
+ident (HURUF)
+eql
+charcon ('A')
+semicolon
+ident (PESAN)
+eql
+string ('Halo Dunia')
+semicolon
+
+typesy
+ident (Hari)
+eql
+lparent
+ident (Senin)
+comma
+ident (Selasa)
+comma
+ident (Rabu)
+comma
+ident (Kamis)
+comma
+ident (Jumat)
+rparent
+semicolon
+ident (Batas)
+eql
+intcon (1)
+period
+period
+intcon (100)
+semicolon
+ident (Siswa)
+eql
+recordsy
+ident (umur)
+colon
+ident (integer)
+semicolon
+ident (nilai)
+colon
+ident (real)
+semicolon
+ident (lulus)
+colon
+ident (boolean)
+endsy
+semicolon
+ident (DataSiswa)
+eql
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (100)
+rbrack
+ofsy
+ident (Siswa)
+semicolon
+ident (Matriks)
+eql
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (10)
+rbrack
+ofsy
+arraysy
+lbrack
+intcon (1)
+period
+period
+intcon (10)
+rbrack
+ofsy
+ident (integer)
+semicolon
+
+varsy
+ident (i)
+comma
+ident (j)
+comma
+ident (k)
+colon
+ident (integer)
+semicolon
+ident (murid)
+colon
+ident (Siswa)
+semicolon
+ident (kelas)
+colon
+ident (DataSiswa)
+semicolon
+ident (papan)
+colon
+ident (Matriks)
+semicolon
+ident (libur)
+colon
+ident (Hari)
+semicolon
+
+beginsy
+ident (i)
+becomes
+plus
+intcon (10)
+semicolon
+ident (j)
+becomes
+minus
+intcon (5)
+semicolon
+
+ident (murid)
+period
+ident (umur)
+becomes
+intcon (15)
+semicolon
+ident (murid)
+period
+ident (nilai)
+becomes
+ident (PI)
+times
+realcon (2.0)
+semicolon
+ident (kelas)
+lbrack
+intcon (1)
+rbrack
+period
+ident (lulus)
+becomes
+ident (true)
+semicolon
+ident (papan)
+lbrack
+intcon (1)
+rbrack
+lbrack
+intcon (2)
+rbrack
+becomes
+intcon (100)
+semicolon
+ident (libur)
+becomes
+ident (Senin)
+semicolon
+
+casesy
+ident (i)
+ofsy
+intcon (1)
+comma
+intcon (2)
+comma
+intcon (3)
+colon
+ident (k)
+becomes
+intcon (10)
+semicolon
+intcon (4)
+colon
+ident (k)
+becomes
+intcon (20)
+semicolon
+intcon (5)
+colon
+ident (k)
+becomes
+intcon (0)
+endsy
+semicolon
+
+forsy
+ident (i)
+becomes
+intcon (1)
+tosy
+ident (MAX)
+dosy
+beginsy
+ifsy
+ident (i)
+eql
+intcon (50)
+thensy
+ident (kelas)
+lbrack
+ident (i)
+rbrack
+period
+ident (lulus)
+becomes
+ident (true)
+elsesy
+ident (kelas)
+lbrack
+ident (i)
+rbrack
+period
+ident (lulus)
+becomes
+ident (false)
+semicolon
+endsy
+semicolon
+endsy
+period

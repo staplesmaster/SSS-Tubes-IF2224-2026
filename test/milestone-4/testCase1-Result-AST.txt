@@ -1,0 +1,36 @@
+HASIL ABSTRACT SYNTAX TREE (AST)
+ProgramNode(name: 'testCase1')
+├── Declarations
+│   ├── ConstDecl(name: 'PI', value: Num(3.14))
+│   ├── ConstDecl(name: 'MAX', value: Num(100))
+│   ├── ConstDecl(name: 'HURUF', value: Char('A'))
+│   ├── ConstDecl(name: 'PESAN', value: String(''Halo Dunia''))
+│   ├── TypeDecl(name: 'Hari')
+│   ├── TypeDecl(name: 'Batas')
+│   ├── TypeDecl(name: 'Siswa')
+│   ├── TypeDecl(name: 'DataSiswa')
+│   ├── TypeDecl(name: 'Matriks')
+│   ├── VarDecl(name: 'i', type: 'integer')
+│   │   VarDecl(name: 'j', type: 'integer')
+│   │   VarDecl(name: 'k', type: 'integer')
+│   ├── VarDecl(name: 'murid', type: 'Siswa')
+│   ├── VarDecl(name: 'kelas', type: 'DataSiswa')
+│   ├── VarDecl(name: 'papan', type: 'Matriks')
+│   └── VarDecl(name: 'libur', type: 'Hari')
+└── Block
+    ├── Assign(target: Var('i'), value: UnaryOp(op: '+', operand: Num(10)))
+    ├── Assign(target: Var('j'), value: UnaryOp(op: '-', operand: Num(5)))
+    ├── Assign(target: RecordAccess(base: Var('murid'), field: 'umur'), value: Num(15))
+    ├── Assign(target: RecordAccess(base: Var('murid'), field: 'nilai'), value: BinOp(op: '*', left: Var('PI'), right: Num(2.0)))
+    ├── Assign(target: RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Num(1)]), field: 'lulus'), value: Var('true'))
+    ├── Assign(target: ArrayAccess(base: ArrayAccess(base: Var('papan'), indices: [Num(1)]), indices: [Num(2)]), value: Num(100))
+    ├── Assign(target: Var('libur'), value: Var('Senin'))
+    ├── ASTNode(ComplexExpression)
+    └── ForLoop(iterator: 'i', start: Num(1), end: Var('MAX'), direction: to)
+        └── DoBlock
+            └── CompoundStatement
+                └── IfStatement(condition: BinOp(op: '==', left: Var('i'), right: Num(50)))
+                    ├── ThenBlock
+                    │   └── Assign(target: RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Var('i')]), field: 'lulus'), value: Var('true'))
+                    └── ElseBlock
+                        └── Assign(target: RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Var('i')]), field: 'lulus'), value: Var('false'))

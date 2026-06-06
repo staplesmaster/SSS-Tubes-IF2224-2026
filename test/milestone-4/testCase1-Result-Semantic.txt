@@ -1,0 +1,86 @@
+SEMANTIC ERROR REPORT
+NO SEMANTIC ERRORS (Program is semantically valid)
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+56   testCase1         program     void        41    1     0     1     0     
+57   umur              variable    integer     53    1     0     14    0     
+58   nilai             variable    real        54    1     0     11    0     
+59   lulus             variable    boolean     55    1     0     0     0     
+60   i                 variable    integer     59    1     0     0     0     
+61   j                 variable    integer     60    1     0     0     0     
+62   k                 variable    integer     61    1     0     0     0     
+63   murid             variable    record      62    1     0     0     0     
+64   kelas             variable    array       65    1     0     0     0     
+65   papan             variable    array       365   1     0     0     0     
+66   libur             variable    enum        465   1     0     0     0     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     465     0       0       10      
+
+ATAB:
+  (No arrays declared)
+
+DECORATED AST: 
+ProgramNode('testCase1') → block_index:0, lev:0
+├─ Declarations
+│  ├─ ConstDecl('PI') → tab_index:42, type:real, lev:0
+│  ├─ ConstDecl('MAX') → tab_index:43, type:integer, lev:0
+│  ├─ ConstDecl('HURUF') → tab_index:44, type:char, lev:0
+│  ├─ ConstDecl('PESAN') → tab_index:45, type:string, lev:0
+│  ├─ TypeDecl('Hari') → tab_index:51, type:enum, lev:0
+│  ├─ TypeDecl('Batas') → tab_index:52, type:subrange, lev:0
+│  ├─ TypeDecl('Siswa') → tab_index:56, type:record, lev:0
+│  ├─ TypeDecl('DataSiswa') → tab_index:57, type:array, lev:0
+│  ├─ TypeDecl('Matriks') → tab_index:58, type:array, lev:0
+│  ├─ VarDecl('i'), type:integer → tab_index:59, type:integer, lev:0, predefined
+│  ├─ VarDecl('murid'), type:Siswa → tab_index:62, type:record, lev:0, predefined
+│  ├─ VarDecl('kelas'), type:DataSiswa → tab_index:65, type:array, lev:0, predefined
+│  ├─ VarDecl('papan'), type:Matriks → tab_index:365, type:array, lev:0, predefined
+│  └─ VarDecl('libur'), type:Hari → tab_index:465, type:enum, lev:0, predefined
+└─ Block → block_index:0, lev:1
+   ├─ Assign('Var('i')' := UnaryOp(op: '+', operand: Num(10))) → type:void
+   │  ├─ 'i' → tab_index:59, type:integer, lev:0, predefined
+   │  └─ UnaryOp '+' → type:integer
+   │     └─ 10 → type:integer
+   ├─ Assign('Var('j')' := UnaryOp(op: '-', operand: Num(5))) → type:void
+   │  ├─ 'j' → tab_index:60, type:integer, lev:0, predefined
+   │  └─ UnaryOp '-' → type:integer
+   │     └─ 5 → type:integer
+   ├─ Assign('RecordAccess(base: Var('murid'), field: 'umur')' := Num(15)) → type:void
+   │  ├─ RecordAccess('umur') → type:integer
+   │  └─ 15 → type:integer
+   ├─ Assign('RecordAccess(base: Var('murid'), field: 'nilai')' := BinOp(op: '*', left: Var('PI'), right: Num(2.0))) → type:void
+   │  ├─ RecordAccess('nilai') → type:real
+   │  └─ BinOp '*' → type:real
+   │     ├─ 'PI' → tab_index:42, type:real, lev:0
+   │     └─ 2.0 → type:real
+   ├─ Assign('RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Num(1)]), field: 'lulus')' := Var('true')) → type:void
+   │  ├─ RecordAccess('lulus') → type:boolean
+   │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+   ├─ Assign('ArrayAccess(base: ArrayAccess(base: Var('papan'), indices: [Num(1)]), indices: [Num(2)])' := Num(100)) → type:void
+   │  ├─ ArrayAccess → type:integer
+   │  └─ 100 → type:integer
+   ├─ Assign('Var('libur')' := Var('Senin')) → type:void
+   │  ├─ 'libur' → tab_index:465, type:enum, lev:0, predefined
+   │  └─ 'Senin' → tab_index:46, type:enum, lev:0
+   ├─ CaseStatement
+   └─ ForLoop('i', to)
+      ├─ 1 → type:integer
+      ├─ 'MAX' → tab_index:43, type:integer, lev:0
+      └─ Block → lev:1
+         └─ IfStatement
+            ├─ BinOp '==' → type:boolean
+            │  ├─ 'i' → tab_index:59, type:integer, lev:0, predefined
+            │  └─ 50 → type:integer
+            ├─ Assign('RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Var('i')]), field: 'lulus')' := Var('true')) → type:void
+            │  ├─ RecordAccess('lulus') → type:boolean
+            │  └─ 'true' → tab_index:5, type:boolean, lev:0, predefined
+            └─ Assign('RecordAccess(base: ArrayAccess(base: Var('kelas'), indices: [Var('i')]), field: 'lulus')' := Var('false')) → type:void
+               ├─ RecordAccess('lulus') → type:boolean
+               └─ 'false' → tab_index:6, type:boolean, lev:0, predefined
+
+Semantic analysis completed

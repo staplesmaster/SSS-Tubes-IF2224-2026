@@ -1,0 +1,77 @@
+SEMANTIC ERROR REPORT
+SEMANTIC ERRORS FOUND:
+  [SEMANTIC ERROR] Baris 29: Ekspresi biner tidak kompatibel untuk operator '<'
+  [SEMANTIC ERROR] Baris 31: Ekspresi biner tidak kompatibel untuk operator '+'
+  [SEMANTIC ERROR] Baris 35: Ekspresi biner tidak kompatibel untuk operator '*'
+  [SEMANTIC ERROR] Baris 33: Iterator harus bertipe integer atau subrange
+  [SEMANTIC ERROR] Baris 33: Tipe awal tidak kompatibel dengan iterator
+  [SEMANTIC ERROR] Baris 33: Tipe akhir tidak kompatibel dengan iterator
+  [SEMANTIC ERROR] Baris 37: Ekspresi biner tidak kompatibel untuk operator '=='
+  [SEMANTIC ERROR] Baris 41: Tipe assignment tidak kompatible
+  [SEMANTIC ERROR] Baris 42: Tipe assignment tidak kompatible
+
+TAB (hanya sebagian yang relevan):
+idx  id                obj         type        ref   nrm   lev   adr   link  
+--------------------------------------------------------------------------------
+47   p5                program     void        41    1     0     11    0     
+48   v1                variable    array       45    1     0     4     0     
+49   v2                variable    array       48    1     0     4     0     
+50   v3                variable    array       51    1     0     4     0     
+51   a1                parameter   integer     55    1     1     0     0     
+
+btab:
+idx   last    lpar    psze    vsze    
+--------------------------------------------------
+0     56      0       0       3       
+1     55      55      1       0       
+2     0       0       0       0       
+
+ATAB:
+arrays  xtyp    etyp    eref    low     high    elsz    size    
+----------------------------------------------------------------
+1       0       0       0       1       3       4       12      
+
+DECORATED AST: 
+ProgramNode('p5') → block_index:0, lev:0
+├─ Declarations
+│  ├─ ConstDecl('c1') → tab_index:42, type:integer, lev:0
+│  ├─ ConstDecl('c2') → tab_index:43, type:integer, lev:0
+│  ├─ TypeDecl('t1') → tab_index:44, lev:0
+│  ├─ VarDecl('v1') → tab_index:45, type:array, lev:0
+│  ├─ FunctionDecl('f1') → block_index:1, tab_index:54, type:integer, lev:0, predefined
+│  │  ├─ ASTNode
+│  │  └─ Block → block_index:1, lev:1
+│  │     ├─ IfStatement
+│  │     │  ├─ BinOp '>=' → type:boolean
+│  │     │  │  ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │     │  │  └─ 10 → type:integer
+│  │     │  ├─ Assign('Var('a1')' := BinOp(op: '-', left: Var('a1'), right: Num(1))) → type:void
+│  │     │  │  ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │     │  │  └─ BinOp '-' → type:integer
+│  │     │  │     ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │     │  │     └─ 1 → type:integer
+│  │     │  └─ Assign('Var('a1')' := BinOp(op: '+', left: Var('a1'), right: Num(2))) → type:void
+│  │     │     ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │     │     └─ BinOp '+' → type:integer
+│  │     │        ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │     │        └─ 2 → type:integer
+│  │     └─ Assign('Var('f1')' := BinOp(op: 'mod', left: BinOp(op: 'div', left: Var('a1'), right: Num(2)), right: Num(3))) → type:void
+│  │        ├─ 'f1' → tab_index:54, type:integer, lev:0, predefined
+│  │        └─ BinOp 'mod' → type:integer
+│  │           ├─ BinOp 'div' → type:integer
+│  │           │  ├─ 'a1' → tab_index:55, type:integer, lev:1
+│  │           │  └─ 2 → type:integer
+│  │           └─ 3 → type:integer
+│  └─ ProcedureDecl('p1') → block_index:2, tab_index:56, type:void, lev:0, predefined
+│     └─ Block → block_index:2, lev:1
+│        └─ RepeatUntil
+└─ Block → block_index:0, lev:1
+   ├─ Assign('Var('v1')' := UnaryOp(op: '-', operand: Num(42))) → type:void
+   │  ├─ 'v1' → tab_index:45, type:array, lev:0
+   │  └─ UnaryOp '-' → type:integer
+   │     └─ 42 → type:integer
+   └─ Assign('Var('v2')' := Num(3.1415)) → type:void
+      ├─ 'v2' → tab_index:48, type:array, lev:0
+      └─ 3.1415 → type:real
+
+Semantic analysis completed
