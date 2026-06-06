@@ -5,11 +5,11 @@ TAB (hanya sebagian yang relevan):
 idx  id                obj         type        ref   nrm   lev   adr   link  
 --------------------------------------------------------------------------------
 48   testCase5         program     void        41    1     0     7     0     
-49   v1                variable    array       46    1     0     0     0     
-50   v2                variable    array       49    1     0     0     0     
-51   v3                variable    array       52    1     0     0     0     
-52   i                 variable    integer     55    1     0     0     0     
-53   a1                parameter   integer     57    1     1     0     0     
+49   v1                variable    array       46    1     0     4     0     
+50   v2                variable    array       49    1     0     4     0     
+51   v3                variable    array       52    1     0     4     0     
+52   i                 variable    integer     55    1     0     51    0     
+53   a1                parameter   integer     57    1     1     45    0     
 
 btab:
 idx   last    lpar    psze    vsze    
@@ -30,8 +30,8 @@ ProgramNode('testCase5') → block_index:0, lev:0
 │  ├─ ConstDecl('c2') → tab_index:43, type:integer, lev:0
 │  ├─ TypeDecl('hama') → tab_index:44, type:integer, lev:0
 │  ├─ TypeDecl('t1') → tab_index:45, type:integer, lev:0
-│  ├─ VarDecl('v1') → tab_index:46, type:array, lev:0, predefined
-│  ├─ VarDecl('i'), type:integer → tab_index:55, type:integer, lev:0, predefined
+│  ├─ VarDecl('v1') → tab_index:46, type:array, lev:0
+│  ├─ VarDecl('i'), type:integer → tab_index:55, type:integer, lev:0
 │  ├─ FunctionDecl('f1') → block_index:1, tab_index:56, type:integer, lev:0, predefined
 │  │  ├─ ASTNode
 │  │  └─ Block → block_index:1, lev:1

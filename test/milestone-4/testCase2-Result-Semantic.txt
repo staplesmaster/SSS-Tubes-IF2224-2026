@@ -5,14 +5,14 @@ TAB (hanya sebagian yang relevan):
 idx  id                obj         type        ref   nrm   lev   adr   link  
 --------------------------------------------------------------------------------
 44   testCase2         program     void        41    1     0     1     0     
-45   x                 variable    integer     42    1     0     0     0     
-46   y                 variable    integer     43    1     0     0     0     
-47   z                 variable    integer     44    1     0     0     0     
-48   status            variable    boolean     45    1     0     0     0     
-49   hasil             variable    real        46    1     0     0     0     
+45   x                 variable    integer     42    1     0     -1    0     
+46   y                 variable    integer     43    1     0     -1    0     
+47   z                 variable    integer     44    1     0     -1    0     
+48   status            variable    boolean     45    1     0     2     0     
+49   hasil             variable    real        46    1     0     41    0     
 50   start             parameter   integer     48    1     1     0     0     
-51   prefix            parameter   string      49    1     1     0     0     
-52   counter           variable    integer     50    1     1     0     0     
+51   prefix            parameter   string      49    1     1     352   0     
+52   counter           variable    integer     50    1     1     3     0     
 53   a                 parameter   integer     52    1     1     0     0     
 54   b                 parameter   integer     53    1     1     0     0     
 55   limit             parameter   real        54    1     1     0     0     
@@ -31,9 +31,9 @@ ATAB:
 DECORATED AST: 
 ProgramNode('testCase2') → block_index:0, lev:0
 ├─ Declarations
-│  ├─ VarDecl('x'), type:integer → tab_index:42, type:integer, lev:0, predefined
-│  ├─ VarDecl('status'), type:boolean → tab_index:45, type:boolean, lev:0, predefined
-│  ├─ VarDecl('hasil'), type:real → tab_index:46, type:real, lev:0, predefined
+│  ├─ VarDecl('x'), type:integer → tab_index:42, type:integer, lev:0
+│  ├─ VarDecl('status'), type:boolean → tab_index:45, type:boolean, lev:0
+│  ├─ VarDecl('hasil'), type:real → tab_index:46, type:real, lev:0
 │  ├─ ProcedureDecl('HitungMundur') → block_index:1, tab_index:47, type:void, lev:0, predefined
 │  │  ├─ ASTNode
 │  │  ├─ ASTNode
@@ -76,28 +76,28 @@ ProgramNode('testCase2') → block_index:0, lev:0
 │              └─ 'false' → tab_index:6, type:boolean, lev:0, predefined
 └─ Block → block_index:0, lev:1
    ├─ Assign('Var('x')' := Num(10)) → type:void
-   │  ├─ 'x' → tab_index:42, type:integer, lev:0, predefined
+   │  ├─ 'x' → tab_index:42, type:integer, lev:0
    │  └─ 10 → type:integer
    ├─ Assign('Var('y')' := Num(20)) → type:void
-   │  ├─ 'y' → tab_index:43, type:integer, lev:0, predefined
+   │  ├─ 'y' → tab_index:43, type:integer, lev:0
    │  └─ 20 → type:integer
    ├─ HitungMundur(...) → tab_index:47, type:void, lev:0
-   │  ├─ 'x' → tab_index:42, type:integer, lev:0, predefined
+   │  ├─ 'x' → tab_index:42, type:integer, lev:0
    │  └─ ''Mulai: '' → type:string
    ├─ Assign('Var('status')' := BinOp(op: 'or', left: BinOp(op: 'and', left: UnaryOp(op: 'not', operand: ComplexExpression), right: BinOp(op: '<>', left: Var('x'), right: Var('y'))), right: BinOp(op: '==', left: Var('x'), right: Num(10)))) → type:void
-   │  ├─ 'status' → tab_index:45, type:boolean, lev:0, predefined
+   │  ├─ 'status' → tab_index:45, type:boolean, lev:0
    │  └─ BinOp 'or' → type:boolean
    │     ├─ BinOp 'and' → type:boolean
    │     │  ├─ UnaryOp 'not' → type:boolean
    │     │  │  └─ CekValid(...) → tab_index:51, type:boolean, lev:0
-   │     │  │     ├─ 'x' → tab_index:42, type:integer, lev:0, predefined
-   │     │  │     ├─ 'y' → tab_index:43, type:integer, lev:0, predefined
+   │     │  │     ├─ 'x' → tab_index:42, type:integer, lev:0
+   │     │  │     ├─ 'y' → tab_index:43, type:integer, lev:0
    │     │  │     └─ 15.5 → type:real
    │     │  └─ BinOp '<>' → type:boolean
-   │     │     ├─ 'x' → tab_index:42, type:integer, lev:0, predefined
-   │     │     └─ 'y' → tab_index:43, type:integer, lev:0, predefined
+   │     │     ├─ 'x' → tab_index:42, type:integer, lev:0
+   │     │     └─ 'y' → tab_index:43, type:integer, lev:0
    │     └─ BinOp '==' → type:boolean
-   │        ├─ 'x' → tab_index:42, type:integer, lev:0, predefined
+   │        ├─ 'x' → tab_index:42, type:integer, lev:0
    │        └─ 10 → type:integer
    ├─ RepeatUntil
    └─ ForLoop('z', downto)
@@ -105,9 +105,9 @@ ProgramNode('testCase2') → block_index:0, lev:0
       ├─ 1 → type:integer
       └─ Block → lev:1
          └─ Assign('Var('y')' := BinOp(op: '-', left: Var('y'), right: Num(1))) → type:void
-            ├─ 'y' → tab_index:43, type:integer, lev:0, predefined
+            ├─ 'y' → tab_index:43, type:integer, lev:0
             └─ BinOp '-' → type:integer
-               ├─ 'y' → tab_index:43, type:integer, lev:0, predefined
+               ├─ 'y' → tab_index:43, type:integer, lev:0
                └─ 1 → type:integer
 
 Semantic analysis completed
