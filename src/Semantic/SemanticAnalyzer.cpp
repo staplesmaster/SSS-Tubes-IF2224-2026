@@ -885,19 +885,8 @@ void SemanticAnalyzer::visitRecordAccessNode(RecordAccessNode* node) {
 
     node->exprType = ExprType::UNKNOWN;
 
-    auto* varNode = dynamic_cast<VarNode*>(node->recordVar);
-    if (!varNode) {
-        return;
-    }
-
-    SymbolInfo* recInfo = symbolTable.lookup(varNode->name);
-    if (!recInfo) {
-        report(node, "Record variable belum dideklarasikan");
-        return;
-    }
-
     int offset = 0;
-    ExprType fieldType = resolveRecordFieldType(recInfo->typeDef, node->fieldName, offset);
+    ExprType fieldType = resolveRecordFieldType(getTypeDefForExpression(node->recordVar), node->fieldName, offset);
     if (fieldType == ExprType::UNKNOWN) {
         report(node, "Field '" + node->fieldName + "' tidak ditemukan pada record");
         return;

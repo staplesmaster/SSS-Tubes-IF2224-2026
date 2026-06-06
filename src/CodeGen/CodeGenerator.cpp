@@ -382,12 +382,26 @@ void CodeGenerator::visitArrayAccessNode(ArrayAccessNode* node) {
     if (auto* v = dynamic_cast<VarNode*>(node->arrayVar)) {
         info = symbolTable->lookup(v->name);
     }
-    
+
+    bool hasBaseAddress = false;
     if (info) {
         int diff = currentLevel - info->level;
         emit(Instruction(PCodeOp::LODA, diff, info->tabIndex));
+        hasBaseAddress = true;
+    } else if (node->arrayVar) {
+        bool prevAddressMode = isAddressMode;
+        bool prevLValue = isLValueMode;
+        isAddressMode = true;
+        isLValueMode = false;
+        node->arrayVar->accept(this);
+        isAddressMode = prevAddressMode;
+        isLValueMode = prevLValue;
+        hasBaseAddress = true;
+    }
 
-        const ArrayInfo* arrInfo = (info->arrayIndex >= 0) ? symbolTable->getArray(info->arrayIndex) : nullptr;
+    if (hasBaseAddress) {
+
+        const ArrayInfo* arrInfo = (info && info->arrayIndex >= 0) ? symbolTable->getArray(info->arrayIndex) : nullptr;
         int lowerBound = 0;
         int upperBound = 0;
         int elemSize = 1;
@@ -401,7 +415,15 @@ void CodeGenerator::visitArrayAccessNode(ArrayAccessNode* node) {
         }
 
         for (auto* idx : node->indices) {
-            if (idx) idx->accept(this);
+            if (idx) {
+                bool prevAddressMode = isAddressMode;
+                bool prevLValue = isLValueMode;
+                isAddressMode = false;
+                isLValueMode = false;
+                idx->accept(this);
+                isAddressMode = prevAddressMode;
+                isLValueMode = prevLValue;
+            }
             
             if (hasBounds) {
                 emit(Instruction(PCodeOp::CHK, lowerBound, upperBound));
@@ -416,7 +438,7 @@ void CodeGenerator::visitArrayAccessNode(ArrayAccessNode* node) {
             emit(Instruction(PCodeOp::OPR, 0, static_cast<int>(OprCode::ADD)));
         }
         
-        if (!isLValueMode) {
+        if (!isLValueMode && !isAddressMode) {
             emit(Instruction(PCodeOp::LODI, 0, 0));
         }
     }

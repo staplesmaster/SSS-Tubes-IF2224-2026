@@ -70,14 +70,22 @@ void VM::execute(const Instruction& instruction) {
         }
 
         case PCodeOp::LODI: {
-            std::size_t addr = static_cast<std::size_t>(stack.pop());
+            int rawAddress = stack.pop();
+            if (rawAddress < 0) {
+                throw std::runtime_error("Invalid memory address");
+            }
+            std::size_t addr = static_cast<std::size_t>(rawAddress);
             stack.push(stack.load(addr));
             ++pc;
             break;
         }
 
         case PCodeOp::STOI: {
-            std::size_t addr = static_cast<std::size_t>(stack.pop());
+            int rawAddress = stack.pop();
+            if (rawAddress < 0) {
+                throw std::runtime_error("Invalid memory address");
+            }
+            std::size_t addr = static_cast<std::size_t>(rawAddress);
             int value = stack.pop();
             stack.store(addr, value);
             ++pc;
